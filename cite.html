@@ -152,6 +152,54 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .buff.def { border-color: #d98c7e; color: #f0b3a6; }
 .buff .bar { display: block; height: 2px; background: currentColor; margin-top: 2px; opacity: .7; }
 
+.hbtn { background: none; border: 1px solid var(--edge); border-radius: 3px; padding: 5px 9px; font-family: var(--f-head); font-size: 11px; letter-spacing: .08em; color: var(--muted); cursor: pointer; margin-left: auto; }
+#quest { display: flex; align-items: center; gap: 10px; padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--edge); background: #1b1512; }
+#quest .qtxt { flex: 1; min-width: 0; font-size: 14px; }
+#quest .qlbl { display: block; font-family: var(--f-head); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dim); }
+#quest #qName { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#quest .prog { margin-top: 4px; }
+#quest .btn { padding: 6px 10px; animation: breathe 1.6s ease-in-out infinite; }
+.syn { color: var(--mist); }
+.syn2 { color: var(--muted); font-size: 12px; font-style: italic; }
+.expe { border-color: #3d5f8a; }
+.owned-node { border-color: var(--gold-dim); opacity: .8; }
+.achs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.ach { background: var(--panel-2); border: 1px solid var(--edge); border-radius: 4px; padding: 7px 9px; font-size: 13px; color: var(--muted); min-width: 0; }
+.ach b { display: block; font-family: var(--f-head); font-size: 12px; font-weight: 500; color: var(--muted); }
+.ach.on { border-color: var(--gold-dim); color: var(--bone); }
+.ach.on b { color: var(--gold); }
+
+#title { position: fixed; inset: 0; z-index: 28; display: grid; place-items: end center; background: #120c10; }
+#title[hidden] { display: none; }
+#tcv { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tbox { position: relative; text-align: center; padding-block: 0 max(48px, calc(env(safe-area-inset-bottom, 0px) + 32px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); width: 100%; background: linear-gradient(transparent, rgba(10,6,8,.85) 45%); }
+.tkick { font-family: var(--f-head); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: #f2c27a; margin: 0 0 6px; }
+#title h1 { font-family: var(--f-title); font-size: clamp(38px, 9vw, 76px); line-height: 1; margin: 0 0 12px; color: #fff1cf; text-shadow: 0 2px 24px rgba(255,170,90,.45); text-wrap: balance; }
+.tsub { font-size: 18px; color: var(--bone); margin: 0 auto 22px; max-width: 34ch; }
+.tgo { font-family: var(--f-head); font-size: 16px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); background: linear-gradient(#f2d08a, #d9a441); border: 1px solid #8a6a3a; border-radius: 4px; padding: 14px 30px; cursor: pointer; box-shadow: 0 8px 30px rgba(224,173,74,.35); }
+#cine { position: fixed; inset: 0; z-index: 27; display: grid; place-items: center; background: rgba(5,3,2,.55); pointer-events: auto; }
+#cine[hidden] { display: none; }
+#cine .bar { position: absolute; left: 0; right: 0; height: 12vh; background: #000; }
+#cine .bar.top { top: 0; } #cine .bar.bot { bottom: 0; }
+#cineLines { text-align: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#cineLines p { font-family: var(--f-body); font-style: italic; font-size: clamp(20px, 4.5vw, 30px); color: #fff1cf; margin: 0 0 14px; opacity: 0; animation: cinein 1.2s ease-out forwards; text-shadow: 0 2px 12px #000; }
+@keyframes cinein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+#cineSkip { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(12vh + 12px); z-index: 1; }
+#exp { position: fixed; inset: 0; z-index: 25; display: flex; flex-direction: column; background: #050302; }
+#exp[hidden] { display: none; }
+.xhud { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: #171210; border-bottom: 1px solid var(--edge); font-family: var(--f-head); font-size: 13px; letter-spacing: .05em; }
+.xhud .xt { color: var(--gold); flex: 1; min-width: 0; }
+.xbar { display: inline-block; vertical-align: middle; width: 90px; height: 9px; border: 1px solid var(--edge); border-radius: 5px; overflow: hidden; background: #0e0a08; }
+.xbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--blood), var(--ember), #ffd27a); }
+.xg b { color: var(--gold); }
+#xstage { position: relative; flex: 1; min-height: 0; }
+#xcv { position: absolute; inset: 0; width: 100%; height: 100%; }
+#xpad { position: absolute; display: none; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); gap: 4px; opacity: .85; user-select: none; -webkit-user-select: none; }
+#xpad button { font-size: 20px; padding: 0; background: rgba(36,28,23,.75); border: 1px solid var(--edge); border-radius: 4px; touch-action: none; color: var(--bone); }
+#xpad [data-d="up"] { grid-area: 1 / 2; } #xpad [data-d="left"] { grid-area: 2 / 1; } #xpad [data-d="right"] { grid-area: 2 / 3; } #xpad [data-d="down"] { grid-area: 3 / 2; }
+@media (pointer: coarse) { #xpad { display: grid; } }
+@media (prefers-reduced-motion: reduce) { #cineLines p { animation: none; opacity: 1; } #quest .btn { animation: none; } }
+
 /* Parchemin */
 #modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(5,3,2,.72); z-index: 30; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 #modal[hidden] { display: none; }
@@ -176,6 +224,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 <div id="app">
   <header id="top">
     <div class="brand">La Cité perchée<small id="eraLabel">Ère des Carolingiens</small></div>
+    <button type="button" id="btnSound" class="hbtn" aria-pressed="true">Son : oui</button>
     <div class="treasury">
       <div class="amt" id="amt">0<span>deniers</span></div>
       <div class="rate"><b id="pps">0</b> par seconde · <span id="perClick">1</span> par toucher</div>
@@ -195,6 +244,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
         <button type="button" data-s="equi" aria-pressed="true" title="Ni bonus ni malus">Équilibre</button>
         <button type="button" data-s="intend" aria-pressed="false" title="Production ×1,35, toucher ×0,4">Intendance</button>
       </div>
+      <div id="quest"><div class="qtxt"><span class="qlbl">Quête du bailli</span><span id="qName"></span><div class="prog"><i id="qProg"></i></div></div><button type="button" class="btn" id="qClaim" hidden>Réclamer</button></div>
       <div id="tabs" role="tablist">
         <button role="tab" id="tab-b" aria-selected="true" data-tab="b" type="button">Bâtir</button>
         <button role="tab" id="tab-u" aria-selected="false" data-tab="u" type="button">Améliorer</button>
@@ -210,6 +260,29 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     </section>
   </div>
 </div>
+<div id="title" hidden>
+  <canvas id="tcv"></canvas>
+  <div class="tbox">
+    <p class="tkick">Laon · mille ans sur la Montagne couronnée</p>
+    <h1>La Cité perchée</h1>
+    <p class="tsub">Bâtis, défends et raconte la cité perchée, des derniers Carolingiens jusqu'au POMA.</p>
+    <button type="button" id="tGo" class="tgo">Fonder la cité</button>
+  </div>
+</div>
+<div id="cine" hidden><div class="bar top"></div><div id="cineLines"></div><button type="button" id="cineSkip" class="btn">Passer</button><div class="bar bot"></div></div>
+<div id="exp" hidden>
+  <div class="xhud">
+    <span class="xt">Expédition souterraine</span>
+    <span class="xg">Flamme <span class="xbar"><i id="xTorch"></i></span></span>
+    <span class="xg">Fragments <b id="xFr">0</b></span>
+    <button type="button" class="btn" id="xQuit">Remonter</button>
+  </div>
+  <div id="xstage"><canvas id="xcv"></canvas>
+    <div id="xpad" aria-hidden="true">
+      <button type="button" data-d="up" tabindex="-1">▲</button><button type="button" data-d="left" tabindex="-1">◀</button><button type="button" data-d="right" tabindex="-1">▶</button><button type="button" data-d="down" tabindex="-1">▼</button>
+    </div>
+  </div>
+</div>
 <div id="modal" hidden><div class="parch" role="dialog" aria-modal="true" id="parch"></div></div>
 
 <script>
@@ -219,39 +292,39 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 /* ================= Données (faits vérifiés) ================= */
 const ERAS = [
   { name: "Ère des Carolingiens", short: "Xᵉ siècle",
-    monument: { name: "Résidence royale", cost: 1.5e4, desc: "La demeure des rois sur la butte. Bonus permanent : production ×1,5." },
+    monument: { name: "Résidence royale", cost: 5e4, desc: "La demeure des rois sur la butte. Bonus permanent : production ×1,5." },
     chron: { title: "La cité des rois", text: "Au Xᵉ siècle, la cité perchée fut la place forte des derniers rois carolingiens, qui en firent l'une de leurs principales résidences." },
     sky: { dayTop: [74, 112, 170], dayBot: [226, 186, 140] } },
   { name: "Ère des Bâtisseurs", short: "XIIᵉ – XIIIᵉ siècles",
-    monument: { name: "Cathédrale Notre-Dame", cost: 6e6, desc: "L'une des premières grandes cathédrales gothiques. Bonus permanent : production ×1,5." },
+    monument: { name: "Cathédrale Notre-Dame", cost: 6e7, desc: "L'une des premières grandes cathédrales gothiques. Bonus permanent : production ×1,5." },
     chron: { title: "Les bœufs de la cathédrale", text: "La cathédrale Notre-Dame fut bâtie aux XIIᵉ et XIIIᵉ siècles avec le calcaire tiré de la butte. Selon la légende, un bœuf providentiel aida à hisser les pierres : des bœufs sculptés veillent depuis au sommet des tours." },
     sky: { dayTop: [88, 128, 186], dayBot: [236, 200, 150] } },
   { name: "Ère des Remparts", short: "XIIIᵉ – XVIIᵉ siècles",
-    monument: { name: "Citadelle", cost: 4e9, desc: "La forteresse voulue par Henri IV. Bonus permanent : production ×1,5." },
+    monument: { name: "Citadelle", cost: 8e10, desc: "La forteresse voulue par Henri IV. Bonus permanent : production ×1,5." },
     chron: { title: "La Montagne couronnée", text: "Des remparts ponctués de portes, comme celles d'Ardon, des Chenizelles et de Soissons, ceinturent encore la ville haute. Après avoir assiégé Laon en 1594, Henri IV y fit bâtir une citadelle." },
     sky: { dayTop: [96, 120, 160], dayBot: [230, 180, 130] } },
   { name: "Ère moderne", short: "XIXᵉ – XXIᵉ siècles",
-    monument: { name: "Fête de la Montagne couronnée", cost: 1.5e12, desc: "Mille ans d'histoire célébrés sur la butte. Ouvre le couronnement (prestige)." },
+    monument: { name: "Fête de la Montagne couronnée", cost: 4e13, desc: "Mille ans d'histoire célébrés sur la butte. Ouvre le couronnement (prestige)." },
     chron: { title: "Du train au POMA", text: "Le train dépose désormais les voyageurs au pied de la butte. De 1989 à 2016, le POMA 2000, une petite rame automatique tirée par câble, reliait la gare à la ville haute." },
     sky: { dayTop: [80, 120, 180], dayBot: [240, 196, 160] } }
 ];
 const FINAL = { title: "La cité couronnée", text: "En picard, une creute est une carrière souterraine. Sous tes pieds, des siècles de galeries ont fourni la pierre de toute la ville. Pendant la Grande Guerre, des soldats vécurent dans celles du Chemin des Dames, tout près de Laon." };
 
 const BLD = [
-  { id: "masure", era: 0, L: "M", name: "Masure", cost: 15, prod: 0.5, desc: "Une famille s'installe sur la butte." },
-  { id: "puits", era: 0, L: "P", name: "Puits", cost: 100, prod: 4, desc: "Creusé dans le roc pour abreuver le quartier." },
-  { id: "marche", era: 0, L: "M", name: "Marché", cost: 700, prod: 25, desc: "Marchands et pèlerins gravissent la butte." },
-  { id: "guet", era: 0, L: "T", name: "Tour de guet", cost: 4000, prod: 120, def: 1, desc: "Perchée, la cité voit venir l'ennemi de loin." },
-  { id: "creute", era: 1, L: "C", name: "Creute", cost: 2e4, prod: 600, desc: "Carrière souterraine : le calcaire de la butte devient pierre de taille." },
-  { id: "tailleurs", era: 1, L: "A", name: "Atelier de tailleurs", cost: 1.2e5, prod: 3200, desc: "Les compagnons gravent leur marque sur chaque bloc." },
-  { id: "boeufs", era: 1, L: "B", name: "Attelage de bœufs", cost: 7e5, prod: 17000, desc: "Selon la légende, un bœuf providentiel aida à hisser les pierres." },
-  { id: "commanderie", era: 1, L: "T", name: "Commanderie du Temple", cost: 4.5e6, prod: 90000, desc: "Installés vers 1128, les Templiers bâtissent une chapelle octogonale." },
-  { id: "porte", era: 2, L: "P", name: "Porte fortifiée", cost: 4e7, prod: 5e5, def: 4, desc: "Ardon, Chenizelles, Soissons : les portes gardent la ville haute." },
-  { id: "hotel", era: 2, L: "H", name: "Hôtel particulier", cost: 2.5e8, prod: 2.6e6, desc: "Jacques Marquette, l'explorateur du Mississippi, naquit à Laon en 1637 dans une famille de notables." },
-  { id: "remparts", era: 2, L: "R", name: "Rempart", cost: 1.6e9, prod: 1.4e7, def: 10, desc: "Une ceinture de murailles couronne la butte." },
-  { id: "gare", era: 3, L: "G", name: "Gare", cost: 1.2e10, prod: 8e7, desc: "Le train dépose les voyageurs au pied de la butte." },
-  { id: "poma", era: 3, L: "P", name: "Cabine POMA", cost: 8e10, prod: 4.5e8, desc: "De 1989 à 2016, une rame sur câble montait à la ville haute." },
-  { id: "musee", era: 3, L: "M", name: "Musée", cost: 5e11, prod: 2.6e9, desc: "Les visiteurs viennent admirer mille ans d'histoire." }
+  { id: "masure", era: 0, L: "M", name: "Masure", cost: 15, prod: 0.225, desc: "Une famille s'installe sur la butte." },
+  { id: "puits", era: 0, L: "P", name: "Puits", cost: 100, prod: 1.8, desc: "Creusé dans le roc pour abreuver le quartier." },
+  { id: "marche", era: 0, L: "M", name: "Marché", cost: 700, prod: 11.25, desc: "Marchands et pèlerins gravissent la butte." },
+  { id: "guet", era: 0, L: "T", name: "Tour de guet", cost: 4000, prod: 54, def: 1, desc: "Perchée, la cité voit venir l'ennemi de loin." },
+  { id: "creute", era: 1, L: "C", name: "Creute", cost: 2e4, prod: 270, desc: "Carrière souterraine : le calcaire de la butte devient pierre de taille." },
+  { id: "tailleurs", era: 1, L: "A", name: "Atelier de tailleurs", cost: 1.2e5, prod: 1440, desc: "Les compagnons gravent leur marque sur chaque bloc." },
+  { id: "boeufs", era: 1, L: "B", name: "Attelage de bœufs", cost: 7e5, prod: 7650, desc: "Selon la légende, un bœuf providentiel aida à hisser les pierres." },
+  { id: "commanderie", era: 1, L: "T", name: "Commanderie du Temple", cost: 4.5e6, prod: 40500, desc: "Installés vers 1128, les Templiers bâtissent une chapelle octogonale." },
+  { id: "porte", era: 2, L: "P", name: "Porte fortifiée", cost: 4e7, prod: 225000, def: 4, desc: "Ardon, Chenizelles, Soissons : les portes gardent la ville haute." },
+  { id: "hotel", era: 2, L: "H", name: "Hôtel particulier", cost: 2.5e8, prod: 1.17e+06, desc: "Jacques Marquette, l'explorateur du Mississippi, naquit à Laon en 1637 dans une famille de notables." },
+  { id: "remparts", era: 2, L: "R", name: "Rempart", cost: 1.6e9, prod: 6.3e+06, def: 10, desc: "Une ceinture de murailles couronne la butte." },
+  { id: "gare", era: 3, L: "G", name: "Gare", cost: 1.2e10, prod: 3.6e+07, desc: "Le train dépose les voyageurs au pied de la butte." },
+  { id: "poma", era: 3, L: "P", name: "Cabine POMA", cost: 8e10, prod: 2.025e+08, desc: "De 1989 à 2016, une rame sur câble montait à la ville haute." },
+  { id: "musee", era: 3, L: "M", name: "Musée", cost: 5e11, prod: 1.17e+09, desc: "Les visiteurs viennent admirer mille ans d'histoire." }
 ];
 const TIERS = [
   { need: 1, mult: 10, name: "Outils de fer" },
@@ -269,12 +342,22 @@ const CLICK_UPG = [
 const UPGRADES = [];
 for (const b of BLD) TIERS.forEach((t, i) => UPGRADES.push({ id: `${b.id}-${i}`, b: b.id, need: t.need, cost: b.cost * t.mult, name: t.name, desc: `${b.name} : production ×2.`, L: b.L, era: b.era }));
 for (const c of CLICK_UPG) UPGRADES.push({ ...c, click: true, L: "✦" });
+const DEF_UPG = [
+  { id: "d0", minEra: 1, cost: 3e4, name: "Cor d'alarme", desc: "Tes touchers sur les pillards font double dégâts." },
+  { id: "d1", minEra: 1, cost: 2e5, name: "Arbalétriers", desc: "Les tours tirent 50 % plus fort." },
+  { id: "d2", minEra: 1, cost: 2e6, name: "Herse", desc: "Les pillards ralentissent de 40 % sur la fin du chemin." },
+  { id: "d3", minEra: 2, cost: 5e7, name: "Huile bouillante", desc: "Brûle en continu les pillards proches du sommet." },
+  { id: "d4", minEra: 2, cost: 8e8, name: "Mâchicoulis", desc: "Défense ×2." }
+];
+for (const d of DEF_UPG) UPGRADES.push({ ...d, def: true, L: "⚔" });
 
 /* ================= État & sauvegarde ================= */
 const KEY = "cite-perchee-v1";
-const fresh = () => ({ v: 1, deniers: 0, run: 0, life: 0, clicks: 0, era: 0, owned: {}, upg: [], reliques: 0, crowns: 0, last: Date.now(), wispsCaught: 0, stance: "equi", raidsWon: 0, foesSlain: 0 });
+const fresh = () => ({ v: 1, deniers: 0, run: 0, life: 0, clicks: 0, era: 0, owned: {}, upg: [], reliques: 0, crowns: 0, last: Date.now(), wispsCaught: 0, stance: "equi", raidsWon: 0, foesSlain: 0,
+  ach: [], quest: 0, qs: null, tree: [], relSpent: 0, frags: [], expAt: 0, sound: true,
+  stats: { maxCombo: 1, crits: 0, events: 0, favors: 0, legend: 0, expeditions: 0, sold: 0, oxCaught: 0, bossKills: 0, labeurKills: 0 } });
 let G = fresh();
-try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) G = Object.assign(fresh(), s); } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) { const f = fresh(); G = Object.assign(f, s); G.stats = Object.assign(fresh().stats, s.stats || {}); } } catch (e) {}
 const save = () => { G.last = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(G)); } catch (e) {} };
 setInterval(save, 5000);
 addEventListener("visibilitychange", () => { if (document.hidden) save(); });
@@ -282,11 +365,21 @@ addEventListener("pagehide", save);
 
 const has = id => G.upg.includes(id);
 const owned = id => G.owned[id] || 0;
+const hasNode = id => G.tree.includes(id);
+/* Synergies : chaque bâtiment « from » augmente la production de « to » */
+const SYN = [
+  { to: "puits", from: "masure", pct: 0.005 }, { to: "marche", from: "masure", pct: 0.01 },
+  { to: "creute", from: "boeufs", pct: 0.04 }, { to: "tailleurs", from: "creute", pct: 0.03 },
+  { to: "commanderie", from: "tailleurs", pct: 0.02 }, { to: "hotel", from: "marche", pct: 0.01 },
+  { to: "guet", from: "remparts", pct: 0.05 }, { to: "remparts", from: "porte", pct: 0.05 },
+  { to: "gare", from: "poma", pct: 0.05 }, { to: "musee", from: "gare", pct: 0.05 }
+];
+function synMult(b) { let m = 1; for (const x of SYN) if (x.to === b.id) m *= 1 + x.pct * owned(x.from); return m; }
 /* Bonus temporaires : { name, kind: prod|click|bld|crit|def, mult, bld?, left, total } */
 let active = [];
 function addBuff(b) { b.total = b.left; active.push(b); refreshBuffs(); }
 function buffMult(kind, bid) { let m = 1; for (const b of active) if (b.kind === kind && (!b.bld || b.bld === bid)) m *= b.mult; return m; }
-function critChance() { let c = 0.04; for (const b of active) if (b.kind === "crit") c += b.mult; return Math.min(0.9, c); }
+function critChance() { let c = hasNode("main") ? 0.08 : 0.04; for (const b of active) if (b.kind === "crit") c += b.mult; return Math.min(0.9, c); }
 
 /* Orientation : main d'œuvre (toucher), équilibre, intendance (production) */
 const STANCES = {
@@ -299,16 +392,17 @@ const stance = () => STANCES[G.stance] || STANCES.equi;
 
 function bMult(b) { let m = 1; TIERS.forEach((t, i) => { if (has(`${b.id}-${i}`)) m *= 2; }); return m; }
 function globalMult() {
-  let m = Math.pow(1.5, Math.min(G.era, 3)) * (1 + 0.1 * G.reliques);
+  let m = Math.pow(1.5, Math.min(G.era, 3)) * (1 + 0.05 * G.reliques) * (1 + 0.01 * G.ach.length) * (1 + 0.03 * G.frags.length) * (hasNode("pierre") ? 2 : 1);
   if (G.era >= 4) m *= 1.5;
   return m;
 }
 /* production sans bonus temporaires ni orientation (hors ligne, butins, prix) */
-function basePps() { let s = 0; for (const b of BLD) s += owned(b.id) * b.prod * bMult(b); return s * globalMult(); }
-function bldPps(b) { return owned(b.id) * b.prod * bMult(b) * globalMult(); }
+const unitProd = b => b.prod * bMult(b) * synMult(b);
+function basePps() { let s = 0; for (const b of BLD) s += owned(b.id) * unitProd(b); return s * globalMult(); }
+function bldPps(b) { return owned(b.id) * unitProd(b) * globalMult(); }
 function pps() {
-  let s = 0; for (const b of BLD) s += owned(b.id) * b.prod * bMult(b) * buffMult("bld", b.id);
-  return s * globalMult() * stance().prod * buffMult("prod");
+  let s = 0; for (const b of BLD) s += owned(b.id) * unitProd(b) * buffMult("bld", b.id);
+  return s * globalMult() * stance().prod * buffMult("prod") * hazardMult();
 }
 function clickValue() {
   let base = 1; let pct = 0;
@@ -318,7 +412,7 @@ function clickValue() {
 function defense() {
   let d = 0; for (const b of BLD) if (b.def) d += owned(b.id) * b.def;
   if (G.era >= 1) d += 2; if (G.era >= 3) d += 30;
-  return d * buffMult("def");
+  return d * buffMult("def") * (has("d4") ? 2 : 1);
 }
 function earn(n) { G.deniers += n; G.run += n; G.life += n; }
 
@@ -337,8 +431,8 @@ function maxBuy(b) { const c0 = b.cost * Math.pow(R, owned(b.id)); return Math.m
 /* ================= Hors ligne ================= */
 let offlineGain = 0;
 {
-  const dt = Math.min((Date.now() - (G.last || Date.now())) / 1000, 8 * 3600);
-  if (dt > 30) { offlineGain = basePps() * dt * 0.5; if (offlineGain > 0) earn(offlineGain); }
+  const mem = G.tree.includes("memoire"), dt = Math.min((Date.now() - (G.last || Date.now())) / 1000, (mem ? 24 : 8) * 3600);
+  if (dt > 30) { offlineGain = basePps() * dt * (mem ? 1 : 0.5); if (offlineGain > 0) earn(offlineGain); }
 }
 
 /* ================= Scène ================= */
@@ -553,6 +647,7 @@ function drawScene(now) {
   });
 
   drawRaid(g, n);
+  drawHazard(g, t);
   // feu follet / bœuf de lumière
   if (wisp) {
     const age = (now - wisp.born) / 1000;
@@ -567,11 +662,12 @@ function drawScene(now) {
     if (age > wisp.life) wisp = null;
   }
   // étincelles & montants
-  for (const s of sparks) { s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.life -= 1; c.fillStyle = `rgba(255,214,120,${Math.max(0, s.life / 30)})`; c.fillRect(s.x, s.y, 2.2, 2.2); }
+  for (const s of sparks) { s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.life -= 1; c.fillStyle = `rgba(${s.rgb || "255,214,120"},${Math.max(0, s.life / 30)})`; c.fillRect(s.x, s.y, 2.2, 2.2); }
   for (let i = sparks.length - 1; i >= 0; i--) if (sparks[i].life <= 0) sparks.splice(i, 1);
   c.textAlign = "center"; c.font = `700 ${Math.round(15 + u * 2)}px Cinzel, Georgia, serif`;
   for (const f of floats) { f.y -= 0.7; f.life -= 1; const fc = f.bad ? "255,120,100" : f.crit ? "255,206,90" : "255,241,207"; c.fillStyle = `rgba(${fc},${Math.max(0, f.life / 50)})`; c.strokeStyle = `rgba(20,14,10,${Math.max(0, f.life / 70)})`; c.lineWidth = 3; c.strokeText(f.text, f.x, f.y); c.fillText(f.text, f.x, f.y); }
   for (let i = floats.length - 1; i >= 0; i--) if (floats[i].life <= 0) floats.splice(i, 1);
+  drawCombo(now, g);
   // vignette
   const vg = c.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.4, W / 2, H * 0.55, Math.max(W, H) * 0.8);
   vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.45)"); c.fillStyle = vg; c.fillRect(0, 0, W, H);
@@ -581,9 +677,11 @@ function drawScene(now) {
 const hint = document.getElementById("hint");
 function tap(x, y) {
   if (wisp && Math.hypot(x - wisp.x, y - wisp.y) < Math.max(34, (wisp.ox ? 30 : 22) * geom().u)) { catchWisp(); return; }
+  if (hitHazard(x, y)) return;
   if (hitFoe(x, y)) return;
-  const crit = Math.random() < critChance();
-  const v = clickValue() * (crit ? 10 : 1); earn(v); G.clicks++;
+  comboTap(performance.now());
+  const crit = Math.random() < critChance(); if (crit) { G.stats.crits++; Snd.crit(); } else Snd.tap();
+  const v = clickValue() * comboMult() * (crit ? 10 : 1); earn(v); G.clicks++;
   floats.push({ x: x + (Math.random() - 0.5) * 16, y: y - 8, text: (crit ? "Coup de maître ! +" : "+") + fmt(v), life: crit ? 70 : 50, crit });
   for (let i = 0; i < 6; i++) sparks.push({ x, y, vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3.5, life: 30 });
   if (G.clicks >= 8) hint.hidden = true;
@@ -594,9 +692,9 @@ wrap.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") 
 wrap.addEventListener("click", e => e.preventDefault());
 if (G.clicks >= 8) hint.hidden = true;
 
-function spawnWisp(now) { wisp = { born: now, life: 13, h: 0.12 + Math.random() * 0.22, ox: Math.random() < 0.12, x: -50, y: 0 }; }
+function spawnWisp(now) { wisp = { born: now, life: 13, h: 0.12 + Math.random() * 0.22, ox: Math.random() < (hasNode("boeuf") ? 0.36 : 0.12), x: -50, y: 0 }; }
 function catchWisp() {
-  const w = wisp; wisp = null; G.wispsCaught++;
+  const w = wisp; wisp = null; G.wispsCaught++; Snd.pop(); if (w.ox) { G.stats.oxCaught++; Snd.bell(0.08, 784); }
   if (w.ox) { addBuff({ name: "Bénédiction du Bœuf", kind: "click", mult: 20, left: 15 }); toast("Le Bœuf de lumière bénit tes mains : toucher ×20 pendant 15 s"); }
   else if (Math.random() < 0.5) { addBuff({ name: "Feu follet doré", kind: "prod", mult: 7, left: 30 }); toast("Feu follet doré : production ×7 pendant 30 s"); }
   else { const g = Math.min(G.deniers * 0.15, basePps() * 900) + 13; earn(g); toast(`Feu follet doré : trésor de ${fmt(g)} deniers`); }
@@ -617,19 +715,22 @@ function scheduleRaid(delay) { raid.next = performance.now() + delay; }
 scheduleRaid(G.era >= 1 ? 45000 : 1e12);
 function startRaid() {
   raid.wave++; raid.live = true; raid.leaked = 0; raid.slain = 0;
-  const n = 3 + Math.min(6, raid.wave), hp = 9 * Math.pow(3.2, Math.max(0, G.era - 1)) * (1 + 0.2 * raid.wave);
+  const n = 3 + Math.min(6, raid.wave), hp = 9 * Math.pow(3.2, Math.max(0, G.era - 1)) * (1 + 0.2 * raid.wave) * (hasNode("veilleurs") ? 0.7 : 1);
   for (let i = 0; i < n; i++) raid.foes.push({ f: -i * 0.06, hp, max: hp, speed: 1 / (20 + Math.random() * 5), hitT: 0 });
-  toast(`Des pillards montent à l'assaut : ${n} assaillants`);
+  const boss = raid.wave % 5 === 0;
+  if (boss) raid.foes.push({ f: -n * 0.06 - 0.08, hp: hp * 12, max: hp * 12, speed: 1 / 34, hitT: 0, boss: true });
+  Snd.horn();
+  toast(boss ? `Un chef de guerre mène ${n} pillards à l'assaut !` : `Des pillards montent à l'assaut : ${n} assaillants`);
 }
-function tapDamage() { return (2 + defense() * 0.4) * (G.stance === "main" ? 2 : 1); }
+function tapDamage() { return (2 + defense() * 0.4) * (G.stance === "main" ? 2 : 1) * (has("d0") ? 2 : 1); }
 function hitFoe(x, y) {
   if (!raid.foes.length) return false;
   const g = geom(), R = Math.max(26, 14 * g.u);
   for (const f of raid.foes) {
     if (f.f < 0) continue;
     const p = alongRoad(g, f.f);
-    if (Math.hypot(x - p.x, y - (p.y - 9 * g.u)) < R) {
-      const d = tapDamage(); damageFoe(f, d);
+    if (Math.hypot(x - p.x, y - (p.y - (f.boss ? 15 : 9) * g.u)) < R * (f.boss ? 1.5 : 1)) {
+      const d = tapDamage(); damageFoe(f, d); Snd.hit();
       floats.push({ x: p.x, y: p.y - 14 * g.u, text: "−" + fmt(d), life: 30, bad: true });
       for (let i = 0; i < 5; i++) sparks.push({ x: p.x, y: p.y - 5 * g.u, vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3, life: 20 });
       return true;
@@ -641,19 +742,23 @@ function damageFoe(f, d) {
   if (f.hp <= 0) return;
   f.hp -= d; f.hitT = 0.15;
   if (f.hp <= 0) {
-    const bounty = basePps() * 6 + 5; earn(bounty); raid.slain++; G.foesSlain++;
+    const bounty = (basePps() * 6 + 5) * (f.boss ? 20 : 1); earn(bounty); raid.slain++; G.foesSlain++;
+    if (G.stance === "main") G.stats.labeurKills++;
+    if (f.boss) { G.stats.bossKills++; Snd.fanfare(); toast(`Le chef de guerre est tombé : butin de ${fmt(bounty)} deniers`); }
     const p = alongRoad(geom(), f.f); floats.push({ x: p.x, y: p.y - 20, text: "+" + fmt(bounty), life: 50, crit: true });
   }
 }
 function updateRaid(dt, now) {
-  if (!raid.live) { if (G.era >= 1 && now > raid.next && modal.hidden) startRaid(); return; }
+  if (!raid.live) { if (G.era >= 1 && now > raid.next && modal.hidden && !EXP.open && !hazard.cur) startRaid(); return; }
   const g = geom();
   for (const f of raid.foes) {
     if (f.hp <= 0) continue;
-    f.f += f.speed * dt; f.hitT = Math.max(0, f.hitT - dt);
+    f.f += f.speed * dt * (has("d2") && f.f > 0.55 ? 0.6 : 1); f.hitT = Math.max(0, f.hitT - dt);
+    if (has("d3") && f.f > 0.8 && f.f < 1) damageFoe(f, defense() * 0.5 * dt);
+    if (f.hp <= 0) continue;
     if (f.f >= 1) {
       f.hp = 0; raid.leaked++;
-      const loss = Math.min(G.deniers * 0.04, basePps() * 45); G.deniers -= loss;
+      const loss = Math.min(G.deniers * 0.04, basePps() * 45) * (f.boss ? 4 : 1); G.deniers -= loss;
       floats.push({ x: g.pl + 10, y: g.py - 20, text: "Pillage −" + fmt(loss), life: 70, bad: true });
     }
   }
@@ -667,7 +772,7 @@ function updateRaid(dt, now) {
       if (!targets.length) break;
       const tgt = targets.reduce((a, b) => (b.f > a.f ? b : a));
       const shooters = towerSpots(g); const sp = shooters[Math.floor(Math.random() * shooters.length)];
-      raid.arrows.push({ x0: sp[0], y0: sp[1], foe: tgt, t: 0, dmg: D * 0.6 / 3 });
+      raid.arrows.push({ x0: sp[0], y0: sp[1], foe: tgt, t: 0, dmg: D * 0.6 / 3 * (has("d1") ? 1.5 : 1) }); Snd.arrow();
     }
   }
   for (const a of raid.arrows) { a.t += dt / 0.35; if (a.t >= 1 && !a.done) { a.done = true; damageFoe(a.foe, a.dmg); } }
@@ -701,16 +806,18 @@ function drawRaid(g, n) {
   for (const f of raid.foes) {
     if (f.f < 0) continue;
     const p = alongRoad(g, f.f), bob = Math.abs(Math.sin(f.f * 300)) * 1.2 * u;
-    c.save(); c.translate(p.x, p.y - bob); c.scale(p.dir, 1);
+    c.save(); c.translate(p.x, p.y - bob); c.scale(p.dir * (f.boss ? 1.7 : 1), f.boss ? 1.7 : 1);
+    if (f.boss) { c.fillStyle = "#e0ad4a"; c.beginPath(); c.moveTo(-2 * u, -10.2 * u); c.lineTo(-1 * u, -12.5 * u); c.lineTo(0, -10.8 * u); c.lineTo(1 * u, -12.5 * u); c.lineTo(2 * u, -10.2 * u); c.fill(); }
     c.fillStyle = f.hitT > 0 ? "#ffefe0" : "#2b1d1a";
     c.fillRect(-1.6 * u, -7 * u, 3.2 * u, 6 * u);
     c.beginPath(); c.arc(0, -8.6 * u, 1.7 * u, 0, Math.PI * 2); c.fill();
     c.fillStyle = "#9b3a26"; c.beginPath(); c.arc(2 * u, -4.5 * u, 2 * u, 0, Math.PI * 2); c.fill();
     c.strokeStyle = "#c9c2b0"; c.lineWidth = Math.max(1, u * 0.4); c.beginPath(); c.moveTo(-2 * u, -1 * u); c.lineTo(1.5 * u, -12 * u); c.stroke();
     c.restore();
-    const w = 10 * u, r = Math.max(0, f.hp / f.max);
-    c.fillStyle = "rgba(0,0,0,.6)"; c.fillRect(p.x - w / 2, p.y - 15 * u, w, 2 * u);
-    c.fillStyle = r > 0.5 ? "#8fcf7a" : r > 0.25 ? "#e0ad4a" : "#d0503c"; c.fillRect(p.x - w / 2, p.y - 15 * u, w * r, 2 * u);
+    const w = (f.boss ? 18 : 10) * u, r = Math.max(0, f.hp / f.max), hy = p.y - (f.boss ? 24 : 15) * u;
+    c.fillStyle = "rgba(0,0,0,.6)"; c.fillRect(p.x - w / 2, hy, w, 2 * u);
+    c.fillStyle = r > 0.5 ? "#8fcf7a" : r > 0.25 ? "#e0ad4a" : "#d0503c"; c.fillRect(p.x - w / 2, hy, w * r, 2 * u);
+    if (has("d3") && f.f > 0.8) { c.fillStyle = `rgba(255,150,60,${0.5 + 0.3 * Math.sin(performance.now() / 60)})`; c.beginPath(); c.arc(p.x, p.y - 4 * u, 3 * u, 0, Math.PI * 2); c.fill(); }
   }
 }
 
@@ -738,7 +845,7 @@ function rollFavor() {
   const dur = Math.round(F.dur[0] + (F.dur[1] - F.dur[0]) * Math.random());
   const bld = F.kind === "bld" ? owners[Math.floor(Math.random() * owners.length)] : null;
   const o = { F, rar, mult: m, dur, bld, sold: false };
-  o.cost = Math.max(25, favorValue(o) * (0.25 + Math.random() * 0.2));
+  o.cost = Math.max(25, favorValue(o) * (0.25 + Math.random() * 0.2) * (hasNode("faveurs") ? 0.8 : 1));
   return o;
 }
 function favorValue(o) {
@@ -751,10 +858,10 @@ function favorValue(o) {
     default: return Math.max(basePps(), 1) * 25 * o.mult;
   }
 }
-function restockMarket() { market.offers = [rollFavor(), rollFavor(), rollFavor()]; market.refresh = 60; if (tab === "u") render(); }
+function restockMarket() { market.offers = Array.from({ length: hasNode("faveurs") ? 4 : 3 }, rollFavor); market.refresh = 60; if (tab === "u") render(); }
 function buyFavor(i) {
   const o = market.offers[i]; if (!o || o.sold || o.cost > G.deniers) return;
-  G.deniers -= o.cost; o.sold = true;
+  G.deniers -= o.cost; o.sold = true; G.stats.favors++; if (o.rar.name === "Légendaire") G.stats.legend++; Snd.coin();
   addBuff({ name: o.F.name, kind: o.F.kind, mult: o.mult, bld: o.bld ? o.bld.id : null, left: o.dur });
   toast(`${o.F.name} : ${o.F.fx(o.mult, o.bld).replace(".", ",")} pendant ${o.dur} s`);
   render();
@@ -787,7 +894,7 @@ function syncStance() {
 }
 
 function availableUpgrades() {
-  return UPGRADES.filter(up => !has(up.id) && (up.click ? G.run >= up.cost * 0.4 || G.deniers >= up.cost * 0.4 : owned(up.b) >= up.need)).sort((a, b) => a.cost - b.cost);
+  return UPGRADES.filter(up => !has(up.id) && (up.def ? G.era >= up.minEra : up.click ? G.run >= up.cost * 0.4 || G.deniers >= up.cost * 0.4 : owned(up.b) >= up.need)).sort((a, b) => a.cost - b.cost);
 }
 function render() {
   list.innerHTML = "";
@@ -798,16 +905,25 @@ function el(html) { const t = document.createElement("template"); t.innerHTML = 
 function renderBuild() {
   if (G.era < 4) {
     const m = ERAS[G.era].monument;
-    const r = el(`<button type="button" class="row monument" data-mon="1"><div class="lettrine">${["I", "II", "III", "IV"][G.era]}</div><div class="txt"><div class="eyebrow">Monument de l'${ERAS[G.era].name.replace("Ère ", "ère ")}</div><div class="name">${m.name}</div><div class="desc">${m.desc}</div><div class="prog"><i></i></div></div><div class="side"><div class="cost">${fmt(m.cost)}</div></div></button>`);
+    const r = el(`<button type="button" class="row monument" data-mon="1"><div class="lettrine">${["I", "II", "III", "IV"][G.era]}</div><div class="txt"><div class="eyebrow">Monument de l'${ERAS[G.era].name.replace("Ère ", "ère ")}</div><div class="name">${m.name}</div><div class="desc">${m.desc}</div><div class="prog"><i></i></div></div><div class="side"><div class="cost">${fmt(monCost(G.era))}</div></div></button>`);
     r.addEventListener("click", buyMonument); list.appendChild(r);
+  }
+  if (G.era >= 1) {
+    const r = el(`<button type="button" class="row expe" data-exp="1"><div class="lettrine era1">E</div><div class="txt"><div class="eyebrow">Les creutes</div><div class="name">Expédition souterraine</div><div class="desc">Descends sous la butte, torche en main : fragments d'histoire (+3 % de production chacun) et trésor à la clé. Fragments réunis : ${G.frags.length}/8.</div></div><div class="side"><div class="cost" data-expcd></div></div></button>`);
+    r.addEventListener("click", openExp); list.appendChild(r);
   }
   for (const b of BLD) {
     if (b.era > G.era) continue;
-    const r = el(`<button type="button" class="row" data-b="${b.id}"><div class="lettrine era${b.era}">${b.L}</div><div class="txt"><div class="name">${b.name}</div><div class="desc">${b.desc}</div><div class="meta">Chacun : <b>${fmt(b.prod * bMult(b) * globalMult())}</b>/s${b.def ? ` · défense +${b.def}` : ""}</div></div><div class="side"><div class="owned">${owned(b.id)}</div><div class="cost"></div></div></button>`);
+    const r = el(`<button type="button" class="row" data-b="${b.id}"><div class="lettrine era${b.era}">${b.L}</div><div class="txt"><div class="name">${b.name}</div><div class="desc">${b.desc}</div><div class="meta">Chacun : <b>${fmt(unitProd(b) * globalMult())}</b>/s${b.def ? ` · défense +${b.def}` : ""}${synTxt(b)}</div></div><div class="side"><div class="owned">${owned(b.id)}</div><div class="cost"></div></div></button>`);
     r.addEventListener("click", () => buy(b)); list.appendChild(r);
   }
   const next = BLD.find(b => b.era === G.era + 1);
   if (next) list.appendChild(el(`<div class="row locked"><div class="lettrine">?</div><div class="txt"><div class="name">Bâtiments de l'${ERAS[next.era].name.replace("Ère ", "ère ")}</div><div class="desc">Ils se révèlent quand le monument est achevé.</div></div><div class="side"></div></div>`));
+}
+function synTxt(b) {
+  const parts = SYN.filter(x => x.to === b.id && owned(x.from) > 0).map(x => `+${Math.round(x.pct * owned(x.from) * 100)} % grâce aux ${BLD.find(y => y.id === x.from).name.toLowerCase()}s`);
+  const gives = SYN.filter(x => x.from === b.id).map(x => `renforce : ${BLD.find(y => y.id === x.to).name.toLowerCase()} (+${String(x.pct * 100).replace(".", ",")} % chacun)`);
+  return (parts.length ? ` · <span class="syn">${parts.join(", ")}</span>` : "") + (gives.length ? `<br><span class="syn2">${gives.join(" · ")}</span>` : "");
 }
 function renderUpg() {
   list.appendChild(el(`<p class="section-title">Marché aux faveurs · renouvelé dans <span data-countdown>${Math.ceil(market.refresh)}</span> s</p>`));
@@ -819,7 +935,7 @@ function renderUpg() {
   const ups = availableUpgrades();
   if (!ups.length) { list.appendChild(el(`<p class="empty">Aucune amélioration pour l'instant. Construis davantage : de nouveaux savoir-faire apparaîtront.</p>`)); return; }
   for (const up of ups) {
-    const r = el(`<button type="button" class="row" data-u="${up.id}"><div class="lettrine ${up.click ? "" : "era" + up.era}">${up.L}</div><div class="txt"><div class="name">${up.name}</div><div class="desc">${up.desc}</div></div><div class="side"><div class="cost">${fmt(up.cost)}</div></div></button>`);
+    const r = el(`<button type="button" class="row" data-u="${up.id}"><div class="lettrine ${up.click ? "" : up.def ? "era0" : "era" + up.era}">${up.L}</div><div class="txt"><div class="name">${up.name}</div><div class="desc">${up.desc}</div></div><div class="side"><div class="cost">${fmt(up.cost)}</div></div></button>`);
     r.addEventListener("click", () => buyUpg(up)); list.appendChild(r);
   }
 }
@@ -834,16 +950,29 @@ function renderChron() {
     <div class="stat"><span>Défense</span><b>${fmt(defense())}</b></div>
     <div class="stat"><span>Assauts repoussés</span><b>${G.raidsWon}</b></div>
     <div class="stat"><span>Pillards abattus</span><b>${G.foesSlain}</b></div>
-    <div class="stat"><span>Reliques</span><b>${G.reliques} (+${G.reliques * 10} %)</b></div>
+    <div class="stat"><span>Reliques</span><b>${G.reliques} (+${G.reliques * 5} %)</b></div>
+    <div class="stat"><span>Hauts faits</span><b>${G.ach.length}/${ACH.length} (+${G.ach.length} %)</b></div>
+    <div class="stat"><span>Fragments</span><b>${G.frags.length}/8 (+${G.frags.length * 3} %)</b></div>
+    <div class="stat"><span>Combo record</span><b>×${String(G.stats.maxCombo).replace(".", ",")}</b></div>
   </div>`));
+  list.appendChild(el(`<p class="section-title">Hauts faits · +1 % de production chacun</p>`));
+  list.appendChild(el(`<div class="achs">${ACH.map(a => `<div class="ach${G.ach.includes(a.id) ? " on" : ""}" title="${a.desc}"><b>${G.ach.includes(a.id) ? a.name : "???"}</b><span>${a.desc}</span></div>`).join("")}</div>`));
+  list.appendChild(el(`<p class="section-title">Fragments d'histoire (expéditions)</p>`));
+  Object.entries(XFRAGS).forEach(([k, f]) => list.appendChild(el(G.frags.includes(k) ? `<div class="chron"><h3>${f.title}</h3><p>${f.text}</p></div>` : `<div class="chron locked"><h3>Fragment encore enfoui</h3><p>À trouver lors d'une expédition souterraine.</p></div>`)));
   list.appendChild(el(`<p class="section-title">Chronique de Laon</p>`));
   ERAS.forEach((e, i) => {
     const open = G.era > i || G.crowns > 0;
     list.appendChild(el(open ? `<div class="chron"><h3>${e.chron.title}</h3><p>${e.chron.text}</p></div>` : `<div class="chron locked"><h3>${e.name} · ${e.short}</h3><p>Page encore scellée. Achève le monument de cette ère pour la lire.</p></div>`));
   });
   list.appendChild(el(G.crowns > 0 ? `<div class="chron"><h3>${FINAL.title}</h3><p>${FINAL.text}</p></div>` : `<div class="chron locked"><h3>Dernière page</h3><p>Se révèle au premier couronnement.</p></div>`));
+  list.appendChild(el(`<p class="section-title">Arbre des reliques · ${relPoints()} point${relPoints() > 1 ? "s" : ""} à dépenser</p>`));
+  for (const n of TREE) {
+    const own = hasNode(n.id);
+    const r = el(`<button type="button" class="row${own ? " owned-node" : relPoints() < n.cost ? " poor" : ""}" ${own ? "disabled" : ""}><div class="lettrine era3">✠</div><div class="txt"><div class="name">${n.name}</div><div class="desc">${n.desc}</div></div><div class="side"><div class="cost">${own ? "Consacrée" : `${n.cost} relique${n.cost > 1 ? "s" : ""}`}</div></div></button>`);
+    r.addEventListener("click", () => buyNode(n)); list.appendChild(r);
+  }
   list.appendChild(el(`<p class="section-title">Couronnement</p>`));
-  const pr = el(`<div class="chron"><p>${G.era >= 4 ? `Couronner la cité recommence tout depuis la première masure, mais t'offre <b>${avail}</b> relique${avail > 1 ? "s" : ""}. Chaque relique ajoute 10 % de production pour toujours.` : "Achève la Fête de la Montagne couronnée pour pouvoir couronner la cité et gagner des reliques."}</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn" id="crown" ${G.era >= 4 ? "" : "disabled"}>Couronner la cité</button><button type="button" class="btn danger" id="wipe">Effacer la partie</button></div></div>`);
+  const pr = el(`<div class="chron"><p>${G.era >= 4 ? `Couronner la cité recommence tout depuis la première masure, mais t'offre <b>${avail}</b> relique${avail > 1 ? "s" : ""}. Chaque relique ajoute 5 % de production pour toujours et se dépense dans l'arbre ci-dessus.` : "Achève la Fête de la Montagne couronnée pour pouvoir couronner la cité et gagner des reliques."}</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn" id="crown" ${G.era >= 4 ? "" : "disabled"}>Couronner la cité</button><button type="button" class="btn danger" id="wipe">Effacer la partie</button></div></div>`);
   list.appendChild(pr);
   pr.querySelector("#crown").addEventListener("click", crown);
   const wipe = pr.querySelector("#wipe");
@@ -852,46 +981,49 @@ function renderChron() {
     else { wipe.dataset.armed = "1"; wipe.textContent = "Confirmer l'effacement"; setTimeout(() => { if (wipe.isConnected) { delete wipe.dataset.armed; wipe.textContent = "Effacer la partie"; } }, 4000); }
   });
 }
-function reliquesAvailable() { return Math.max(1, Math.floor(Math.sqrt(G.run / 1e11))); }
+function reliquesAvailable() { return Math.max(1, Math.floor(Math.sqrt(G.run / 1e12))); }
 
 function refundOf(b, n) { const k = owned(b.id); n = Math.min(n, k); return 0.5 * b.cost * Math.pow(R, k - n) * (Math.pow(R, n) - 1) / (R - 1); }
 function buy(b) {
   if (mode === "sell") {
     const n = Math.min(owned(b.id), qty === "max" ? owned(b.id) : qty); if (n < 1) return;
-    const g = refundOf(b, n); G.deniers += g; G.owned[b.id] = owned(b.id) - n; render(); return;
+    const g = refundOf(b, n); G.deniers += g; G.owned[b.id] = owned(b.id) - n; G.stats.sold += n; Snd.coin(); render(); return;
   }
   const n = qty === "max" ? maxBuy(b) : qty; if (n < 1) return;
   const cost = costOf(b, n); if (cost > G.deniers) return;
-  G.deniers -= cost; G.owned[b.id] = owned(b.id) + n;
+  G.deniers -= cost; G.owned[b.id] = owned(b.id) + n; Snd.coin();
   const before = availableUpgrades().length;
   render(); if (availableUpgrades().length > before) toast("Nouvelle amélioration disponible");
 }
 function buyUpg(up) {
-  if (up.cost > G.deniers) return; G.deniers -= up.cost; G.upg.push(up.id); render();
+  if (up.cost > G.deniers) return; G.deniers -= up.cost; G.upg.push(up.id); Snd.coin(); render();
 }
+const monCost = i => ERAS[i].monument.cost * (hasNode("monuments") ? 0.5 : 1);
 function buyMonument() {
-  const m = ERAS[G.era].monument; if (m.cost > G.deniers) return;
-  G.deniers -= m.cost; const e = ERAS[G.era]; G.era++;
+  const m = ERAS[G.era].monument; if (monCost(G.era) > G.deniers) return;
+  G.deniers -= monCost(G.era); const e = ERAS[G.era]; const ei = G.era; G.era++;
   if (G.era === 1) { scheduleRaid(45000); toast("Ta richesse attire les pillards : renforce tours, portes et remparts"); }
   for (let i = 0; i < 40; i++) sparks.push({ x: W / 2 + (Math.random() - 0.5) * W * 0.4, y: H * 0.4, vx: (Math.random() - 0.5) * 6, vy: -Math.random() * 5, life: 50 });
   save(); render(); renderEra();
   const nextEra = ERAS[G.era];
-  modalShow({
+  playCine(ei, () => modalShow({
     eyebrow: `${m.name} achevé`, title: e.chron.title,
     body: `<p>${e.chron.text}</p>${nextEra ? `<p class="note">Une nouvelle époque commence : ${nextEra.name} (${nextEra.short}). De nouveaux bâtiments sont disponibles.</p>` : `<p class="note">La cité est à son apogée. Dans la Chronique, tu peux désormais la couronner pour gagner des reliques.</p>`}`,
     choices: [{ label: "Poursuivre", on: modalHide }]
-  });
+  }));
 }
 function crown() {
   if (G.era < 4) return;
   const gain = reliquesAvailable();
   modalShow({
     eyebrow: "Couronnement", title: "Couronner la cité ?",
-    body: `<p>La cité retournera à sa première masure. Tu gardes tes reliques et en gagnes <b>${gain}</b>, soit +${gain * 10} % de production en plus, pour toujours.</p>`,
+    body: `<p>La cité retournera à sa première masure. Tu gardes tes reliques, tes hauts faits et tes fragments, et tu gagnes <b>${gain}</b> relique${gain > 1 ? "s" : ""} : chacune ajoute 5 % de production et se dépense dans l'arbre des reliques.</p>`,
     choices: [
       { label: "Couronner", on: () => {
-        const keep = { reliques: G.reliques + gain, crowns: G.crowns + 1, life: G.life, clicks: G.clicks, wispsCaught: G.wispsCaught, raidsWon: G.raidsWon, foesSlain: G.foesSlain, stance: G.stance };
-        G = Object.assign(fresh(), keep); resetRaid(); active = []; save(); render(); renderEra();
+        const keep = { reliques: G.reliques + gain, crowns: G.crowns + 1, life: G.life, clicks: G.clicks, wispsCaught: G.wispsCaught, raidsWon: G.raidsWon, foesSlain: G.foesSlain, stance: G.stance,
+          ach: G.ach, quest: G.quest, tree: G.tree, relSpent: G.relSpent, frags: G.frags, sound: G.sound, stats: G.stats };
+        G = Object.assign(fresh(), keep); G.qs = qsnap();
+        if (hasNode("fondations")) G.owned = { masure: 15, puits: 5 }; resetRaid(); active = []; save(); render(); renderEra();
         modalShow({ eyebrow: "Dernière page de la chronique", title: FINAL.title, body: `<p>${FINAL.text}</p>`, choices: [{ label: "Rebâtir la cité", on: modalHide }] });
       } },
       { label: "Pas encore", sec: true, on: modalHide }
@@ -917,7 +1049,7 @@ function refreshNumbers() {
       }
     });
     const m = list.querySelector("[data-mon]");
-    if (m && G.era < 4) { const cost = ERAS[G.era].monument.cost; m.classList.toggle("poor", cost > G.deniers); m.querySelector(".prog i").style.width = `${Math.min(100, G.deniers / cost * 100)}%`; }
+    if (m && G.era < 4) { const cost = monCost(G.era); m.classList.toggle("poor", cost > G.deniers); m.querySelector(".prog i").style.width = `${Math.min(100, G.deniers / cost * 100)}%`; }
   } else if (tab === "u") {
     list.querySelectorAll("[data-u]").forEach(r => { const up = UPGRADES.find(x => x.id === r.dataset.u); r.classList.toggle("poor", up.cost > G.deniers); });
     list.querySelectorAll("[data-f]").forEach(r => { const o = market.offers[+r.dataset.f]; if (o && !o.sold) r.classList.toggle("poor", o.cost > G.deniers); });
@@ -926,12 +1058,15 @@ function refreshNumbers() {
   const ups = availableUpgrades(), canU = ups.some(u => u.cost <= G.deniers) || market.offers.some(o => !o.sold && o.cost <= G.deniers);
   const tu = document.getElementById("tab-u"); let dot = tu.querySelector(".dot");
   if (canU && !dot) tu.insertAdjacentHTML("beforeend", '<span class="dot" aria-hidden="true"></span>'); else if (!canU && dot) dot.remove();
-  refreshBuffs(); syncStance();
+  const ex = list.querySelector("[data-expcd]");
+  if (ex) { const ms = (G.expAt || 0) - Date.now(); ex.textContent = ms > 0 ? `Dans ${Math.ceil(ms / 1000)} s` : "Descendre"; ex.closest(".row").classList.toggle("poor", ms > 0); }
+  refreshBuffs(); syncStance(); refreshQuest();
 }
 function refreshBuffs() {
   const kindTxt = b => b.kind === "prod" ? `Production ×${b.mult}` : b.kind === "click" ? `Toucher ×${b.mult}` : b.kind === "bld" ? `${BLD.find(x => x.id === b.bld).name} ×${b.mult}` : b.kind === "crit" ? `+${Math.round(b.mult * 100)} % coups de maître` : `Défense ×${b.mult}`;
   let h = active.map(b => `<div class="buff">${kindTxt(b).replace(".", ",")} · ${Math.ceil(b.left)} s<span class="bar" style="width:${(b.left / b.total) * 100}%"></span></div>`).join("");
   if (raid.live) h += `<div class="buff def">Assaut : ${raid.foes.filter(f => f.hp > 0).length} pillards · défense ${fmt(defense())}</div>`;
+  if (hazard.cur) h += `<div class="buff def">${hazard.cur.h.name} · ${Math.ceil(hazard.cur.left)} s · ${hazard.cur.hits}/${hazard.cur.h.need} · production ×${String(hazard.cur.h.mult).replace(".", ",")}</div>`;
   $buffs.innerHTML = h;
 }
 function refreshAll() { render(); }
@@ -947,8 +1082,527 @@ function modalShow({ eyebrow = "", title, body = "", choices = [] }) {
 }
 function modalHide() { modal.hidden = true; }
 
+/* ================= Sons (Web Audio, aucun fichier) ================= */
+const Snd = {
+  ctx: null, master: null, nextBell: 0, lastArrow: 0, lastTap: 0,
+  init() {
+    if (this.ctx) return; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = this.ctx = new AC();
+    this.master = ctx.createGain(); this.master.gain.value = G.sound ? 0.6 : 0; this.master.connect(ctx.destination);
+    const len = ctx.sampleRate * 4, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    let l = 0; for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; l = (l + 0.02 * w) / 1.02; d[i] = l * 3; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 480;
+    const g = ctx.createGain(); g.gain.value = 0.05; src.connect(f); f.connect(g); g.connect(this.master); src.start();
+    this.nextBell = ctx.currentTime + 25;
+  },
+  set(on) { G.sound = on; if (this.master) this.master.gain.setTargetAtTime(on ? 0.6 : 0, this.ctx.currentTime, 0.05); },
+  env(node, t, a, d, vol) { const g = this.ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); node.connect(g); g.connect(this.master); },
+  tone(freq, dur, { type = "sine", vol = 0.1, to = null, delay = 0, attack = 0.005 } = {}) {
+    if (!this.ctx || !G.sound) return; const t = this.ctx.currentTime + delay;
+    const o = this.ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(freq, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + attack + dur);
+    this.env(o, t, attack, dur, vol); o.start(t); o.stop(t + attack + dur + 0.05);
+  },
+  noise(dur, { freq = 1000, q = 1, vol = 0.1, type = "bandpass", delay = 0 } = {}) {
+    if (!this.ctx || !G.sound) return; const ctx = this.ctx, t = ctx.currentTime + delay;
+    const n = Math.max(1, Math.floor(ctx.sampleRate * dur)), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const s = ctx.createBufferSource(); s.buffer = b; const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    s.connect(f); this.env(f, t, 0.003, dur, vol); s.start(t);
+  },
+  tick() { if (this.ctx && G.sound && this.ctx.currentTime > this.nextBell) { this.bell(0.035, 392); this.nextBell = this.ctx.currentTime + 45 + Math.random() * 60; } },
+  tap() { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - this.lastTap < 0.04) return; this.lastTap = t; this.noise(0.035, { freq: 2600 + Math.random() * 600, q: 2, vol: 0.12 }); this.tone(650 + Math.random() * 250, 0.05, { type: "triangle", vol: 0.025 }); },
+  crit() { this.tone(1318, 0.25, { type: "triangle", vol: 0.07 }); this.tone(1976, 0.35, { vol: 0.05, delay: 0.05 }); },
+  coin() { this.tone(1500, 0.07, { type: "square", vol: 0.025 }); this.tone(2000, 0.14, { type: "square", vol: 0.025, delay: 0.06 }); },
+  bell(vol = 0.12, f = 523) { [1, 2.01, 3, 4.2].forEach((k, i) => this.tone(f * k, 2.2 - i * 0.4, { vol: vol / (i + 1), attack: 0.002 })); },
+  horn() { this.tone(196, 1.0, { type: "sawtooth", vol: 0.045, to: 262, attack: 0.15 }); this.tone(196, 0.9, { type: "sawtooth", vol: 0.04, to: 247, attack: 0.15, delay: 1.1 }); },
+  arrow() { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - this.lastArrow < 0.15) return; this.lastArrow = t; this.noise(0.12, { freq: 3500, q: 0.7, vol: 0.035, type: "highpass" }); },
+  hit() { this.tone(140, 0.12, { vol: 0.12, to: 70 }); this.noise(0.05, { freq: 600, vol: 0.08 }); },
+  alarm() { [0, 0.18, 0.36].forEach((d, i) => this.tone(i % 2 ? 660 : 880, 0.12, { type: "square", vol: 0.035, delay: d })); },
+  squeak() { this.tone(2200, 0.08, { vol: 0.05, to: 2900 }); },
+  fanfare() { [523, 659, 784, 1046].forEach((f, i) => this.tone(f, 0.5, { type: "triangle", vol: 0.06, delay: i * 0.09 })); },
+  pop() { this.tone(600, 0.12, { vol: 0.07, to: 1300 }); }
+};
+addEventListener("pointerdown", () => Snd.init(), { capture: true });
+addEventListener("keydown", () => Snd.init(), { capture: true });
+const $snd = document.getElementById("btnSound");
+const syncSnd = () => { $snd.textContent = G.sound ? "Son : oui" : "Son : non"; $snd.setAttribute("aria-pressed", G.sound); };
+$snd.addEventListener("click", () => { Snd.init(); Snd.set(!G.sound); syncSnd(); });
+
+/* ================= Combo de toucher ================= */
+const combo = { n: 0, last: 0 };
+const comboCap = () => (hasNode("main") ? 7 : 5);
+function comboMult() { return Math.min(comboCap(), 1 + 0.25 * Math.floor(combo.n / 6)); }
+function comboTap(now) {
+  combo.n = now - combo.last < 700 ? combo.n + 1 : 1; combo.last = now;
+  const m = comboMult(); if (m > G.stats.maxCombo) G.stats.maxCombo = m;
+}
+function drawCombo(now, g) {
+  if (now - combo.last > 700) { combo.n = 0; return; }
+  if (combo.n < 6) return;
+  const m = comboMult(), left = 1 - (now - combo.last) / 700, x = 14, y = 26;
+  c.textAlign = "left"; c.font = `700 ${Math.round(15 + g.u * 2)}px Cinzel, Georgia, serif`;
+  const txt = `Combo ×${String(m).replace(".", ",")}`;
+  c.strokeStyle = "rgba(20,14,10,.85)"; c.lineWidth = 4; c.strokeText(txt, x, y); c.fillStyle = m >= comboCap() ? "#fff1cf" : "#ffd27a"; c.fillText(txt, x, y);
+  c.fillStyle = "rgba(0,0,0,.55)"; c.fillRect(x, y + 7, 96, 4); c.fillStyle = "#ffd27a"; c.fillRect(x, y + 7, 96 * left, 4);
+}
+
+/* ================= Incidents (événements négatifs) ================= */
+const hazard = { cur: null, next: performance.now() + 150000 };
+const HAZ = {
+  eboulement: { name: "Éboulement dans une creute", need: 10, time: 60, mult: 0.7, ok: () => owned("creute") > 0, msg: "Touche les gravats pour dégager la galerie",
+    fail() { toast("La galerie se dégage enfin seule, après une longue perte de production."); } },
+  incendie: { name: "Incendie dans un quartier", need: 6, time: 20, mult: 0.85, ok: () => owned("masure") > 3, msg: "Touche les flammes pour éteindre le feu",
+    fail() { const k = Math.min(2, owned("masure")); G.owned.masure = owned("masure") - k; toast(`Le feu a détruit ${k} masure${k > 1 ? "s" : ""}.`); render(); } },
+  rats: { name: "Invasion de rats", need: 8, time: 35, mult: 0.75, ok: () => G.era >= 1, msg: "Touche les rats avant qu'ils ne gâtent les réserves",
+    fail() { const l = G.deniers * 0.08; G.deniers -= l; toast(`Les rats ont gâté les réserves : −${fmt(l)} deniers`); } }
+};
+function hazardMult() { return hazard.cur ? hazard.cur.h.mult : 1; }
+function startHazard() {
+  const keys = Object.keys(HAZ).filter(k => HAZ[k].ok()); if (!keys.length) return;
+  const k = keys[Math.floor(Math.random() * keys.length)], h = HAZ[k];
+  const cur = { k, h, left: h.time, hits: 0, fx: 0, rats: [] };
+  if (k === "eboulement") cur.fx = 0.5 + (Math.random() < 0.5 ? -1 : 1) * 0.22;
+  if (k === "incendie") cur.fx = 0.15 + Math.random() * 0.7;
+  if (k === "rats") for (let i = 0; i < h.need; i++) cur.rats.push({ fx: Math.random(), dir: Math.random() < 0.5 ? -1 : 1, sp: 0.08 + Math.random() * 0.1, alive: true });
+  hazard.cur = cur; Snd.alarm(); toast(`${h.name} ! ${h.msg}.`);
+}
+function hazardPos(g, cur, r) {
+  const span = g.pr - g.pl;
+  if (cur.k === "eboulement") return { x: W * cur.fx, y: g.py + (g.y0 - g.py) * 0.55 };
+  if (cur.k === "incendie") return { x: g.pl + span * cur.fx, y: g.py - 8 * g.u };
+  return { x: g.pl + span * r.fx, y: g.py - 2 * g.u };
+}
+function hitHazard(x, y) {
+  const cur = hazard.cur; if (!cur) return false;
+  const g = geom(), rad = Math.max(30, 18 * g.u);
+  if (cur.k === "rats") {
+    for (const r of cur.rats) { if (!r.alive) continue; const p = hazardPos(g, cur, r); if (Math.hypot(x - p.x, y - p.y) < rad) { r.alive = false; cur.hits++; Snd.squeak(); burst(p.x, p.y, "200,190,170"); checkHazard(); return true; } }
+    return false;
+  }
+  const p = hazardPos(g, cur);
+  if (Math.hypot(x - p.x, y - p.y) < rad * 1.3) { cur.hits++; Snd.hit(); burst(p.x, p.y, cur.k === "incendie" ? "120,180,255" : "200,190,170"); checkHazard(); return true; }
+  return false;
+}
+function checkHazard() {
+  const cur = hazard.cur; if (!cur || cur.hits < cur.h.need) return;
+  const reward = basePps() * 20 + 50; earn(reward); G.stats.events++;
+  toast(`Incident maîtrisé ! Récompense : ${fmt(reward)} deniers`); Snd.fanfare();
+  hazard.cur = null; hazard.next = performance.now() + 100000 + Math.random() * 100000;
+}
+function updateHazard(dt, now) {
+  const cur = hazard.cur;
+  if (!cur) { if (now > hazard.next && !raid.live && !EXP.open && modal.hidden && G.life > 3000) startHazard(); else if (now > hazard.next) hazard.next = now + 20000; return; }
+  cur.left -= dt;
+  for (const r of cur.rats) if (r.alive) { r.fx += r.dir * r.sp * dt; if (r.fx < 0.02 || r.fx > 0.98) { r.dir *= -1; r.fx = Math.max(0.02, Math.min(0.98, r.fx)); } if (Math.random() < dt * 0.4) r.dir *= -1; }
+  if (cur.left <= 0) { cur.h.fail(); hazard.cur = null; hazard.next = now + 100000 + Math.random() * 100000; }
+}
+function drawHazard(g, t) {
+  const cur = hazard.cur; if (!cur) return; const u = g.u;
+  if (cur.k === "eboulement") {
+    const p = hazardPos(g, cur), k = 1 - cur.hits / cur.h.need;
+    for (let i = 0; i < 7; i++) { if (i / 7 > k) continue; c.fillStyle = i % 2 ? "#8d8270" : "#a89c86"; c.fillRect(p.x + (hsh(i, 41) - 0.5) * 18 * u, p.y + (hsh(i, 42) - 0.5) * 8 * u - 4 * u, (4 + hsh(i, 43) * 4) * u, (3 + hsh(i, 44) * 3) * u); }
+    for (let i = 0; i < 4; i++) { c.fillStyle = `rgba(210,200,180,${0.25 + 0.15 * Math.sin(t * 3 + i)})`; c.beginPath(); c.arc(p.x + Math.sin(t + i * 2) * 10 * u, p.y - 8 * u - i * 3 * u, (4 + i) * u, 0, Math.PI * 2); c.fill(); }
+    ring(p.x, p.y - 2 * u, cur, u);
+  } else if (cur.k === "incendie") {
+    const p = hazardPos(g, cur), k = 1 - cur.hits / cur.h.need;
+    for (let i = 0; i < 6; i++) {
+      const fx = p.x + (i - 2.5) * 3 * u, fh = (8 + 6 * Math.sin(t * 12 + i * 1.7)) * u * (0.4 + 0.6 * k);
+      c.fillStyle = i % 2 ? "rgba(255,170,60,.95)" : "rgba(255,226,120,.95)";
+      c.beginPath(); c.moveTo(fx - 2.4 * u, p.y + 6 * u); c.quadraticCurveTo(fx, p.y + 6 * u - fh * 1.6, fx + 2.4 * u, p.y + 6 * u); c.fill();
+    }
+    for (let i = 0; i < 3; i++) { c.fillStyle = `rgba(60,50,50,${0.35})`; c.beginPath(); c.arc(p.x + Math.sin(t * 0.8 + i) * 6 * u, p.y - 14 * u - ((t * 12 + i * 8) % 24) * u, (3 + i) * u, 0, Math.PI * 2); c.fill(); }
+    ring(p.x, p.y - 4 * u, cur, u);
+  } else {
+    for (const r of cur.rats) {
+      if (!r.alive) continue; const p = hazardPos(g, cur, r);
+      c.save(); c.translate(p.x, p.y); c.scale(r.dir, 1);
+      c.fillStyle = "#5d5650"; c.beginPath(); c.ellipse(0, 0, 3.4 * u, 1.9 * u, 0, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(3 * u, -0.6 * u, 1.3 * u, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = "#7a706a"; c.lineWidth = Math.max(1, 0.5 * u); c.beginPath(); c.moveTo(-3.2 * u, 0); c.quadraticCurveTo(-6 * u, -2.5 * u, -7.5 * u, 0.5 * u); c.stroke();
+      c.restore();
+    }
+  }
+}
+function ring(x, y, cur, u) {
+  const r = Math.max(14, 11 * u); c.strokeStyle = "rgba(255,120,90,.9)"; c.lineWidth = 3;
+  c.beginPath(); c.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (cur.left / cur.h.time)); c.stroke();
+}
+function burst(x, y, rgb) { for (let i = 0; i < 8; i++) sparks.push({ x, y, vx: (Math.random() - 0.5) * 5, vy: -Math.random() * 4, life: 26, rgb }); }
+
+/* ================= Hauts faits ================= */
+const totalB = () => BLD.reduce((s, b) => s + owned(b.id), 0);
+const ACH = [
+  ["t1", "Premier coup de ciseau", "Toucher la cité 100 fois", () => G.clicks >= 100],
+  ["t2", "Main infatigable", "Toucher la cité 1 000 fois", () => G.clicks >= 1000],
+  ["t3", "Bras de pierre", "Toucher la cité 10 000 fois", () => G.clicks >= 1e4],
+  ["g1", "Bourse garnie", "Gagner 1 000 deniers au total", () => G.life >= 1e3],
+  ["g2", "Trésorier", "Gagner 1 M de deniers au total", () => G.life >= 1e6],
+  ["g3", "Banquier royal", "Gagner 1 Md de deniers au total", () => G.life >= 1e9],
+  ["g4", "Fortune légendaire", "Gagner 1 T de deniers au total", () => G.life >= 1e12],
+  ["m1", "Le village", "Posséder 25 masures", () => owned("masure") >= 25],
+  ["m2", "La ville", "Posséder 50 masures", () => owned("masure") >= 50],
+  ["b1", "Grand bâtisseur", "Posséder 100 bâtiments en tout", () => totalB() >= 100],
+  ["e1", "Demeure des rois", "Achever la Résidence royale", () => G.era >= 1 || G.crowns > 0],
+  ["e2", "Notre-Dame", "Achever la cathédrale", () => G.era >= 2 || G.crowns > 0],
+  ["e3", "Imprenable", "Achever la citadelle", () => G.era >= 3 || G.crowns > 0],
+  ["e4", "Montagne couronnée", "Achever la Fête de la Montagne couronnée", () => G.era >= 4 || G.crowns > 0],
+  ["c1", "Couronnement", "Couronner la cité une première fois", () => G.crowns >= 1],
+  ["w1", "Lueur dorée", "Attraper un feu follet", () => G.wispsCaught >= 1],
+  ["w2", "Chasseur de lueurs", "Attraper 10 feux follets", () => G.wispsCaught >= 10],
+  ["w3", "Le Bœuf de lumière", "Attraper le Bœuf de lumière", () => G.stats.oxCaught >= 1],
+  ["r1", "Première victoire", "Repousser un assaut sans perte", () => G.raidsWon >= 1],
+  ["r2", "Bouclier de Laon", "Repousser 10 assauts sans perte", () => G.raidsWon >= 10],
+  ["r3", "Fléau des pillards", "Abattre 100 pillards", () => G.foesSlain >= 100],
+  ["r4", "Chef abattu", "Vaincre un chef de guerre", () => G.stats.bossKills >= 1],
+  ["r5", "Bras armé", "Abattre 20 pillards en Labeur", () => G.stats.labeurKills >= 20],
+  ["k1", "En rythme", "Atteindre un combo ×3", () => G.stats.maxCombo >= 3],
+  ["k2", "Virtuose", "Atteindre un combo ×5", () => G.stats.maxCombo >= 5],
+  ["k3", "Coups de maître", "Réussir 100 coups de maître", () => G.stats.crits >= 100],
+  ["h1", "Premier secours", "Maîtriser un incident", () => G.stats.events >= 1],
+  ["h2", "Bailli vigilant", "Maîtriser 10 incidents", () => G.stats.events >= 10],
+  ["f1", "Client du marché", "Acheter 10 faveurs", () => G.stats.favors >= 10],
+  ["f2", "Faveur légendaire", "Acheter une faveur légendaire", () => G.stats.legend >= 1],
+  ["q1", "Bon serviteur", "Accomplir 10 quêtes du bailli", () => G.quest >= 10],
+  ["x1", "Spéléologue", "Mener une expédition dans les creutes", () => G.stats.expeditions >= 1],
+  ["x2", "Mémoire de Laon", "Réunir les 8 fragments d'histoire", () => G.frags.length >= 8],
+  ["s1", "Marchand avisé", "Vendre un bâtiment", () => G.stats.sold >= 1]
+].map(([id, name, desc, test]) => ({ id, name, desc, test }));
+function checkAch() {
+  for (const a of ACH) if (!G.ach.includes(a.id) && a.test()) {
+    G.ach.push(a.id); toast(`Haut fait : ${a.name} (+1 % de production)`); Snd.fanfare();
+    if (tab === "c") render();
+  }
+}
+
+/* ================= Quêtes du bailli ================= */
+const qsnap = () => ({ clicks: G.clicks, upg: G.upg.length, wisps: G.wispsCaught, favors: G.stats.favors, foes: G.foesSlain, raids: G.raidsWon, exp: G.stats.expeditions, lab: G.stats.labeurKills, events: G.stats.events, target: (Math.floor(totalB() / 10) + 2) * 10 });
+const QUESTS = [
+  ["Bâtis 5 masures", () => [owned("masure"), 5]],
+  ["Touche la cité 50 fois", () => [G.clicks - G.qs.clicks, 50]],
+  ["Bâtis 3 puits", () => [owned("puits"), 3]],
+  ["Achète une amélioration", () => [G.upg.length - G.qs.upg, 1]],
+  ["Bâtis 2 marchés", () => [owned("marche"), 2]],
+  ["Achète une faveur au marché", () => [G.stats.favors - G.qs.favors, 1]],
+  ["Attrape un feu follet doré", () => [G.wispsCaught - G.qs.wisps, 1]],
+  ["Bâtis une tour de guet", () => [owned("guet"), 1]],
+  ["Achève la Résidence royale", () => [G.era >= 1 ? 1 : 0, 1]],
+  ["Abats 5 pillards", () => [G.foesSlain - G.qs.foes, 5]],
+  ["Bâtis 5 creutes", () => [owned("creute"), 5]],
+  ["Atteins un combo ×2", () => [G.stats.maxCombo >= 2 ? 1 : 0, 1]],
+  ["Repousse un assaut sans perte", () => [G.raidsWon - G.qs.raids, 1]],
+  ["Mène une expédition dans les creutes", () => [G.stats.expeditions - G.qs.exp, 1]],
+  ["Abats 20 pillards en Labeur", () => [G.stats.labeurKills - G.qs.lab, 20]],
+  ["Achève la Cathédrale Notre-Dame", () => [G.era >= 2 ? 1 : 0, 1]],
+  ["Maîtrise 3 incidents", () => [G.stats.events - G.qs.events, 3]],
+  ["Bâtis 2 portes fortifiées", () => [owned("porte"), 2]],
+  ["Achève la Citadelle", () => [G.era >= 3 ? 1 : 0, 1]],
+  ["Bâtis une cabine POMA", () => [owned("poma"), 1]],
+  ["Achève la Fête de la Montagne couronnée", () => [G.era >= 4 ? 1 : 0, 1]]
+];
+function curQuest() {
+  if (!G.qs) G.qs = qsnap();
+  if (G.quest < QUESTS.length) return { t: QUESTS[G.quest][0], p: QUESTS[G.quest][1]() };
+  return { t: `Possède ${G.qs.target} bâtiments en tout`, p: [totalB(), G.qs.target] };
+}
+const $q = document.getElementById("qName"), $qp = document.getElementById("qProg"), $qc = document.getElementById("qClaim");
+function refreshQuest() {
+  const q = curQuest(), cur = Math.max(0, Math.min(q.p[0], q.p[1]));
+  $q.textContent = `${q.t} · ${fmt(cur)}/${fmt(q.p[1])}`; $qp.style.width = `${(cur / q.p[1]) * 100}%`;
+  $qc.hidden = cur < q.p[1];
+}
+function questReward() { return Math.max(100, basePps() * 90 + clickValue() * 40); }
+$qc.addEventListener("click", () => {
+  const q = curQuest(); if (q.p[0] < q.p[1]) return;
+  const r = questReward(); earn(r); G.quest++; G.qs = qsnap();
+  Snd.bell(0.08, 659); toast(`Quête accomplie : +${fmt(r)} deniers`); refreshQuest(); refreshNumbers();
+});
+
+/* ================= Arbre des reliques ================= */
+const TREE = [
+  { id: "fondations", name: "Fondations anciennes", cost: 1, desc: "Chaque nouvelle cité commence avec 15 masures et 5 puits." },
+  { id: "follets", name: "Feux follets apprivoisés", cost: 2, desc: "Les feux follets dorés apparaissent deux fois plus souvent." },
+  { id: "veilleurs", name: "Veilleurs de la butte", cost: 2, desc: "Les pillards ont 30 % de vie en moins." },
+  { id: "memoire", name: "Mémoire du bailli", cost: 3, desc: "Gains hors ligne à plein régime, jusqu'à 24 heures." },
+  { id: "faveurs", name: "Faveurs du roi", cost: 3, desc: "4 offres au marché aux faveurs, 20 % moins chères." },
+  { id: "main", name: "Main bénie", cost: 3, desc: "+4 % de coups de maître, combo maximal ×7." },
+  { id: "explorateur", name: "Lanterne de l'explorateur", cost: 3, desc: "Expéditions deux fois plus fréquentes, torche plus durable." },
+  { id: "boeuf", name: "Bœuf gardien", cost: 4, desc: "Le Bœuf de lumière apparaît trois fois plus souvent." },
+  { id: "pierre", name: "Pierre de Laon", cost: 5, desc: "Production ×2 pour toujours." },
+  { id: "monuments", name: "Monuments éternels", cost: 5, desc: "Les monuments coûtent deux fois moins cher." }
+];
+const relPoints = () => G.reliques - G.relSpent;
+function buyNode(n) { if (hasNode(n.id) || relPoints() < n.cost) return; G.relSpent += n.cost; G.tree.push(n.id); Snd.bell(0.08, 784); toast(`Relique consacrée : ${n.name}`); render(); }
+
+/* ================= Écran titre & cinématiques ================= */
+const $title = document.getElementById("title"), tcv = document.getElementById("tcv");
+function paintTitle() {
+  const r = $title.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r.width, h = r.height;
+  tcv.width = Math.round(w * dpr); tcv.height = Math.round(h * dpr);
+  const t = tcv.getContext("2d"); t.setTransform(dpr, 0, 0, dpr, 0, 0);
+  let gr = t.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#1d2340"); gr.addColorStop(0.45, "#7a4a5a"); gr.addColorStop(0.75, "#e08a4e"); gr.addColorStop(1, "#f2c27a");
+  t.fillStyle = gr; t.fillRect(0, 0, w, h);
+  for (let i = 0; i < 60; i++) { t.fillStyle = `rgba(255,248,230,${0.2 + hsh(i, 61) * 0.6})`; t.fillRect(hsh(i, 62) * w, hsh(i, 63) * h * 0.35, 1.3, 1.3); }
+  const sx = w * 0.68, sy = h * 0.66, sg = t.createRadialGradient(sx, sy, 0, sx, sy, Math.max(w, h) * 0.35);
+  sg.addColorStop(0, "rgba(255,230,160,.95)"); sg.addColorStop(0.15, "rgba(255,200,120,.6)"); sg.addColorStop(1, "rgba(255,160,90,0)");
+  t.fillStyle = sg; t.fillRect(0, 0, w, h);
+  // Bœuf de lumière dans les nuages
+  const u = Math.min(w / 380, h / 300);
+  t.save(); t.globalAlpha = 0.5; t.shadowColor = "rgba(220,240,255,.9)"; t.shadowBlur = 30;
+  const ox = (x, y, s) => { t.fillStyle = "rgba(235,245,255,.8)"; t.beginPath(); t.ellipse(x, y, 32 * s, 17 * s, 0, 0, Math.PI * 2); t.fill(); t.beginPath(); t.ellipse(x + 34 * s, y - 9 * s, 13 * s, 11 * s, 0.3, 0, Math.PI * 2); t.fill();
+    t.strokeStyle = "rgba(240,250,255,.9)"; t.lineWidth = 3 * s; t.beginPath(); t.moveTo(x + 30 * s, y - 18 * s); t.quadraticCurveTo(x + 22 * s, y - 34 * s, x + 28 * s, y - 38 * s); t.moveTo(x + 40 * s, y - 18 * s); t.quadraticCurveTo(x + 50 * s, y - 34 * s, x + 44 * s, y - 39 * s); t.stroke(); };
+  ox(w * 0.24, h * 0.24, u * 1.1); t.restore();
+  // collines et butte
+  t.fillStyle = "rgba(60,40,60,.6)"; t.beginPath(); t.moveTo(0, h * 0.82); for (let x = 0; x <= w; x += 16) t.lineTo(x, h * 0.8 - Math.sin(x * 0.01) * 10 * u - Math.sin(x * 0.027) * 5 * u); t.lineTo(w, h); t.lineTo(0, h); t.fill();
+  const py = h * 0.6, pl = w * 0.22, pr = w * 0.86;
+  t.fillStyle = "#2a1a24"; t.beginPath(); t.moveTo(-5, h); t.lineTo(w * 0.04, h * 0.9); t.bezierCurveTo(w * 0.14, h * 0.88, pl - 20 * u, py, pl, py); t.lineTo(pr, py); t.bezierCurveTo(pr + 20 * u, py, w * 0.96, h * 0.88, w + 5, h * 0.9); t.lineTo(w + 5, h); t.fill();
+  // silhouette de la ville haute
+  for (let i = 0; i < 26; i++) { const x = pl + (pr - pl) * (i / 26), hh = (6 + hsh(i, 64) * 9) * u; t.fillRect(x, py - hh, (pr - pl) / 26 + 1, hh); t.beginPath(); t.moveTo(x - 1, py - hh); t.lineTo(x + (pr - pl) / 52, py - hh - 6 * u); t.lineTo(x + (pr - pl) / 26 + 1, py - hh); t.fill(); }
+  const cx = pl + (pr - pl) * 0.42;
+  t.fillRect(cx - 14 * u, py - 34 * u, 60 * u, 34 * u);
+  for (const tx of [-24, -6]) { t.fillRect(cx + tx * u, py - 74 * u, 12 * u, 74 * u); t.fillRect(cx + (tx + 1.5) * u, py - 82 * u, 9 * u, 8 * u); t.save(); t.translate(cx + (tx + 6) * u, py - 85 * u); t.beginPath(); t.ellipse(0, 0, 3 * u, 1.8 * u, 0, 0, Math.PI * 2); t.fill(); t.beginPath(); t.ellipse(3 * u, -1 * u, 1.3 * u, 1.1 * u, 0, 0, Math.PI * 2); t.fill(); t.restore(); }
+  t.fillRect(cx + 26 * u, py - 54 * u, 10 * u, 20 * u);
+  t.fillStyle = "rgba(255,190,110,.85)"; for (let i = 0; i < 18; i++) t.fillRect(pl + (pr - pl) * hsh(i, 65), py - (3 + hsh(i, 66) * 6) * u, 1.6 * u, 2 * u);
+}
+function showTitle(then) {
+  $title.hidden = false; paintTitle();
+  document.getElementById("tGo").textContent = G.life > 0 ? "Reprendre" : "Fonder la cité";
+  document.getElementById("tGo").onclick = () => { $title.hidden = true; then(); };
+}
+addEventListener("resize", () => { if (!$title.hidden) paintTitle(); });
+
+const CINE = [
+  ["Sur la butte, les rois bâtissent leur demeure.", "La cité perchée devient une place forte royale.", "Mais sa richesse attire déjà les convoitises…"],
+  ["Pierre après pierre, la cathédrale s'élève.", "Les bœufs hissent les blocs tirés des creutes.", "Au sommet des tours, leurs frères de pierre veillent."],
+  ["Des remparts couronnent la montagne.", "Après le siège de 1594, Henri IV y fait bâtir une citadelle.", "La cité perchée semble imprenable."],
+  ["Le train, puis le POMA, montent vers la ville haute.", "Mille ans d'histoire se lisent dans ses pierres.", "La Montagne couronnée est en fête."]
+];
+const $cine = document.getElementById("cine");
+function playCine(i, then) {
+  const lines = CINE[i]; const box = document.getElementById("cineLines"); box.innerHTML = "";
+  lines.forEach((l, k) => { const p = document.createElement("p"); p.textContent = l; p.style.animationDelay = `${0.4 + k * 1.6}s`; box.appendChild(p); });
+  $cine.hidden = false; Snd.bell(0.1, 392);
+  const done = () => { $cine.hidden = true; clearTimeout(tm); then(); };
+  const tm = setTimeout(done, 0.4 * 1000 + lines.length * 1600 + 2200);
+  document.getElementById("cineSkip").onclick = done;
+}
+
+/* ================= Expédition souterraine (les Creutes, dans la Cité) ================= */
+const XFRAGS = {
+  calcaire: { title: "La butte de calcaire", text: "Laon est bâtie sur une butte de calcaire assez tendre. Pendant des siècles, on y a taillé la pierre de la ville, laissant sous les rues un vaste réseau de carrières et de caves." },
+  boeufs: { title: "Le bœuf providentiel", text: "La légende raconte qu'un bœuf mystérieux apparut pour aider à hisser les pierres de la cathédrale. En hommage, des bœufs sculptés veillent au sommet de ses tours." },
+  cathedrale: { title: "Notre-Dame de Laon", text: "La cathédrale Notre-Dame, l'une des premières grandes cathédrales gothiques, fut bâtie aux XIIᵉ et XIIIᵉ siècles avec le calcaire tiré de la butte." },
+  templiers: { title: "Les chevaliers du Temple", text: "Les Templiers s'installent à Laon vers 1128. Ils y élèvent une chapelle romane au plan octogonal, classée monument historique dès 1846." },
+  carolingiens: { title: "La cité des rois", text: "Au Xᵉ siècle, la cité perchée fut la place forte des derniers rois carolingiens, qui en firent l'une de leurs principales résidences." },
+  creute: { title: "Le mot « creute »", text: "En picard, une creute est une carrière souterraine. Pendant la Grande Guerre, des soldats vécurent dans celles du Chemin des Dames, tout près de Laon." },
+  marquette: { title: "L'explorateur", text: "Jacques Marquette, jésuite né à Laon en 1637, descendit le Mississippi avec Louis Jolliet et en rapporta les premières descriptions fiables." },
+  poma: { title: "La cabine sur câble", text: "De 1989 à 2016, le POMA 2000, une petite rame automatique tirée par câble, reliait la gare à la ville haute." }
+};
+const XRID = [
+  { q: "Pourquoi creusait-on sous la butte de Laon ?", a: ["Pour extraire le calcaire et bâtir la ville", "Pour chercher de l'or", "Pour enfermer un dragon"] },
+  { q: "Quels animaux sculptés veillent au sommet des tours de la cathédrale ?", a: ["Des bœufs", "Des lions", "Des aigles"] },
+  { q: "Quelle forme a le plan de la chapelle des Templiers de Laon ?", a: ["Un octogone", "Une croix latine", "Un carré"] },
+  { q: "Au Xᵉ siècle, de quels rois Laon était-elle la place forte ?", a: ["Les derniers Carolingiens", "Les Mérovingiens", "Les Bourbons"] },
+  { q: "Quel explorateur né à Laon en 1637 a descendu le Mississippi ?", a: ["Jacques Marquette", "Jacques Cartier", "Samuel de Champlain"] },
+  { q: "En picard, que désigne le mot « creute » ?", a: ["Une carrière souterraine", "Une tour de guet", "Un pain de seigle"] }
+];
+const EXP = { open: false };
+const $exp = document.getElementById("exp"), xcv = document.getElementById("xcv"), xc = xcv.getContext("2d"), xstage = document.getElementById("xstage");
+const xLight = document.createElement("canvas"), xl = xLight.getContext("2d");
+let xMapCv = document.createElement("canvas"), XTS = 40, XVW = 1, XVH = 1;
+const expCooldown = () => (hasNode("explorateur") ? 120000 : 240000);
+function xh(x, y, s) { let h = (x * 374761393 + y * 668265263 + s * 982451653) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+function xrng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function xGen(w, h, seed, nCandles, nWisps, fragIds) {
+  const rnd = xrng(seed), D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const g = new Uint8Array(w * h).fill(1), id = (x, y) => y * w + x;
+  const st = [[1, 1]]; g[id(1, 1)] = 0;
+  while (st.length) {
+    const [cx, cy] = st[st.length - 1];
+    const nb = [[2, 0], [-2, 0], [0, 2], [0, -2]].filter(([dx, dy]) => { const nx = cx + dx, ny = cy + dy; return nx > 0 && ny > 0 && nx < w - 1 && ny < h - 1 && g[id(nx, ny)] === 1; });
+    if (!nb.length) { st.pop(); continue; }
+    const [dx, dy] = nb[Math.floor(rnd() * nb.length)]; g[id(cx + dx / 2, cy + dy / 2)] = 0; g[id(cx + dx, cy + dy)] = 0; st.push([cx + dx, cy + dy]);
+  }
+  const bfs = (s, blocked) => { const dist = new Int32Array(w * h).fill(-1), par = new Int32Array(w * h).fill(-1), q = [s]; dist[s] = 0;
+    for (let k = 0; k < q.length; k++) { const cc = q[k], x = cc % w, y = (cc / w) | 0; for (const [dx, dy] of D4) { const n = id(x + dx, y + dy); if (g[n] === 0 && dist[n] < 0 && !(blocked && blocked.has(n))) { dist[n] = dist[cc] + 1; par[n] = cc; q.push(n); } } }
+    return { dist, par, order: q }; };
+  const start = id(1, 1), b0 = bfs(start), exit = b0.order[b0.order.length - 1];
+  const path = []; for (let cc = exit; cc >= 0; cc = b0.par[cc]) path.unshift(cc);
+  const floorN = cc => D4.filter(([dx, dy]) => g[cc + dx + dy * w] === 0);
+  // une porte runique au milieu du chemin
+  let door = path[Math.floor(path.length / 2)];
+  for (let k = 0; k < 10; k++) for (const s of [k, -k]) { const j = Math.floor(path.length / 2) + s, cc = path[j]; if (j > 2 && j < path.length - 2) { const n = floorN(cc); if (n.length === 2 && n[0][0] === -n[1][0] && n[0][1] === -n[1][1]) { door = cc; k = 99; break; } } }
+  const doors = [{ c: door, rid: Math.floor(rnd() * XRID.length), open: false }], doorSet = new Set([door]);
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) { // boucles du côté de l'entrée seulement
+    const cc = id(x, y); if (g[cc] !== 1) continue; let a = -1, b = -1;
+    if (x % 2 === 0 && y % 2 === 1) { a = cc - 1; b = cc + 1; } else if (x % 2 === 1 && y % 2 === 0) { a = cc - w; b = cc + w; }
+    if (a < 0 || g[a] || g[b] || doorSet.has(a) || doorSet.has(b)) continue;
+    const ra = bfs(start, doorSet).dist; if ((ra[a] >= 0) === (ra[b] >= 0) && rnd() < 0.1) g[cc] = 0;
+  }
+  const dist = bfs(start, doorSet).dist, used = new Set([start, exit, door]);
+  const shuffle = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+  const dead = shuffle([...Array(w * h).keys()].filter(cc => g[cc] === 0 && !used.has(cc) && floorN(cc).length === 1));
+  const floors = shuffle([...Array(w * h).keys()].filter(cc => g[cc] === 0 && !used.has(cc)));
+  const take = pred => { for (const arr of [dead, floors]) { const i = arr.findIndex(cc => !used.has(cc) && pred(cc)); if (i >= 0) { used.add(arr[i]); return arr[i]; } } return -1; };
+  const items = [];
+  fragIds.forEach((fid, i) => { const cc = take(k => (i % 2 ? dist[k] < 0 : dist[k] > 5)); if (cc >= 0) items.push({ c: cc, type: "frag", fid }); });
+  for (let i = 0; i < nCandles; i++) { const cc = take(k => (i % 2 ? dist[k] < 0 : dist[k] > 3)); if (cc >= 0) items.push({ c: cc, type: "candle" }); }
+  const wisps = [];
+  for (const [dx, dy] of shuffle([[1, 0], [0, 1], [1, 0], [0, 1]])) {
+    if (wisps.length >= nWisps) break;
+    for (let tries = 0; tries < 200 && wisps.length < nWisps; tries++) {
+      const x = 1 + Math.floor(rnd() * (w - 2)), y = 1 + Math.floor(rnd() * (h - 2)), cc = id(x, y);
+      if (g[cc] || doorSet.has(cc) || (dist[cc] >= 0 && dist[cc] < 6)) continue;
+      let len = 0, k = cc; while (g[k] === 0 && !doorSet.has(k)) { len++; k += dx + dy * w; }
+      if (len >= 4) wisps.push({ x, y, dx, dy, len, t: 0, dir: 1, sp: 1.5 + rnd() });
+    }
+  }
+  return { W: w, H: h, g, start, exit, doors, items, wisps };
+}
+function xBlocks(x, y) { const m = EXP.map; if (x < 0 || y < 0 || x >= m.W || y >= m.H) return true; const cc = y * m.W + x; return m.g[cc] === 1 || m.doors.some(d => d.c === cc && !d.open); }
+function xLos(x0, y0, x1, y1) { let dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1, dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1, err = dx + dy, x = x0, y = y0; for (;;) { if (x === x1 && y === y1) return true; if (!(x === x0 && y === y0) && xBlocks(x, y)) return false; const e2 = 2 * err; if (e2 >= dy) { err += dy; x += sx; } if (e2 <= dx) { err += dx; y += sy; } } }
+function xAddLight(arr, sx, sy, Rr, k, cx = sx + 0.5, cy = sy + 0.5) {
+  const m = EXP.map, r = Math.ceil(Rr);
+  for (let y = Math.max(0, sy - r); y <= Math.min(m.H - 1, sy + r); y++) for (let x = Math.max(0, sx - r); x <= Math.min(m.W - 1, sx + r); x++) {
+    const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy); if (d > Rr || !xLos(sx, sy, x, y)) continue; const i = y * m.W + x; arr[i] = Math.min(1, arr[i] + Math.pow(1 - d / Rr, 0.8) * k);
+  }
+}
+function xStatic() { const m = EXP.map, a = new Float32Array(m.W * m.H); for (const it of m.items) if (!it.taken) xAddLight(a, it.c % m.W, (it.c / m.W) | 0, 1.8, 0.4); for (const d of m.doors) if (!d.open) xAddLight(a, d.c % m.W, (d.c / m.W) | 0, 1.8, 0.4); xAddLight(a, m.exit % m.W, (m.exit / m.W) | 0, 2.6, 0.6); EXP.stat = a; }
+function xRenderMap() {
+  const m = EXP.map; xMapCv.width = m.W * XTS * 2; xMapCv.height = m.H * XTS * 2;
+  const t = xMapCv.getContext("2d"); t.setTransform(2, 0, 0, 2, 0, 0);
+  for (let y = 0; y < m.H; y++) for (let x = 0; x < m.W; x++) {
+    const X = x * XTS, Y = y * XTS, v = xh(x, y, 1) * 14 - 7;
+    if (m.g[y * m.W + x]) {
+      t.fillStyle = "#3e3328"; t.fillRect(X, Y, XTS, XTS);
+      for (let r = 0; r < 3; r++) { const off = ((r + y) % 2) * XTS * 0.3; for (let k = -1; k < 3; k++) { const bx = X + off + k * XTS * 0.6, by = Y + r * XTS / 3; const vv = xh(x * 7 + k, y * 5 + r, 3) * 24 - 12; t.fillStyle = `rgb(${100 + vv},${84 + vv},${64 + vv})`; t.fillRect(Math.max(X, bx + 1), by + 1, Math.min(XTS * 0.6 - 2, X + XTS - bx - 1), XTS / 3 - 2); } }
+    } else {
+      t.fillStyle = `rgb(${62 + v},${50 + v},${38 + v})`; t.fillRect(X, Y, XTS, XTS);
+      t.fillStyle = "rgba(0,0,0,.2)"; t.fillRect(X, Y + XTS / 2, XTS, 1); t.fillRect(X + ((y % 2) * XTS / 2), Y, 1, XTS / 2);
+      for (let i = 0; i < 5; i++) { t.fillStyle = xh(x, y, 30 + i) > 0.5 ? "rgba(255,240,210,.07)" : "rgba(0,0,0,.25)"; t.fillRect(X + xh(x, y, 10 + i) * XTS, Y + xh(x, y, 20 + i) * XTS, 2, 2); }
+    }
+  }
+}
+function xResize() {
+  const r = xstage.getBoundingClientRect(); XVW = Math.max(1, r.width); XVH = Math.max(1, r.height);
+  const dpr = Math.min(2, devicePixelRatio || 1); xcv.width = Math.round(XVW * dpr); xcv.height = Math.round(XVH * dpr);
+  const n = Math.round(Math.max(28, Math.min(56, Math.min(XVW / 11, XVH / 9)))); if (n !== XTS || !xMapCv.width) { XTS = n; if (EXP.map) xRenderMap(); }
+}
+new ResizeObserver(() => { if (EXP.open) xResize(); }).observe(xstage);
+function expReady() { return G.era >= 1 && Date.now() >= (G.expAt || 0); }
+function openExp() {
+  if (!expReady() || EXP.open) return;
+  const size = [[15, 11], [19, 13], [23, 15], [27, 17]][Math.min(3, G.era - 1)];
+  const missing = Object.keys(XFRAGS).filter(f => !G.frags.includes(f)); const pick = [];
+  for (let i = 0; i < 2; i++) { const pool = missing.length ? missing : Object.keys(XFRAGS); const f = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; if (f) pick.push(f); }
+  const m = xGen(size[0], size[1], (Date.now() & 0x7fffffff) ^ 0x5bd1e995, 3 + G.era, Math.min(3, G.era - 1), pick);
+  Object.assign(EXP, { open: true, map: m, px: 1, py: 1, tx: 1, ty: 1, fx: 1, fy: 1, mv: 0, face: [1, 0], torch: 100, inv: 0, held: [], found: [], gold: 0, seen: new Uint8Array(m.W * m.H), t: 0, flash: 0 });
+  xLight.width = m.W; xLight.height = m.H;
+  G.expAt = Date.now() + expCooldown(); G.stats.expeditions++;
+  $exp.hidden = false; xResize(); xRenderMap(); xStatic(); Snd.bell(0.06, 262);
+  modalShow({ eyebrow: "Expédition souterraine", title: "Sous la Montagne couronnée", body: `<p>Tu descends dans les creutes avec une torche. Deux fragments d'histoire t'y attendent : chacun ajoute <b>+3 % de production</b> pour toujours. Trouve le Bœuf de lumière pour remonter avec un trésor.</p><p class="note">Flèches, ZQSD ou WASD pour avancer, croix tactile sur mobile. Les bougies ravivent la flamme, les feux follets bleus la dévorent.</p>`, choices: [{ label: "Allumer la torche", on: modalHide }] });
+  render();
+}
+function closeExp(reason) {
+  if (!EXP.open) return; EXP.open = false; $exp.hidden = true;
+  const base = basePps();
+  let gold = EXP.gold; if (reason === "exit") gold += base * 240 + 500;
+  if (gold > 0) earn(gold);
+  const fr = EXP.found.map(f => `<li><b>${XFRAGS[f].title}</b> : ${XFRAGS[f].text}</li>`).join("");
+  modalShow({
+    eyebrow: "Retour à la surface", title: reason === "exit" ? "Le Bœuf de lumière te ramène" : reason === "dark" ? "Ta flamme s'est éteinte" : "Tu remontes à la surface",
+    body: `<p>Trésor rapporté : <b>${fmt(gold)}</b> deniers.</p>${fr ? `<p>Nouveaux fragments (+3 % de production chacun) :</p><ul style="margin:0 0 12px;padding-left:20px;font-size:16px;line-height:1.45">${fr}</ul>` : `<p class="note">Aucun nouveau fragment cette fois.</p>`}<p class="note">Prochaine expédition possible dans ${Math.round(expCooldown() / 60000)} minutes.</p>`,
+    choices: [{ label: "Retourner à la cité", on: modalHide }]
+  });
+  render();
+}
+document.getElementById("xQuit").addEventListener("click", () => closeExp("quit"));
+const XKEYS = { ArrowUp: "up", z: "up", w: "up", ArrowDown: "down", s: "down", ArrowLeft: "left", q: "left", a: "left", ArrowRight: "right", d: "right" };
+const XDIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+addEventListener("keydown", e => { if (!EXP.open || !modal.hidden) return; const k = XKEYS[e.key] || XKEYS[e.key.toLowerCase()]; if (!k) return; e.preventDefault(); EXP.held = EXP.held.filter(h => h !== k); EXP.held.push(k); });
+addEventListener("keyup", e => { if (!EXP.open) return; const k = XKEYS[e.key] || XKEYS[e.key.toLowerCase()]; if (k) EXP.held = EXP.held.filter(h => h !== k); });
+document.querySelectorAll("#xpad button").forEach(b => {
+  const d = b.dataset.d;
+  b.addEventListener("pointerdown", e => { e.preventDefault(); b.setPointerCapture?.(e.pointerId); EXP.held = (EXP.held || []).filter(h => h !== d); EXP.held.push(d); });
+  const up = () => { EXP.held = (EXP.held || []).filter(h => h !== d); };
+  b.addEventListener("pointerup", up); b.addEventListener("pointercancel", up); b.addEventListener("lostpointercapture", up);
+});
+function xAsk(door) {
+  const R0 = XRID[door.rid], opts = R0.a.map((t, i) => ({ t, ok: i === 0 })).sort(() => Math.random() - 0.5);
+  EXP.held = [];
+  modalShow({ eyebrow: "Porte runique", title: "La rune exige une réponse", body: `<p>${R0.q}</p>`, choices: opts.map(o => ({ label: o.t, on: () => {
+    if (o.ok) { door.open = true; xStatic(); Snd.fanfare(); modalHide(); }
+    else { Snd.alarm(); EXP.torch = Math.max(5, EXP.torch - 12); EXP.flash = 0.4; modalHide(); toast("La rune s'assombrit : ta flamme faiblit"); }
+  } })) });
+}
+function xUpdate(dt) {
+  const E = EXP, m = E.map; E.t += dt; E.flash = Math.max(0, E.flash - dt);
+  if (!modal.hidden) return;
+  E.torch -= dt * (1.1 + 0.1 * G.era) * (hasNode("explorateur") ? 0.7 : 1);
+  if (E.torch <= 0) { E.torch = 0; closeExp("dark"); return; }
+  if (!E.mv && E.held.length) {
+    const [dx, dy] = XDIR[E.held[E.held.length - 1]]; E.face = [dx, dy];
+    const nx = E.tx + dx, ny = E.ty + dy, cc = ny * m.W + nx;
+    if (!m.g[cc]) { const door = m.doors.find(d => d.c === cc && !d.open); if (door) xAsk(door); else { E.fx = E.tx; E.fy = E.ty; E.tx = nx; E.ty = ny; E.mv = 1e-6; Snd.tap(); } }
+  }
+  if (E.mv) {
+    E.mv += dt * 6.5;
+    if (E.mv >= 1) {
+      E.mv = 0; E.px = E.tx; E.py = E.ty; const cc = E.ty * m.W + E.tx;
+      const it = m.items.find(i => i.c === cc && !i.taken);
+      if (it) { it.taken = true; xStatic();
+        if (it.type === "candle") { E.torch = Math.min(100, E.torch + 40); Snd.coin(); }
+        else { Snd.fanfare(); if (!G.frags.includes(it.fid)) { G.frags.push(it.fid); E.found.push(it.fid); modalShow({ eyebrow: "Fragment d'histoire · +3 % de production", title: XFRAGS[it.fid].title, body: `<p>${XFRAGS[it.fid].text}</p>`, choices: [{ label: "Ranger dans la chronique", on: modalHide }] }); }
+          else { const gg = basePps() * 60 + 100; E.gold += gg; toast(`Fragment déjà connu : coffret de ${fmt(gg)} deniers`); } } }
+      if (cc === m.exit) { Snd.bell(0.1, 523); closeExp("exit"); return; }
+    } else { E.px = E.fx + (E.tx - E.fx) * E.mv; E.py = E.fy + (E.ty - E.fy) * E.mv; }
+  }
+  E.inv = Math.max(0, E.inv - dt);
+  for (const w of m.wisps) {
+    w.t += w.dir * w.sp * dt; if (w.t > w.len - 1) { w.t = w.len - 1; w.dir = -1; } if (w.t < 0) { w.t = 0; w.dir = 1; }
+    if (E.inv <= 0 && Math.hypot(w.x + w.dx * w.t - E.px, w.y + w.dy * w.t - E.py) < 0.6) { E.torch = Math.max(0, E.torch - 22); E.inv = 1.4; E.flash = 0.5; Snd.hit(); }
+  }
+  document.getElementById("xTorch").style.width = `${E.torch}%`;
+  document.getElementById("xFr").textContent = `${E.found.length}`;
+}
+function xGlow(x, y, r, col, a) { const gg = xc.createRadialGradient(x, y, 0, x, y, r); gg.addColorStop(0, `rgba(${col},${a})`); gg.addColorStop(1, `rgba(${col},0)`); xc.fillStyle = gg; xc.fillRect(x - r, y - r, r * 2, r * 2); }
+function xRender() {
+  const E = EXP, m = E.map, T = XTS, t = E.t, dpr = xcv.width / XVW;
+  xc.setTransform(dpr, 0, 0, dpr, 0, 0); xc.fillStyle = "#050302"; xc.fillRect(0, 0, XVW, XVH);
+  let camX = (E.px + 0.5) * T - XVW / 2, camY = (E.py + 0.5) * T - XVH / 2;
+  camX = m.W * T <= XVW ? (m.W * T - XVW) / 2 : Math.max(0, Math.min(m.W * T - XVW, camX));
+  camY = m.H * T <= XVH ? (m.H * T - XVH) / 2 : Math.max(0, Math.min(m.H * T - XVH, camY));
+  xc.save(); xc.translate(-Math.round(camX), -Math.round(camY)); xc.drawImage(xMapCv, 0, 0, m.W * T, m.H * T);
+  for (const d of m.doors) if (!d.open) { const X = (d.c % m.W) * T, Y = ((d.c / m.W) | 0) * T; xc.fillStyle = "#4a2f1b"; xc.fillRect(X + 2, Y + 2, T - 4, T - 4); xc.fillStyle = "#2a2a2e"; xc.fillRect(X + 2, Y + T * 0.25, T - 4, T * 0.08); xc.fillRect(X + 2, Y + T * 0.68, T - 4, T * 0.08); xc.strokeStyle = `rgba(255,190,90,${0.6 + 0.4 * Math.sin(t * 3)})`; xc.lineWidth = T / 16; xc.beginPath(); xc.arc(X + T / 2, Y + T / 2, T * 0.17, 0, Math.PI * 2); xc.stroke(); }
+  for (const it of m.items) { if (it.taken) continue; const cx = (it.c % m.W + 0.5) * T, cy = (((it.c / m.W) | 0) + 0.5) * T;
+    if (it.type === "candle") { xc.fillStyle = "#efe4c8"; xc.fillRect(cx - T * 0.06, cy - T * 0.1, T * 0.12, T * 0.27); xc.fillStyle = "#ffcf6b"; xc.beginPath(); xc.ellipse(cx, cy - T * 0.17, T * 0.045, T * 0.09 * (1 + Math.sin(t * 13 + it.c) * 0.12), 0, 0, Math.PI * 2); xc.fill(); }
+    else { xc.save(); xc.translate(cx, cy + Math.sin(t * 2 + it.c) * T * 0.04); xc.rotate(-0.35); xc.fillStyle = "#e9d8a6"; xc.fillRect(-T * 0.22, -T * 0.1, T * 0.44, T * 0.2); xc.fillStyle = "#cdb47c"; xc.beginPath(); xc.arc(-T * 0.22, 0, T * 0.1, 0, Math.PI * 2); xc.arc(T * 0.22, 0, T * 0.1, 0, Math.PI * 2); xc.fill(); xc.fillStyle = "#8e2b1f"; xc.beginPath(); xc.arc(0, T * 0.03, T * 0.06, 0, Math.PI * 2); xc.fill(); xc.restore(); } }
+  { const cx = (m.exit % m.W + 0.5) * T, cy = (((m.exit / m.W) | 0) + 0.5) * T + Math.sin(t * 1.8) * T * 0.04; xc.save(); xc.shadowColor = "rgba(170,220,255,.95)"; xc.shadowBlur = T * 0.5; xc.fillStyle = "rgba(222,240,255,.85)";
+    xc.beginPath(); xc.ellipse(cx - T * 0.04, cy, T * 0.27, T * 0.16, 0, 0, Math.PI * 2); xc.fill(); xc.beginPath(); xc.ellipse(cx + T * 0.25, cy - T * 0.08, T * 0.11, T * 0.09, 0.3, 0, Math.PI * 2); xc.fill();
+    for (const lx of [-0.22, -0.1, 0.06, 0.16]) xc.fillRect(cx + lx * T, cy + T * 0.08, T * 0.05, T * 0.17); xc.restore(); }
+  for (const w of m.wisps) { xc.fillStyle = "rgba(190,240,255,.95)"; xc.beginPath(); xc.arc((w.x + w.dx * w.t + 0.5) * T, (w.y + w.dy * w.t + 0.5) * T, T * 0.1, 0, Math.PI * 2); xc.fill(); }
+  { const cx = (E.px + 0.5) * T, cy = (E.py + 0.5) * T; if (!(E.inv > 0 && Math.floor(t * 12) % 2 === 0)) {
+    xc.fillStyle = "#3d2a4d"; xc.beginPath(); xc.moveTo(cx - T * 0.24, cy + T * 0.26); xc.quadraticCurveTo(cx, cy - T * 0.36, cx + T * 0.24, cy + T * 0.26); xc.closePath(); xc.fill();
+    xc.fillStyle = "#e2c39a"; xc.beginPath(); xc.arc(cx + E.face[0] * T * 0.04, cy - T * 0.08, T * 0.075, 0, Math.PI * 2); xc.fill(); } }
+  // lumière
+  const lm = new Float32Array(E.stat), tl = new Float32Array(m.W * m.H), Rr = 1.6 + 4.6 * (E.torch / 100), fl = 0.9 + 0.06 * Math.sin(t * 17) + 0.04 * Math.sin(t * 29);
+  xAddLight(tl, Math.round(E.px), Math.round(E.py), Rr, fl, E.px + 0.5, E.py + 0.5);
+  for (const w of m.wisps) { const wx = w.x + w.dx * w.t, wy = w.y + w.dy * w.t; xAddLight(lm, Math.round(wx), Math.round(wy), 1.7, 0.5, wx + 0.5, wy + 0.5); }
+  const img = xl.createImageData(m.W, m.H), d = img.data;
+  for (let i = 0; i < m.W * m.H; i++) { if (tl[i] > 0.08) E.seen[i] = 1; const v = Math.max(Math.min(1, lm[i] + tl[i]), E.seen[i] ? 0.13 : 0); d[i * 4] = 6; d[i * 4 + 1] = 4; d[i * 4 + 2] = 3; d[i * 4 + 3] = Math.round((1 - v) * 255); }
+  xl.putImageData(img, 0, 0); xc.imageSmoothingEnabled = true; xc.drawImage(xLight, 0, 0, m.W, m.H, 0, 0, m.W * T, m.H * T);
+  xc.globalCompositeOperation = "lighter";
+  xGlow((E.px + 0.5) * T, (E.py + 0.3) * T, T * Rr * 0.9, "255,140,50", 0.16 * fl);
+  const tipX = (E.px + 0.5 + (E.face[0] || 1) * 0.22) * T, tipY = (E.py + 0.28) * T; xGlow(tipX, tipY, T * 0.35, "255,200,90", 0.9); xGlow(tipX, tipY - T * 0.05, T * 0.16, "255,240,180", 0.9);
+  for (const it of m.items) if (!it.taken) xGlow((it.c % m.W + 0.5) * T, (((it.c / m.W) | 0) + 0.5) * T, T * 0.8, it.type === "candle" ? "255,170,70" : "255,215,120", 0.3);
+  xGlow((m.exit % m.W + 0.5) * T, (((m.exit / m.W) | 0) + 0.5) * T, T * 1.5, "150,200,255", 0.32);
+  for (const w of m.wisps) xGlow((w.x + w.dx * w.t + 0.5) * T, (w.y + w.dy * w.t + 0.5) * T, T * 0.9, "120,220,255", 0.55);
+  xc.globalCompositeOperation = "source-over"; xc.restore();
+  if (E.flash > 0) { xc.fillStyle = `rgba(120,200,255,${E.flash * 0.35})`; xc.fillRect(0, 0, XVW, XVH); }
+}
+
 /* ================= Boucle ================= */
-let last = performance.now(), acc = 0;
+let last = performance.now(), acc = 0, achAcc = 0;
 function frame(now) {
   const dt = Math.min(1, (now - last) / 1000); last = now;
   earn(pps() * dt);
@@ -956,18 +1610,23 @@ function frame(now) {
   if (active.some(b => b.left <= 0)) active = active.filter(b => b.left > 0);
   stanceCd = Math.max(0, stanceCd - dt);
   market.refresh -= dt; if (market.refresh <= 0) restockMarket();
-  updateRaid(dt, now);
-  if (!wisp && now > nextWisp) { spawnWisp(now); nextWisp = now + 50000 + Math.random() * 70000; }
+  if (!EXP.open) { updateRaid(dt, now); updateHazard(dt, now); }
+  Snd.tick();
+  achAcc += dt; if (achAcc > 1) { achAcc = 0; checkAch(); }
+  if (EXP.open) { xUpdate(dt); if (EXP.open) xRender(); }
+  if (!wisp && !EXP.open && now > nextWisp) { spawnWisp(now); nextWisp = now + (50000 + Math.random() * 70000) * (hasNode("follets") ? 0.5 : 1); }
   acc += dt; if (acc > 0.25) { acc = 0; refreshNumbers(); }
-  if (W > 1) drawScene(now);
+  if (W > 1 && !EXP.open) drawScene(now);
   requestAnimationFrame(frame);
 }
 // rattrapage quand l'onglet revient au premier plan
 addEventListener("visibilitychange", () => { if (!document.hidden) { const away = (performance.now() - last) / 1000; if (away > 1) earn(basePps() * Math.min(away, 8 * 3600)); last = performance.now(); } });
 
-resize(); render(); renderEra();
-if (offlineGain > 1) modalShow({ eyebrow: "Pendant ton absence", title: "La cité a travaillé", body: `<p>Tes gens ont amassé <b>${fmt(offlineGain)}</b> deniers en ton absence (à mi-régime, jusqu'à 8 heures).</p>`, choices: [{ label: "Reprendre", on: modalHide }] });
-else if (G.life === 0) modalShow({ eyebrow: "Laon, Xᵉ siècle", title: "La Cité perchée", body: `<p>Sur une butte de calcaire dominant la plaine, quelques familles s'installent. À toi de faire de ce rocher une cité royale, puis une ville que les siècles n'effaceront pas.</p><p class="note">Touche la cité pour récolter des deniers, bâtis pour qu'elle produise seule, guette les feux follets dorés et les faveurs du marché. Choisis ton orientation : labeur pour toucher, intendance pour laisser produire.</p>`, choices: [{ label: "Fonder la cité", on: modalHide }] });
+resize(); render(); renderEra(); syncSnd();
+if (!G.qs) G.qs = qsnap();
+const intro = () => { if (offlineGain > 1) modalShow({ eyebrow: "Pendant ton absence", title: "La cité a travaillé", body: `<p>Tes gens ont amassé <b>${fmt(offlineGain)}</b> deniers en ton absence (à mi-régime, jusqu'à 8 heures).</p>`, choices: [{ label: "Reprendre", on: modalHide }] });
+else if (G.life === 0) modalShow({ eyebrow: "Laon, Xᵉ siècle", title: "La Cité perchée", body: `<p>Sur une butte de calcaire dominant la plaine, quelques familles s'installent. À toi de faire de ce rocher une cité royale, puis une ville que les siècles n'effaceront pas.</p><p class="note">Touche la cité pour récolter des deniers, bâtis pour qu'elle produise seule, guette les feux follets dorés et les faveurs du marché. Choisis ton orientation : labeur pour toucher, intendance pour laisser produire.</p>`, choices: [{ label: "Fonder la cité", on: modalHide }] }); };
+showTitle(intro);
 requestAnimationFrame(frame);
 })();
 </script>
