@@ -203,6 +203,18 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (pointer: coarse) { #xpad { display: grid; } }
 @media (prefers-reduced-motion: reduce) { #cineLines p { animation: none; opacity: 1; } #quest .btn { animation: none; } }
 
+.resl { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.resm { color: #c8a878; }
+.mreq span { color: var(--good); } .mreq span.lack { color: #d98c7e; }
+#tabs button { font-size: 12px; letter-spacing: .04em; padding-left: 2px; padding-right: 2px; }
+.trade h3 { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.tr { font-family: var(--f-head); font-size: 12px; } .tr.up { color: var(--good); } .tr.down { color: #d98c7e; }
+.tbtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tcd { font-family: var(--f-head); font-size: 13px; color: var(--mist); }
+.lb { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-variant-numeric: tabular-nums; }
+.lb li { display: flex; gap: 8px; align-items: baseline; font-size: 15px; } .lb li span { color: var(--muted); width: 1.6em; } .lb li b { margin-left: auto; color: var(--gold); font-weight: normal; }
+.lb li.me { color: #fff1cf; }
+
 /* Parchemin */
 #modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(5,3,2,.72); z-index: 30; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 #modal[hidden] { display: none; }
@@ -231,6 +243,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     <div class="treasury">
       <div class="amt" id="amt">0<span>deniers</span></div>
       <div class="rate"><b id="pps">0</b> par seconde · <span id="perClick">1</span> par toucher</div>
+      <div class="resl" id="resLine" hidden></div>
     </div>
   </header>
   <div id="main">
@@ -251,6 +264,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
       <div id="tabs" role="tablist">
         <button role="tab" id="tab-b" aria-selected="true" data-tab="b" type="button">Bâtir</button>
         <button role="tab" id="tab-u" aria-selected="false" data-tab="u" type="button">Améliorer</button>
+        <button role="tab" id="tab-t" aria-selected="false" data-tab="t" type="button">Comptoir</button>
         <button role="tab" id="tab-c" aria-selected="false" data-tab="c" type="button">Chronique</button>
       </div>
       <div class="qty" id="qty">
@@ -358,10 +372,10 @@ for (const d of DEF_UPG) UPGRADES.push({ ...d, def: true, L: "⚔" });
 /* ================= État & sauvegarde ================= */
 const KEY = "cite-perchee-v1";
 const fresh = () => ({ v: 1, deniers: 0, run: 0, life: 0, clicks: 0, era: 0, owned: {}, upg: [], reliques: 0, crowns: 0, last: Date.now(), wispsCaught: 0, stance: "equi", raidsWon: 0, foesSlain: 0,
-  ach: [], unl: [], quest: 0, qs: null, tree: [], relSpent: 0, frags: [], expAt: 0, sound: true,
+  ach: [], unl: [], quest: 0, qs: null, res: { bois: 0, pierre: 0, foi: 0 }, monStage: 0, council: [], depth: 1, seasonT: 0, caravans: [], siegeDone: [], siegeWins: 0, read: [], week: null, permBonus: 0, flags: {}, tree: [], relSpent: 0, frags: [], expAt: 0, sound: true,
   stats: { maxCombo: 1, crits: 0, events: 0, favors: 0, legend: 0, expeditions: 0, sold: 0, oxCaught: 0, bossKills: 0, labeurKills: 0 } });
 let G = fresh();
-try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) { const f = fresh(); G = Object.assign(f, s); G.stats = Object.assign(fresh().stats, s.stats || {}); } } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) { const f = fresh(); G = Object.assign(f, s); G.stats = Object.assign(fresh().stats, s.stats || {}); G.res = Object.assign({ bois: 0, pierre: 0, foi: 0 }, s.res || {}); G.flags = s.flags || {}; } } catch (e) {}
 const save = () => { G.last = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(G)); } catch (e) {} };
 setInterval(save, 5000);
 addEventListener("visibilitychange", () => { if (document.hidden) save(); });
@@ -396,27 +410,28 @@ const stance = () => STANCES[G.stance] || STANCES.equi;
 
 function bMult(b) { let m = 1; TIERS.forEach((t, i) => { if (has(`${b.id}-${i}`)) m *= 2; }); return m; }
 function globalMult() {
-  let m = Math.pow(1.5, Math.min(G.era, 3)) * (1 + 0.05 * G.reliques) * (1 + 0.01 * G.ach.length) * (1 + 0.03 * G.frags.length) * (hasNode("pierre") ? 2 : 1);
+  let m = Math.pow(1.5, Math.min(G.era, 3)) * (1 + 0.05 * G.reliques) * (1 + (G.council.includes("anselme") ? 0.02 : 0.01) * G.ach.length) * (1 + 0.03 * G.frags.length) * (hasNode("pierre") ? 2 : 1)
+    * (1 + 0.1 * G.siegeWins) * (1 + G.permBonus) * (G.council.includes("champfleury") ? 1 + 0.01 * G.read.length : 1);
   if (G.era >= 4) m *= 1.5;
   return m;
 }
 /* production sans bonus temporaires ni orientation (hors ligne, butins, prix) */
-const unitProd = b => b.prod * bMult(b) * synMult(b);
+const unitProd = b => b.prod * bMult(b) * synMult(b) * (G.council.includes("lenain") && (b.id === "hotel" || b.id === "musee") ? 3 : 1);
 function basePps() { let s = 0; for (const b of BLD) s += owned(b.id) * unitProd(b); return s * globalMult(); }
 function bldPps(b) { return owned(b.id) * unitProd(b) * globalMult(); }
 function pps() {
   let s = 0; for (const b of BLD) s += owned(b.id) * unitProd(b) * buffMult("bld", b.id);
-  return s * globalMult() * stance().prod * buffMult("prod") * hazardMult();
+  return s * globalMult() * stance().prod * buffMult("prod") * hazardMult() * seasonMult("prod");
 }
 function clickValue() {
   let base = 1; let pct = 0;
   for (const c of CLICK_UPG) if (has(c.id)) { if (c.base) base *= c.base; if (c.pct) pct += c.pct; }
-  return (base * globalMult() + basePps() * pct) * stance().click * buffMult("click");
+  return (base * globalMult() + basePps() * pct) * stance().click * buffMult("click") * seasonMult("click");
 }
 function defense() {
   let d = 0; for (const b of BLD) if (b.def) d += owned(b.id) * b.def;
   if (G.era >= 1) d += 2; if (G.era >= 3) d += 30;
-  return d * buffMult("def") * (has("d4") ? 2 : 1);
+  return d * buffMult("def") * (has("d4") ? 2 : 1) * (G.council.includes("garde") ? 1.5 : 1) * (G.council.includes("henri") ? 1.5 : 1);
 }
 function earn(n) { G.deniers += n; G.run += n; G.life += n; }
 
@@ -574,7 +589,7 @@ function drawLand(g, n) {
   let gr = c.createLinearGradient(0, g.y0 - 34 * u, 0, g.y0 + 6 * u); gr.addColorStop(0, "rgba(238,226,208,0)"); gr.addColorStop(1, "rgba(238,226,208,.4)"); c.fillStyle = gr; c.fillRect(0, g.y0 - 34 * u, W, 40 * u);
   // champs en damier
   c.fillStyle = "#6d7c45"; c.fillRect(0, g.y0, W, H - g.y0);
-  const FC = ["#7d8a4a", "#8f9a55", "#a39a5a", "#6c7a40", "#b3a764", "#7a8f4e", "#96894f"];
+  const FC = SEASONS[seasonIdx()].fields;
   for (let r = 0; r < 6; r++) {
     const ya = g.y0 + (H - g.y0) * Math.pow(r / 6, 1.3), yb = g.y0 + (H - g.y0) * Math.pow((r + 1) / 6, 1.3);
     let x = -hsh(r, 70) * 40, k = 0;
@@ -597,7 +612,7 @@ function drawLand(g, n) {
   for (let k = 1; k < 5; k++) { const y = g.py + ((cb - g.py) * k) / 5; c.beginPath(); c.moveTo(0, y); for (let x = 0; x <= W; x += 16) c.lineTo(x, y + Math.sin(x * 0.05 + k) * 1.4); c.stroke(); }
   gr = c.createLinearGradient(W * 0.48, 0, g.sr, 0); gr.addColorStop(0, "rgba(40,28,30,0)"); gr.addColorStop(1, "rgba(40,28,30,.38)"); c.fillStyle = gr; c.fillRect(W * 0.48, g.py, g.sr - W * 0.48, H);
   // bosquets : amas de petites touches serrées plutôt que des pastilles isolées
-  const GC = ["rgba(70,96,52,.9)", "rgba(86,112,60,.9)", "rgba(58,82,44,.9)", "rgba(104,128,70,.85)"];
+  const GC = SEASONS[seasonIdx()].veg;
   for (let k = 0; k < 26; k++) {
     const cx = g.sl + hsh(k, 79) * (g.sr - g.sl), cy = cb + 2 * u + hsh(k, 80) * (g.y0 - cb - 4 * u), rad = (5 + hsh(k, 84) * 9) * u;
     for (let i = 0; i < 14; i++) {
@@ -661,6 +676,8 @@ function drawLand(g, n) {
     c.fillStyle = dark; for (let k = -10; k <= 10; k += 5) c.fillRect(x + k * u - 0.7 * u, y - 11 * u, 1.4 * u, 10 * u);
   }
   for (let i = 0; i < Math.min(G.era, 3); i++) MONUMENT_DRAW[i](g, stone, dark, n);
+  drawPartialMonument(g, stone, dark, n);
+  if (seasonIdx() === 3) { c.fillStyle = "rgba(240,244,250,.55)"; for (let i = 0; i < 90; i++) c.fillRect(g.pl + hsh(i, 95) * span - 4 * u, g.py - hsh(i, 96) * 16 * u, 6 * u, 1.2 * u); }
   if (owned("remparts") > 0) crenel(g.pl - 4 * u, g.py + 3 * u, span + 8 * u, 6 * u, u * 0.8, "#c8b896");
   [g.pl - 2 * u, g.pr + 2 * u].slice(0, Math.min(2, owned("porte"))).forEach(x => {
     wallBox(x - 5 * u, g.py - 11 * u, 4 * u, 14 * u, stone); wallBox(x + 1 * u, g.py - 11 * u, 4 * u, 14 * u, stone);
@@ -670,7 +687,7 @@ function drawLand(g, n) {
 }
 const stDay = document.createElement("canvas"), stNight = document.createElement("canvas");
 let stKey = "";
-const sceneKey = () => `${W}|${H}|${DPR}|${Math.min(G.era, 3)}|` + BLD.map(b => Math.min(owned(b.id), 40)).join(",");
+const sceneKey = () => `${W}|${H}|${DPR}|${Math.min(G.era, 3)}|${G.monStage}|${seasonIdx()}|` + BLD.map(b => Math.min(owned(b.id), 40)).join(",");
 function renderStatic() {
   stKey = sceneKey(); const main = c, g = geom();
   for (const [cvs, night] of [[stDay, false], [stNight, true]]) {
@@ -732,8 +749,11 @@ function drawScene(now) {
   if (G.era >= 4) MONUMENT_DRAW[3](g, "", "", n, t);
   if (G.era < 4) { c.save(); c.globalAlpha = 0.2 + 0.1 * Math.sin(t * 2); MONUMENT_DRAW[G.era](g, "rgba(200,230,255,1)", "rgba(120,160,210,1)", 0, t); c.restore(); }
 
+  drawSiege(g, t);
   drawRaid(g, n);
   drawHazard(g, t);
+  drawVisit(g, t);
+  drawWeather(g, t);
   // feu follet / bœuf de lumière
   if (wisp) {
     const age = (now - wisp.born) / 1000;
@@ -763,6 +783,8 @@ function drawScene(now) {
 const hint = document.getElementById("hint");
 function tap(x, y) {
   if (wisp && Math.hypot(x - wisp.x, y - wisp.y) < Math.max(34, (wisp.ox ? 30 : 22) * geom().u)) { catchWisp(); return; }
+  if (hitVisit(x, y)) return;
+  if (hitSlot(x, y)) return;
   if (hitHazard(x, y)) return;
   if (hitFoe(x, y)) return;
   comboTap(performance.now());
@@ -799,11 +821,12 @@ const raid = { foes: [], arrows: [], wave: 0, next: 0, leaked: 0, slain: 0, live
 function resetRaid() { raid.foes = []; raid.arrows = []; raid.live = false; raid.wave = 0; scheduleRaid(G.era >= 1 ? 45000 : 1e12); }
 function scheduleRaid(delay) { raid.next = performance.now() + delay; }
 scheduleRaid(G.era >= 1 ? 45000 : 1e12);
-function startRaid() {
-  raid.wave++; raid.live = true; raid.leaked = 0; raid.slain = 0;
-  const n = 3 + Math.min(6, raid.wave), hp = 9 * Math.pow(3.2, Math.max(0, G.era - 1)) * (1 + 0.2 * raid.wave) * (hasNode("veilleurs") ? 0.7 : 1);
+function startRaid(isSiege) {
+  raid.wave++; raid.live = true; raid.leaked = 0; raid.slain = 0; raid.siege = !!isSiege;
+  const n = (3 + Math.min(6, raid.wave) + (G.flags.raidExtra || 0)) + (isSiege ? 8 : 0), hp = 9 * Math.pow(3.2, Math.max(0, G.era - 1)) * (1 + 0.2 * raid.wave) * (hasNode("veilleurs") ? 0.7 : 1) * (G.flags.raidHp || 1) * (isSiege ? 1.3 : 1);
+  G.flags.raidExtra = 0; G.flags.raidHp = 1;
   for (let i = 0; i < n; i++) raid.foes.push({ f: -i * 0.06, hp, max: hp, speed: 1 / (20 + Math.random() * 5), hitT: 0 });
-  const boss = raid.wave % 5 === 0;
+  const boss = isSiege || raid.wave % 5 === 0;
   if (boss) raid.foes.push({ f: -n * 0.06 - 0.08, hp: hp * 12, max: hp * 12, speed: 1 / 34, hitT: 0, boss: true });
   Snd.horn();
   toast(boss ? `Un chef de guerre mène ${n} pillards à l'assaut !` : `Des pillards montent à l'assaut : ${n} assaillants`);
@@ -828,7 +851,7 @@ function damageFoe(f, d) {
   if (f.hp <= 0) return;
   f.hp -= d; f.hitT = 0.15;
   if (f.hp <= 0) {
-    const bounty = (basePps() * 6 + 5) * (f.boss ? 20 : 1); earn(bounty); raid.slain++; G.foesSlain++;
+    const bounty = (basePps() * 6 + 5) * (f.boss ? 20 : 1) * (hasC("henri") ? 2 : 1); earn(bounty); raid.slain++; G.foesSlain++;
     if (G.stance === "main") G.stats.labeurKills++;
     if (f.boss) { G.stats.bossKills++; Snd.fanfare(); toast(`Le chef de guerre est tombé : butin de ${fmt(bounty)} deniers`); }
     const p = alongRoad(geom(), f.f); floats.push({ x: p.x, y: p.y - 20, text: "+" + fmt(bounty), life: 50, crit: true });
@@ -861,14 +884,16 @@ function updateRaid(dt, now) {
       raid.arrows.push({ x0: sp[0], y0: sp[1], foe: tgt, t: 0, dmg: D * 0.6 / 3 * (has("d1") ? 1.5 : 1) }); Snd.arrow();
     }
   }
-  for (const a of raid.arrows) { a.t += dt / 0.35; if (a.t >= 1 && !a.done) { a.done = true; damageFoe(a.foe, a.dmg); } }
+  for (const a of raid.arrows) { a.t += dt / (a.rock ? 0.7 : 0.35); if (a.t >= 1 && !a.done) { a.done = true; if (a.rock) { for (const f of raid.foes) if (f.hp > 0 && Math.abs(f.f - a.foe.f) < 0.06) damageFoe(f, a.dmg); } else damageFoe(a.foe, a.dmg); } }
   raid.arrows = raid.arrows.filter(a => !a.done);
   raid.foes = raid.foes.filter(f => f.hp > 0);
+  siegeFire(dt, g);
   if (!raid.foes.length) {
     raid.live = false; raid.arrows = [];
+    if (raid.siege) { raid.siege = false; endSiege(raid.leaked <= 2); scheduleRaid(120000); if (tab === "c") render(); return; }
     if (raid.leaked === 0) { G.raidsWon++; addBuff({ name: "Victoire", kind: "prod", mult: 1.5, left: 60 }); toast("Assaut repoussé ! Production ×1,5 pendant 60 s"); }
     else toast(`Assaut terminé : ${raid.slain} pillards abattus, ${raid.leaked} ont pillé la cité`);
-    scheduleRaid(100000 + Math.random() * 60000);
+    scheduleRaid((100000 + Math.random() * 60000) * seasonMult("raid"));
     if (tab === "c") render();
   }
 }
@@ -886,6 +911,7 @@ function drawRaid(g, n) {
     const p = alongRoad(g, a.foe.f), tx = p.x, ty = p.y - 5 * u, q = Math.min(1, a.t);
     const x = a.x0 + (tx - a.x0) * q, y = a.y0 + (ty - a.y0) * q - Math.sin(q * Math.PI) * 18 * u;
     const ang = Math.atan2(ty - a.y0, tx - a.x0);
+    if (a.rock) { c.fillStyle = "#5a5048"; c.beginPath(); c.arc(x, y, 2 * u, 0, Math.PI * 2); c.fill(); continue; }
     c.strokeStyle = "rgba(40,28,20,.95)"; c.lineWidth = Math.max(1, u * 0.5);
     c.beginPath(); c.moveTo(x, y); c.lineTo(x - Math.cos(ang) * 6 * u, y - Math.sin(ang) * 6 * u); c.stroke();
   }
@@ -931,7 +957,7 @@ function rollFavor() {
   const dur = Math.round(F.dur[0] + (F.dur[1] - F.dur[0]) * Math.random());
   const bld = F.kind === "bld" ? owners[Math.floor(Math.random() * owners.length)] : null;
   const o = { F, rar, mult: m, dur, bld, sold: false };
-  o.cost = Math.max(25, favorValue(o) * (0.25 + Math.random() * 0.2) * (hasNode("faveurs") ? 0.8 : 1));
+  o.cost = Math.max(25, favorValue(o) * (0.25 + Math.random() * 0.2) * (hasNode("faveurs") ? 0.8 : 1) * seasonMult("favor"));
   return o;
 }
 function favorValue(o) {
@@ -984,15 +1010,15 @@ function availableUpgrades() {
 }
 function render() {
   list.innerHTML = "";
-  if (tab === "b") renderBuild(); else if (tab === "u") renderUpg(); else renderChron();
+  if (tab === "b") renderBuild(); else if (tab === "u") renderUpg(); else if (tab === "t") renderTrade(); else renderChron();
   refreshNumbers();
 }
 function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
 function renderBuild() {
   if (G.era < 4) {
     const m = ERAS[G.era].monument;
-    const r = el(`<button type="button" class="row monument" data-mon="1"><div class="lettrine">${["I", "II", "III", "IV"][G.era]}</div><div class="txt"><div class="eyebrow">Monument de l'${ERAS[G.era].name.replace("Ère ", "ère ")}</div><div class="name">${m.name}</div><div class="desc">${m.desc}</div><div class="prog"><i></i></div></div><div class="side"><div class="cost">${fmt(monCost(G.era))}</div></div></button>`);
-    r.addEventListener("click", buyMonument); list.appendChild(r);
+    const r = el(`<button type="button" class="row monument" data-mon="1"><div class="lettrine">${["I", "II", "III", "IV"][G.era]}</div><div class="txt"><div class="eyebrow">Monument de l'${ERAS[G.era].name.replace("Ère ", "ère ")} · étape ${G.monStage + 1}/4</div><div class="name">${m.name} : ${STAGES[G.era][G.monStage]}</div><div class="desc">${m.desc}</div>${isU("res") ? `<div class="meta mreq">${Object.entries(stageReq(G.era)).map(([k, v]) => `<span data-rq="${k}" data-need="${v}">${RES[k].name} ${fmt(v)}</span>`).join(" · ")}</div>` : ""}<div class="prog"><i></i></div></div><div class="side"><div class="cost">${fmt(stageCost())}</div></div></button>`);
+    r.addEventListener("click", buyStage); list.appendChild(r);
   }
   if (G.era >= 2) {
     const r = el(`<button type="button" class="row expe" data-exp="1"><div class="lettrine era1">E</div><div class="txt"><div class="eyebrow">Les creutes</div><div class="name">Expédition souterraine</div><div class="desc">Descends sous la butte, torche en main : fragments d'histoire (+3 % de production chacun) et trésor à la clé. Fragments réunis : ${G.frags.length}/8.</div></div><div class="side"><div class="cost" data-expcd></div></div></button>`);
@@ -1005,7 +1031,7 @@ function renderBuild() {
       if (!teased) { teased = true; list.appendChild(el(`<div class="row locked"><div class="lettrine">?</div><div class="txt"><div class="name">Bâtiment inconnu</div><div class="desc">Se révèle quand tu approches de ${fmt(b.cost * 0.4)} deniers.</div></div><div class="side"></div></div>`)); }
       continue;
     }
-    const r = el(`<button type="button" class="row" data-b="${b.id}"><div class="lettrine era${b.era}">${b.L}</div><div class="txt"><div class="name">${b.name}</div><div class="desc">${b.desc}</div><div class="meta">Chacun : <b>${fmt(unitProd(b) * globalMult())}</b>/s${b.def ? ` · défense +${b.def}` : ""}${synTxt(b)}</div></div><div class="side"><div class="owned">${owned(b.id)}</div><div class="cost"></div></div></button>`);
+    const r = el(`<button type="button" class="row" data-b="${b.id}"><div class="lettrine era${b.era}">${b.L}</div><div class="txt"><div class="name">${b.name}</div><div class="desc">${b.desc}</div><div class="meta">Chacun : <b>${fmt(unitProd(b) * globalMult())}</b>/s${b.def ? ` · défense +${b.def}` : ""}${resTxt(b)}${synTxt(b)}</div></div><div class="side"><div class="owned">${owned(b.id)}</div><div class="cost"></div></div></button>`);
     r.addEventListener("click", () => buy(b)); list.appendChild(r);
   }
   const next = BLD.find(b => b.era === G.era + 1);
@@ -1046,6 +1072,23 @@ function renderChron() {
     <div class="stat"><span>Fragments</span><b>${G.frags.length}/8 (+${G.frags.length * 3} %)</b></div>
     <div class="stat"><span>Combo record</span><b>×${String(G.stats.maxCombo).replace(".", ",")}</b></div>
   </div>`));
+  if (isU("week")) {
+    const s = weekScore(), k = weekKind();
+    list.appendChild(el(`<p class="section-title">Défi de la semaine : ${k.name}</p>`));
+    const rows = LB.state === "ok" ? (LB.rows.length ? LB.rows.map((r, i) => `<li${r.id === LB.uid ? ' class="me"' : ""}><span>${i + 1}.</span> ${r.id === LB.uid ? "Toi" : (LB.names[r.id] || "…")}<b>${fmt(r.score || 0)}</b></li>`).join("") : "<li>Personne encore cette semaine : sois le premier.</li>")
+      : LB.state === "loading" ? "<li>Chargement du classement…</li>" : "<li>Classement partagé indisponible ici : il fonctionne sur la page publiée, avec un compte claude.ai.</li>";
+    const box = el(`<div class="chron"><p>Ton score cette semaine : <b>${fmt(s)}</b>. Le défi change chaque lundi.${LB.err ? " Ton score n'a pas pu être enregistré (accès en lecture seule)." : ""}</p><ol class="lb">${rows}</ol></div>`);
+    box.querySelectorAll("li").forEach(li => li.querySelector && null);
+    list.appendChild(box);
+  }
+  if (isU("visit")) {
+    const av = availFiches();
+    list.appendChild(el(`<p class="section-title">Visite de Laon · ${G.read.length} fiche${G.read.length > 1 ? "s" : ""} lue${G.read.length > 1 ? "s" : ""}</p>`));
+    const vb = el(`<div class="chron"><p>Active le mode visite puis touche un monument ou un bâtiment de la scène pour lire sa fiche.</p><div class="tbtns"><button type="button" class="btn" id="vmode">${visitMode ? "Quitter le mode visite" : "Activer le mode visite"}</button></div></div>`);
+    vb.querySelector("#vmode").addEventListener("click", () => { visitMode = !visitMode; toast(visitMode ? "Mode visite : touche un bâtiment" : "Mode visite désactivé"); render(); });
+    list.appendChild(vb);
+    for (const id of av) { const f = FICHES[id], r = el(`<button type="button" class="row${G.read.includes(id) ? " owned-node" : ""}"><div class="lettrine era1">${f.title[0]}</div><div class="txt"><div class="name">${f.title}</div><div class="desc">${G.read.includes(id) ? "Fiche lue" : "Fiche à découvrir"}</div></div><div class="side"></div></button>`); r.addEventListener("click", () => { readFiche(id); render(); }); list.appendChild(r); }
+  }
   list.appendChild(el(`<p class="section-title">Hauts faits · +1 % de production chacun</p>`));
   list.appendChild(el(`<div class="achs">${ACH.map(a => `<div class="ach${G.ach.includes(a.id) ? " on" : ""}" title="${a.desc}"><b>${G.ach.includes(a.id) ? a.name : "???"}</b><span>${a.desc}</span></div>`).join("")}</div>`));
   if (isU("expe")) list.appendChild(el(`<p class="section-title">Fragments d'histoire (expéditions)</p>`));
@@ -1090,9 +1133,8 @@ function buyUpg(up) {
   if (up.cost > G.deniers) return; G.deniers -= up.cost; G.upg.push(up.id); Snd.coin(); render();
 }
 const monCost = i => ERAS[i].monument.cost * (hasNode("monuments") ? 0.5 : 1);
-function buyMonument() {
-  const m = ERAS[G.era].monument; if (monCost(G.era) > G.deniers) return;
-  G.deniers -= monCost(G.era); const e = ERAS[G.era]; const ei = G.era; G.era++;
+function completeMonument() {
+  const m = ERAS[G.era].monument; const e = ERAS[G.era]; const ei = G.era; G.era++;
   if (G.era === 1) scheduleRaid(60000);
   for (let i = 0; i < 40; i++) sparks.push({ x: W / 2 + (Math.random() - 0.5) * W * 0.4, y: H * 0.4, vx: (Math.random() - 0.5) * 6, vy: -Math.random() * 5, life: 50 });
   save(); render(); renderEra();
@@ -1112,7 +1154,7 @@ function crown() {
     choices: [
       { label: "Couronner", on: () => {
         const keep = { reliques: G.reliques + gain, crowns: G.crowns + 1, life: G.life, clicks: G.clicks, wispsCaught: G.wispsCaught, raidsWon: G.raidsWon, foesSlain: G.foesSlain, stance: G.stance,
-          ach: G.ach, unl: G.unl, quest: G.quest, tree: G.tree, relSpent: G.relSpent, frags: G.frags, sound: G.sound, stats: G.stats };
+          ach: G.ach, unl: G.unl, quest: G.quest, depth: G.depth, seasonT: G.seasonT, siegeWins: G.siegeWins, read: G.read, week: G.week, permBonus: G.permBonus, tree: G.tree, relSpent: G.relSpent, frags: G.frags, sound: G.sound, stats: G.stats };
         G = Object.assign(fresh(), keep); G.qs = qsnap();
         if (hasNode("fondations")) G.owned = { masure: 15, puits: 5 }; resetRaid(); active = []; save(); render(); renderEra();
         modalShow({ eyebrow: "Dernière page de la chronique", title: FINAL.title, body: `<p>${FINAL.text}</p>`, choices: [{ label: "Rebâtir la cité", on: modalHide }] });
@@ -1140,7 +1182,8 @@ function refreshNumbers() {
       }
     });
     const m = list.querySelector("[data-mon]");
-    if (m && G.era < 4) { const cost = monCost(G.era); m.classList.toggle("poor", cost > G.deniers); m.querySelector(".prog i").style.width = `${Math.min(100, G.deniers / cost * 100)}%`; }
+    if (m && G.era < 4) { const cost = stageCost(); m.classList.toggle("poor", !canStage()); m.querySelector(".prog i").style.width = `${Math.min(100, (G.monStage + Math.min(1, G.deniers / cost)) * 25)}%`;
+      m.querySelectorAll("[data-rq]").forEach(sp => sp.classList.toggle("lack", (G.res[sp.dataset.rq] || 0) < +sp.dataset.need)); }
   } else if (tab === "u") {
     list.querySelectorAll("[data-u]").forEach(r => { const up = UPGRADES.find(x => x.id === r.dataset.u); r.classList.toggle("poor", up.cost > G.deniers); });
     list.querySelectorAll("[data-f]").forEach(r => { const o = market.offers[+r.dataset.f]; if (o && !o.sold) r.classList.toggle("poor", o.cost > G.deniers); });
@@ -1152,11 +1195,15 @@ function refreshNumbers() {
   const ex = list.querySelector("[data-expcd]");
   if (ex) { const ms = (G.expAt || 0) - Date.now(); ex.textContent = ms > 0 ? `Dans ${Math.ceil(ms / 1000)} s` : "Descendre"; ex.closest(".row").classList.toggle("poor", ms > 0); }
   refreshBuffs(); syncStance(); refreshQuest();
+  const rl = document.getElementById("resLine"); rl.hidden = !isU("res");
+  if (isU("res")) rl.textContent = `${SEASONS[seasonIdx()].name} · Pierre ${fmt(G.res.pierre)} · Bois ${fmt(G.res.bois)}${G.era >= 1 ? ` · Foi ${fmt(G.res.foi)}` : ""}`;
+  if (tab === "t") list.querySelectorAll("[data-cv]").forEach(sp => { const cv = G.caravans.find(x => x.d === sp.dataset.cv); if (cv) sp.textContent = `En route : retour dans ${Math.max(0, Math.ceil((cv.end - Date.now()) / 1000))} s`; });
 }
 function refreshBuffs() {
   const kindTxt = b => b.kind === "prod" ? `Production ×${b.mult}` : b.kind === "click" ? `Toucher ×${b.mult}` : b.kind === "bld" ? `${BLD.find(x => x.id === b.bld).name} ×${b.mult}` : b.kind === "crit" ? `+${Math.round(b.mult * 100)} % coups de maître` : `Défense ×${b.mult}`;
   let h = active.map(b => `<div class="buff">${kindTxt(b).replace(".", ",")} · ${Math.ceil(b.left)} s<span class="bar" style="width:${(b.left / b.total) * 100}%"></span></div>`).join("");
   if (raid.live) h += `<div class="buff def">Assaut : ${raid.foes.filter(f => f.hp > 0).length} pillards · défense ${fmt(defense())}</div>`;
+  if (siege.phase === "prep") h += `<div class="buff def">Grand siège : préparation ${Math.ceil(siege.left)} s · touche les cercles dorés</div>`;
   if (hazard.cur) h += `<div class="buff def">${hazard.cur.h.name} · ${Math.ceil(hazard.cur.left)} s · ${hazard.cur.hits}/${hazard.cur.h.need} · production ×${String(hazard.cur.h.mult).replace(".", ",")}</div>`;
   $buffs.innerHTML = h;
 }
@@ -1402,7 +1449,7 @@ function refreshQuest() {
   $q.textContent = `${q.t} · ${fmt(cur)}/${fmt(q.p[1])}`; $qp.style.width = `${(cur / q.p[1]) * 100}%`;
   $qc.hidden = cur < q.p[1];
 }
-function questReward() { return Math.max(100, basePps() * 90 + clickValue() * 40); }
+function questReward() { return Math.max(100, basePps() * 90 + clickValue() * 40) * (hasC("anselme") ? 2 : 1); }
 $qc.addEventListener("click", () => {
   const q = curQuest(); if (q.p[0] < q.p[1]) return;
   const r = questReward(); earn(r); G.quest++; G.qs = qsnap();
@@ -1582,13 +1629,19 @@ function xResize() {
 }
 new ResizeObserver(() => { if (EXP.open) xResize(); }).observe(xstage);
 function expReady() { return G.era >= 2 && Date.now() >= (G.expAt || 0); }
-function openExp() {
+function openExp(depth) {
   if (!expReady() || EXP.open) return;
-  const size = [[15, 11], [17, 13], [21, 15], [25, 17]][Math.min(3, G.era - 1)];
+  if (typeof depth !== "number") {
+    if (G.depth <= 1) depth = 1;
+    else { const ch = []; for (let d = 1; d <= Math.min(G.depth, 6); d++) ch.push({ label: `Galerie ${d}${d >= 3 ? " (gardien)" : ""} · trésor ×${String(1 + 0.5 * (d - 1)).replace(".", ",")}`, sec: d < G.depth, on: () => { modalHide(); openExp(d); } });
+      modalShow({ eyebrow: "Expédition souterraine", title: "Jusqu'où descendre ?", body: `<p>Plus la galerie est profonde, plus elle est vaste et gardée, et plus le trésor est riche. Réussir la galerie la plus profonde ouvre la suivante.</p>`, choices: ch }); return; }
+  }
+  const size = [Math.min(31, 13 + 4 * depth), Math.min(21, 9 + 2 * depth)];
   const missing = Object.keys(XFRAGS).filter(f => !G.frags.includes(f)); const pick = [];
   for (let i = 0; i < 2; i++) { const pool = missing.length ? missing : Object.keys(XFRAGS); const f = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; if (f) pick.push(f); }
-  const m = xGen(size[0], size[1], (Date.now() & 0x7fffffff) ^ 0x5bd1e995, 3 + G.era, Math.min(3, G.era - 1), pick);
-  Object.assign(EXP, { open: true, map: m, px: 1, py: 1, tx: 1, ty: 1, fx: 1, fy: 1, mv: 0, face: [1, 0], torch: 100, inv: 0, held: [], found: [], gold: 0, seen: new Uint8Array(m.W * m.H), t: 0, flash: 0 });
+  const m = xGen(size[0], size[1], (Date.now() & 0x7fffffff) ^ 0x5bd1e995, 3 + depth, Math.min(4, depth - 1), pick);
+  const bossCell = depth >= 3 ? m.exit : -1;
+  Object.assign(EXP, { open: true, map: m, depth, boss: bossCell >= 0 ? { x: bossCell % m.W, y: (bossCell / m.W) | 0, tx: bossCell % m.W, ty: (bossCell / m.W) | 0, step: 0 } : null, px: 1, py: 1, tx: 1, ty: 1, fx: 1, fy: 1, mv: 0, face: [1, 0], torch: 100, inv: 0, held: [], found: [], gold: 0, seen: new Uint8Array(m.W * m.H), t: 0, flash: 0 });
   xLight.width = m.W; xLight.height = m.H;
   G.expAt = Date.now() + expCooldown(); G.stats.expeditions++;
   $exp.hidden = false; xResize(); xRenderMap(); xStatic(); Snd.bell(0.06, 262);
@@ -1599,6 +1652,8 @@ function closeExp(reason) {
   if (!EXP.open) return; EXP.open = false; $exp.hidden = true;
   const base = basePps();
   let gold = EXP.gold; if (reason === "exit") gold += base * 240 + 500;
+  gold *= (1 + 0.5 * ((EXP.depth || 1) - 1)) * (hasC("marquette") ? 2 : 1);
+  if (reason === "exit" && (EXP.depth || 1) >= G.depth && G.depth < 6) { G.depth++; toast(`La galerie ${G.depth} s'ouvre`); }
   if (gold > 0) earn(gold);
   const fr = EXP.found.map(f => `<li><b>${XFRAGS[f].title}</b> : ${XFRAGS[f].text}</li>`).join("");
   modalShow({
@@ -1630,7 +1685,16 @@ function xAsk(door) {
 function xUpdate(dt) {
   const E = EXP, m = E.map; E.t += dt; E.flash = Math.max(0, E.flash - dt);
   if (!modal.hidden) return;
-  E.torch -= dt * (1.1 + 0.1 * G.era) * (hasNode("explorateur") ? 0.7 : 1);
+  E.torch -= dt * (1.1 + 0.1 * (E.depth || 1)) * (hasNode("explorateur") ? 0.7 : 1) * (hasC("marquette") ? 0.6 : 1);
+  if (E.boss) {
+    const B = E.boss; B.step -= dt;
+    if (B.step <= 0) { B.step = 0.55; B.x = B.tx; B.y = B.ty;
+      const W2 = m.W, from = B.y * W2 + B.x, goal = E.ty * W2 + E.tx, prev = new Int32Array(W2 * m.H).fill(-1), q = [goal]; prev[goal] = goal;
+      for (let k = 0; k < q.length && prev[from] < 0; k++) { const cc = q[k]; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nn = cc + dx + dy * W2; if (!m.g[nn] && prev[nn] < 0 && !m.doors.some(d => d.c === nn && !d.open)) { prev[nn] = cc; q.push(nn); } } }
+      if (prev[from] >= 0 && from !== goal) { const nx = prev[from]; B.tx = nx % W2; B.ty = (nx / W2) | 0; } }
+    const k = 1 - Math.max(0, B.step) / 0.55, bx = B.x + (B.tx - B.x) * k, by = B.y + (B.ty - B.y) * k; B.px = bx; B.py = by;
+    if (E.inv <= 0 && Math.hypot(bx - E.px, by - E.py) < 0.7) { E.torch = Math.max(0, E.torch - 35); E.inv = 1.6; E.flash = 0.6; Snd.hit(); toast("Le gardien des creutes te frappe !"); }
+  }
   if (E.torch <= 0) { E.torch = 0; closeExp("dark"); return; }
   if (!E.mv && E.held.length) {
     const [dx, dy] = XDIR[E.held[E.held.length - 1]]; E.face = [dx, dy];
@@ -1689,8 +1753,303 @@ function xRender() {
   for (const it of m.items) if (!it.taken) xGlow((it.c % m.W + 0.5) * T, (((it.c / m.W) | 0) + 0.5) * T, T * 0.8, it.type === "candle" ? "255,170,70" : "255,215,120", 0.3);
   xGlow((m.exit % m.W + 0.5) * T, (((m.exit / m.W) | 0) + 0.5) * T, T * 1.5, "150,200,255", 0.32);
   for (const w of m.wisps) xGlow((w.x + w.dx * w.t + 0.5) * T, (w.y + w.dy * w.t + 0.5) * T, T * 0.9, "120,220,255", 0.55);
+  if (E.boss && E.boss.px !== undefined) { const bx = (E.boss.px + 0.5) * T, by = (E.boss.py + 0.5) * T; xGlow(bx, by, T * 1.3, "220,60,90", 0.7); xGlow(bx, by, T * 0.4, "255,200,210", 0.9); }
   xc.globalCompositeOperation = "source-over"; xc.restore();
   if (E.flash > 0) { xc.fillStyle = `rgba(120,200,255,${E.flash * 0.35})`; xc.fillRect(0, 0, XVW, XVH); }
+}
+
+/* ================= Saisons ================= */
+const SEASONS = [
+  { name: "Printemps", fx: "feux follets plus fréquents", fields: ["#7fa04e", "#8fb05a", "#6f9444", "#9cb862", "#86a650", "#a6c070", "#7a9a4a"], veg: ["rgba(84,128,58,.9)", "rgba(104,146,70,.9)", "rgba(70,112,50,.9)", "rgba(214,180,214,.85)"] },
+  { name: "Été", fx: "foire : faveurs −20 %, production ×1,1", fields: ["#7d8a4a", "#8f9a55", "#a39a5a", "#6c7a40", "#b3a764", "#7a8f4e", "#c2ae5c"], veg: ["rgba(70,96,52,.9)", "rgba(86,112,60,.9)", "rgba(58,82,44,.9)", "rgba(104,128,70,.85)"] },
+  { name: "Automne", fx: "moissons : toucher ×1,5", fields: ["#a08a4a", "#b5904e", "#8a7a40", "#c09a52", "#9a6a3a", "#7a6a3e", "#b07a40"], veg: ["rgba(170,96,40,.9)", "rgba(196,128,50,.9)", "rgba(140,70,34,.9)", "rgba(110,96,52,.85)"] },
+  { name: "Hiver", fx: "production ×0,85, pillards plus rares", fields: ["#d8dde4", "#cfd6de", "#e4e8ee", "#c4ccd6", "#dfe4ea", "#d0d8e0", "#e8ecf0"], veg: ["rgba(60,72,64,.9)", "rgba(76,88,78,.9)", "rgba(50,62,56,.9)", "rgba(230,236,242,.9)"] }
+];
+const SEASON_LEN = 180;
+const seasonIdx = () => (isU("seasons") ? Math.floor((G.seasonT || 0) / SEASON_LEN) % 4 : 1);
+function seasonMult(kind) {
+  if (!isU("seasons")) return 1; const s = seasonIdx();
+  if (kind === "prod") return s === 1 ? 1.1 : s === 3 ? 0.85 : 1;
+  if (kind === "click") return s === 2 ? 1.5 : 1;
+  if (kind === "favor") return s === 1 ? 0.8 : 1;
+  if (kind === "wisp") return s === 0 ? 0.6 : 1;
+  if (kind === "raid") return s === 3 ? 1.5 : 1;
+  return 1;
+}
+let lastSeason = -1;
+function tickSeason(dt) {
+  if (!isU("seasons")) return; G.seasonT = (G.seasonT || 0) + dt; const s = seasonIdx();
+  if (lastSeason !== -1 && s !== lastSeason) { toast(`${SEASONS[s].name} : ${SEASONS[s].fx}`); Snd.bell(0.05, 523); renderEra(); }
+  lastSeason = s;
+}
+const flakes = [];
+function drawWeather(g, t) {
+  if (!isU("seasons")) return; const s = seasonIdx(); if (s === 1) return;
+  if (flakes.length < 60) flakes.push({ x: Math.random() * W, y: -10, v: 10 + Math.random() * 20, ph: Math.random() * 6 });
+  for (const f of flakes) {
+    f.y += f.v / 60; f.x += Math.sin(t + f.ph) * 0.4; if (f.y > H) { f.y = -10; f.x = Math.random() * W; }
+    if (s === 3) { c.fillStyle = "rgba(255,255,255,.85)"; c.beginPath(); c.arc(f.x, f.y, 1.6, 0, Math.PI * 2); c.fill(); }
+    else if (s === 2 && f.ph < 2.5) { c.fillStyle = "rgba(196,110,40,.85)"; c.save(); c.translate(f.x, f.y); c.rotate(t * 2 + f.ph); c.fillRect(-2.5, -1.2, 5, 2.4); c.restore(); }
+    else if (s === 0 && f.ph < 1.6) { c.fillStyle = "rgba(255,214,230,.85)"; c.beginPath(); c.arc(f.x, f.y, 1.5, 0, Math.PI * 2); c.fill(); }
+  }
+}
+
+/* ================= Ressources ================= */
+const RES = {
+  bois: { name: "Bois", per: { masure: 0.05, marche: 0.2, hotel: 2, gare: 10 } },
+  pierre: { name: "Pierre", per: { puits: 0.1, creute: 2, tailleurs: 5, boeufs: 10, remparts: 20 } },
+  foi: { name: "Foi", per: { commanderie: 1, musee: 5 } }
+};
+function resRate(k) { let r = 0; for (const [b, v] of Object.entries(RES[k].per)) r += owned(b) * v; if (k === "foi" && G.era >= 2) r += 3; return r * (1 + 0.05 * G.reliques); }
+function earnRes(dt) { for (const k in RES) G.res[k] = (G.res[k] || 0) + resRate(k) * dt; }
+const MREQ = [{ bois: 400, pierre: 200 }, { pierre: 40000, bois: 2000, foi: 2000 }, { pierre: 120000, bois: 15000 }, { foi: 20000, bois: 30000 }];
+function stageReq(i) { const o = {}; for (const k in MREQ[i]) o[k] = MREQ[i][k] / 4; return o; }
+function resTxt(b) { const parts = []; for (const k in RES) if (RES[k].per[b.id]) parts.push(`+${String(RES[k].per[b.id]).replace(".", ",")} ${RES[k].name.toLowerCase()}/s`); return parts.length && isU("res") ? ` · <span class="resm">${parts.join(", ")}</span>` : ""; }
+
+/* ================= Monuments par étapes ================= */
+const STAGES = [["Fondations", "Murs d'enceinte", "Donjon", "Bannière royale"], ["Fondations", "Nef", "Façade et rosace", "Tours aux bœufs"], ["Fossés", "Bastions", "Casernes", "Porte et drapeau"], ["Bannières", "Tréteaux", "Musiciens", "Grande fête"]];
+const hasC = id => (G.council || []).includes(id);
+function stageCost() { return (monCost(G.era) / 4) * (hasC("oeuvre") ? 0.85 : 1); }
+function stageMissing() { const req = stageReq(G.era), miss = []; for (const k in req) if ((G.res[k] || 0) < req[k]) miss.push(k); return miss; }
+function canStage() { return G.era < 4 && stageCost() <= G.deniers && !stageMissing().length; }
+function buyStage() {
+  if (!canStage()) { const m = stageMissing(); if (m.length && stageCost() <= G.deniers) toast(`Il manque : ${m.map(k => RES[k].name.toLowerCase()).join(", ")}`); return; }
+  G.deniers -= stageCost(); const req = stageReq(G.era); for (const k in req) G.res[k] -= req[k];
+  G.monStage++; Snd.bell(0.06, 440);
+  if (G.monStage >= 4) { G.monStage = 0; completeMonument(); return; }
+  toast(`${ERAS[G.era].monument.name} : ${STAGES[G.era][G.monStage - 1]} achevé (${G.monStage}/4)`);
+  if (G.monStage === 2 && G.era >= 1 && !(G.siegeDone || []).includes(G.era)) siege.queued = true;
+  render();
+}
+function drawPartialMonument(g, stone, dark, n) {
+  if (G.era > 2 || !G.monStage) return;
+  const u = g.u, MH = [46, 80, 32][G.era] * u, h = MH * (G.monStage / 4) + 2 * u;
+  const xc = g.pl + (g.pr - g.pl) * [0.16, 0.46, 0.93][G.era] + [0, 5, 0][G.era] * u, w = [48, 76, 50][G.era] * u;
+  c.save(); c.beginPath(); c.rect(0, g.py - h, W, h + 8 * u); c.clip(); MONUMENT_DRAW[G.era](g, stone, dark, n); c.restore();
+  c.strokeStyle = "#7a5634"; c.lineWidth = Math.max(1, u * 0.6);
+  for (let x = xc - w / 2; x <= xc + w / 2 + 0.1; x += 7 * u) { c.beginPath(); c.moveTo(x, g.py); c.lineTo(x, g.py - h - 6 * u); c.stroke(); }
+  for (let y = g.py - 6 * u; y > g.py - h - 6 * u; y -= 6 * u) { c.beginPath(); c.moveTo(xc - w / 2, y); c.lineTo(xc + w / 2, y); c.stroke(); }
+  c.beginPath(); c.moveTo(xc + w / 2 - 4 * u, g.py - h - 6 * u); c.lineTo(xc + w / 2 + 4 * u, g.py - h - 16 * u); c.lineTo(xc + w / 2 + 12 * u, g.py - h - 8 * u); c.stroke();
+}
+
+/* ================= Conseil du bailli ================= */
+const COUNCIL = [
+  { id: "oeuvre", era: 0, cost: 2500, name: "Le maître d'œuvre", fx: "Les étapes de monument coûtent 15 % de deniers en moins." },
+  { id: "garde", era: 1, cost: 8e4, name: "Le capitaine de la garde", fx: "Défense +50 %." },
+  { id: "anselme", era: 1, cost: 8e5, name: "Anselme de Laon", fx: "Récompenses des quêtes ×2, chaque haut fait vaut +2 % au lieu de +1 %.", fact: "Théologien mort en 1117, il dirigea la prestigieuse école de Laon. Surnommé « le maître des maîtres », il eut pour élèves Guillaume de Champeaux, Gilbert de la Porrée et Pierre Abélard." },
+  { id: "henri", era: 2, cost: 4e8, name: "Henri IV", fx: "Défense ×1,5 et butin des pillards ×2.", fact: "Après avoir assiégé Laon en 1594, Henri IV y fit bâtir une citadelle." },
+  { id: "marquette", era: 2, cost: 1.5e9, name: "Jacques Marquette", fx: "Expéditions : torche plus durable, trésors ×2.", fact: "Jésuite né à Laon en 1637, il descendit le Mississippi avec Louis Jolliet et en rapporta les premières descriptions fiables." },
+  { id: "lenain", era: 2, cost: 5e9, name: "Les frères Le Nain", fx: "Hôtels particuliers et musée produisent ×3.", fact: "Antoine, Louis et Mathieu, peintres du XVIIᵉ siècle nés à Laon, s'installèrent à Paris en 1629 et y travaillèrent dans un même atelier." },
+  { id: "champfleury", era: 3, cost: 1.5e11, name: "Champfleury", fx: "Chaque fiche de la visite de Laon lue ajoute +1 % de production.", fact: "Écrivain et critique d'art né à Laon en 1821, théoricien du réalisme, il contribua à faire connaître le peintre Gustave Courbet." }
+];
+function hireC(m) { if (hasC(m.id) || m.cost > G.deniers) return; G.deniers -= m.cost; G.council.push(m.id); Snd.fanfare(); toast(`${m.name} rejoint ton conseil`); render(); }
+
+/* ================= Comptoir : caravanes ================= */
+const DEST = [
+  { id: "soissons", name: "Soissons", time: 60, res: "pierre", k: 8, ph: 2.1 },
+  { id: "gobain", name: "Forêt de Saint-Gobain", time: 45, res: "bois", k: 6, ph: 4.2 },
+  { id: "reims", name: "Reims", time: 90, res: "foi", k: 4, ph: 0.3 }
+];
+function price(d) { const t = Date.now() / 1000; return 1 + 0.3 * Math.sin(t / 150 + d.ph) + 0.08 * Math.sin(t / 37 + d.ph * 3); }
+function trend(d) { const t = Date.now() / 1000; return Math.cos(t / 150 + d.ph) >= 0 ? "▲" : "▼"; }
+function sendCaravan(d, frac) {
+  if (G.caravans.some(x => x.d === d.id)) return; const inv = G.deniers * frac; if (inv < 10) return;
+  G.deniers -= inv; G.caravans.push({ d: d.id, inv, p: price(d), end: Date.now() + d.time * 1000, era: G.era });
+  Snd.coin(); toast(`Caravane partie pour ${d.name}`); render();
+}
+function checkCaravans() {
+  const now = Date.now();
+  for (const cv of [...G.caravans]) if (now >= cv.end) {
+    G.caravans = G.caravans.filter(x => x !== cv); const d = DEST.find(x => x.id === cv.d);
+    if (Math.random() < 0.12) { const back = cv.inv * 0.4; earn(back); toast(`Des brigands ont attaqué la caravane de ${d.name} : seuls ${fmt(back)} deniers reviennent`); Snd.alarm(); }
+    else {
+      const ret = cv.inv * (0.7 + 0.6 * cv.p * (0.85 + Math.random() * 0.3)); earn(ret);
+      const rq = Math.round(d.k * d.time * Math.pow(cv.era + 1, 3) / 4 * cv.p); G.res[d.res] += rq;
+      toast(`Retour de ${d.name} : ${fmt(ret)} deniers et ${fmt(rq)} de ${RES[d.res].name.toLowerCase()}`); Snd.fanfare();
+    }
+    if (tab === "t") render();
+  }
+}
+
+/* ================= Décisions du bailli ================= */
+const decision = { next: performance.now() + 150000 };
+const secs = k => Math.max(50, basePps() * k);
+const DECS = [
+  { t: "Des pèlerins à la porte", b: "Une foule de pèlerins demande l'hospitalité pour la nuit. Les loger coûte cher, mais leur présence anime la cité.",
+    c: [{ l: () => `Les accueillir (−${fmt(secs(30))} deniers)`, fx() { const k = secs(30); if (G.deniers < k) return "Le trésor est trop maigre : les pèlerins repartent."; G.deniers -= k; G.res.foi += 50 * Math.pow(G.era + 1, 2); addBuff({ name: "Pèlerins", kind: "prod", mult: 1.3, left: 120 }); return "Les pèlerins animent la cité : production ×1,3 pendant 120 s, et la foi grandit."; } },
+        { l: "Fermer les portes", sec: true, fx() { addBuff({ name: "Portes closes", kind: "def", mult: 1.5, left: 120 }); return "Portes closes : défense ×1,5 pendant 120 s."; } }] },
+  { t: "Un prêteur de passage", b: "Un banquier propose une avance immédiate, remboursée sur les recettes des prochains jours.",
+    c: [{ l: () => `Emprunter (+${fmt(secs(300))} deniers)`, fx() { earn(secs(300)); addBuff({ name: "Remboursement", kind: "prod", mult: 0.85, left: 180 }); return "Avance reçue. Remboursement : production ×0,85 pendant 180 s."; } },
+        { l: "Refuser poliment", sec: true, fx() { return "Le banquier poursuit sa route."; } }] },
+  { t: "Fête de quartier", b: "Les habitants veulent organiser une fête. Le bailli peut la financer.",
+    c: [{ l: () => `Financer la fête (−${fmt(secs(60))})`, fx() { const k = secs(60); if (G.deniers < k) return "Pas assez de deniers pour la fête."; G.deniers -= k; addBuff({ name: "Fête", kind: "click", mult: 3, left: 60 }); return "La fête bat son plein : toucher ×3 pendant 60 s."; } },
+        { l: "Garder l'argent", sec: true, fx() { earn(secs(20)); return `Économie prudente : +${fmt(secs(20))} deniers.`; } }] },
+  { t: "Les moines copistes", b: "Les moines demandent des fonds pour enrichir leur bibliothèque. Le savoir rejaillit sur toute la cité.",
+    c: [{ l: () => `Financer (−${fmt(secs(120))})`, ok: () => G.permBonus < 0.1, fx() { const k = secs(120); if (G.deniers < k) return "Le trésor ne suffit pas."; G.deniers -= k; G.permBonus = Math.min(0.1, G.permBonus + 0.01); return "La bibliothèque s'agrandit : +1 % de production pour toujours."; } },
+        { l: "Refuser", sec: true, fx() { return "Les moines s'en retournent à leurs manuscrits."; } }] },
+  { t: "Une source dans une creute", ok: () => owned("creute") > 0, b: "Les carriers ont percé une source au fond d'une galerie.",
+    c: [{ l: "L'exploiter", fx() { addBuff({ name: "Source", kind: "bld", bld: "creute", mult: 4, left: 90 }); return "Creutes ×4 pendant 90 s."; } },
+        { l: "Murer la galerie", sec: true, fx() { hazard.next = performance.now() + 600000; return "Galerie murée : aucun incident pendant 10 minutes."; } }] },
+  { t: "Rumeur d'attaque", ok: () => G.era >= 1, b: "Des voyageurs racontent qu'une bande de pillards se rassemble dans la plaine.",
+    c: [{ l: () => `Lever la milice (−${fmt(secs(45))})`, fx() { const k = secs(45); if (G.deniers < k) return "Pas de quoi payer la milice."; G.deniers -= k; G.flags.raidHp = 0.5; return "La milice veille : le prochain assaut aura deux fois moins de vie."; } },
+        { l: "Ignorer la rumeur", sec: true, fx() { G.flags.raidExtra = 4; return "Le prochain assaut comptera 4 pillards de plus."; } }] },
+  { t: "Grève des tailleurs", ok: () => owned("tailleurs") > 0, b: "Les compagnons tailleurs réclament une hausse de leurs gages.",
+    c: [{ l: () => `Augmenter les gages (−${fmt(secs(90))})`, fx() { const k = secs(90); if (G.deniers < k) return "Le trésor ne suffit pas, la grève continue."; G.deniers -= k; addBuff({ name: "Tailleurs motivés", kind: "bld", bld: "tailleurs", mult: 2, left: 120 }); return "Ateliers de tailleurs ×2 pendant 120 s."; } },
+        { l: "Refuser", sec: true, fx() { addBuff({ name: "Grève", kind: "bld", bld: "tailleurs", mult: 0.3, left: 120 }); return "Grève : ateliers de tailleurs ×0,3 pendant 120 s."; } }] },
+  { t: "Un convoi de bois", ok: () => isU("res"), b: "Un convoi venu de la forêt propose son chargement.",
+    c: [{ l: () => `Acheter (−${fmt(secs(60))})`, fx() { const k = secs(60); if (G.deniers < k) return "Pas assez de deniers."; G.deniers -= k; const q = Math.round(120 * Math.pow(G.era + 1, 3)); G.res.bois += q; return `+${fmt(q)} de bois.`; } },
+        { l: "Le laisser passer", sec: true, fx() { return "Le convoi poursuit sa route."; } }] }
+];
+function updateDecision(now) {
+  if (!isU("decisions") || EXP.open || raid.live || siege.phase || !modal.hidden || now < decision.next) return;
+  decision.next = now + 240000 + Math.random() * 180000;
+  const pool = DECS.filter(d => !d.ok || d.ok()), d = pool[Math.floor(Math.random() * pool.length)];
+  Snd.bell(0.06, 587);
+  modalShow({ eyebrow: "Décision du bailli", title: d.t, body: `<p>${d.b}</p>`, choices: d.c.filter(ch => !ch.ok || ch.ok()).map(ch => ({ label: typeof ch.l === "function" ? ch.l() : ch.l, sec: ch.sec, on: () => { const r = ch.fx(); modalHide(); if (r) toast(r); render(); } })) });
+}
+
+/* ================= Grand siège ================= */
+const siege = { phase: null, left: 0, slots: [], queued: false };
+const SIEGE_F = [0.22, 0.38, 0.54, 0.7, 0.86];
+const DEFENDERS = { archers: { name: "Archers", k: 20, cd: 0.5, mult: 0.5 }, catapulte: { name: "Catapulte", k: 45, cd: 1.6, mult: 1.4, aoe: true } };
+function slotPos(g, s) { const p = alongRoad(g, s.f); return { x: p.x + (p.dir > 0 ? -1 : 1) * 14 * g.u, y: p.y - 4 * g.u }; }
+function updateSiege(dt) {
+  if (!siege.phase && siege.queued && !raid.live && modal.hidden && !EXP.open && $cine.hidden) {
+    siege.queued = false; siege.phase = "prep"; siege.left = 35; siege.slots = SIEGE_F.map(f => ({ f, type: null, cd: 0 }));
+    Snd.horn();
+    modalShow({ eyebrow: "Grand siège", title: "Une armée marche sur Laon", body: `<p>Une véritable armée approche, menée par un chef de guerre. Tu as <b>35 secondes</b> pour poster des défenseurs le long du chemin : touche les cercles dorés.</p><p class="note">Victoire (au plus 2 pillards passés) : +10 % de production pour toujours. Défaite : 15 % du trésor pillé.</p>`, choices: [{ label: "Préparer les défenses", on: modalHide }] });
+  }
+  if (siege.phase === "prep" && modal.hidden) { siege.left -= dt; if (siege.left <= 0) { siege.phase = "fight"; startRaid(true); } }
+}
+function siegeFire(dt, g) {
+  if (siege.phase !== "fight") return; const D = Math.max(5, defense());
+  for (const s of siege.slots) {
+    if (!s.type) continue; const T = DEFENDERS[s.type]; s.cd -= dt; if (s.cd > 0) continue;
+    const tg = raid.foes.filter(f => f.hp > 0 && f.f >= 0 && Math.abs(f.f - s.f) < 0.25).sort((a, b) => Math.abs(a.f - s.f) - Math.abs(b.f - s.f))[0];
+    if (!tg) continue; s.cd = T.cd; const p = slotPos(g, s);
+    raid.arrows.push({ x0: p.x, y0: p.y, foe: tg, t: 0, dmg: D * T.mult, rock: !!T.aoe }); if (T.aoe) Snd.hit(); else Snd.arrow();
+  }
+}
+function endSiege(ok) {
+  siege.phase = null; G.siegeDone.push(G.era);
+  if (ok) { G.siegeWins++; Snd.fanfare(); modalShow({ eyebrow: "Grand siège", title: "Laon tient bon", body: `<p>L'armée se replie dans la plaine. La renommée de la cité perchée grandit : <b>+10 % de production pour toujours</b>.</p>`, choices: [{ label: "Célébrer", on: modalHide }] }); }
+  else { const l = G.deniers * 0.15; G.deniers -= l; Snd.alarm(); modalShow({ eyebrow: "Grand siège", title: "La ville est pillée", body: `<p>Trop d'assaillants ont franchi les portes : ${fmt(l)} deniers ont été emportés.</p><p class="note">Renforce tes défenses pour le prochain siège.</p>`, choices: [{ label: "Reconstruire", on: modalHide }] }); }
+}
+function hitSlot(x, y) {
+  if (!siege.phase) return false; const g = geom();
+  for (const s of siege.slots) {
+    const p = slotPos(g, s); if (Math.hypot(x - p.x, y - p.y) > Math.max(24, 12 * g.u)) continue;
+    if (siege.phase !== "prep") return true;
+    modalShow({ eyebrow: "Poste de défense", title: s.type ? `Poste occupé : ${DEFENDERS[s.type].name}` : "Poste libre", body: `<p>Choisis qui tient ce poste pendant le siège.</p>`,
+      choices: [...Object.entries(DEFENDERS).map(([k, T]) => ({ label: `${T.name} (−${fmt(secs(T.k))})`, on: () => { const cst = secs(T.k); if (G.deniers >= cst) { G.deniers -= cst; s.type = k; Snd.coin(); } else toast("Pas assez de deniers"); modalHide(); } })), { label: "Laisser libre", sec: true, on: modalHide }] });
+    return true;
+  }
+  return false;
+}
+function drawSiege(g, t) {
+  if (!siege.phase) return; const u = g.u;
+  for (const s of siege.slots) {
+    const p = slotPos(g, s);
+    if (siege.phase === "prep") { c.strokeStyle = `rgba(224,173,74,${0.6 + 0.4 * Math.sin(t * 4)})`; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, Math.max(10, 7 * u), 0, Math.PI * 2); c.stroke(); }
+    if (s.type === "archers") { c.fillStyle = "#2a3e5c"; c.fillRect(p.x - 1.5 * u, p.y - 6 * u, 3 * u, 6 * u); c.beginPath(); c.arc(p.x, p.y - 7.5 * u, 1.5 * u, 0, Math.PI * 2); c.fill(); c.strokeStyle = "#7a5634"; c.lineWidth = Math.max(1, u * 0.5); c.beginPath(); c.arc(p.x + 2 * u, p.y - 4 * u, 3 * u, -Math.PI / 2, Math.PI / 2); c.stroke(); }
+    else if (s.type === "catapulte") { c.strokeStyle = "#6b4a2b"; c.lineWidth = Math.max(1, u * 0.9); c.beginPath(); c.moveTo(p.x - 5 * u, p.y); c.lineTo(p.x + 5 * u, p.y); c.moveTo(p.x - 3 * u, p.y); c.lineTo(p.x, p.y - 5 * u); c.lineTo(p.x + 3 * u, p.y); c.moveTo(p.x, p.y - 5 * u); c.lineTo(p.x - 5 * u, p.y - 9 * u); c.stroke(); }
+    else if (siege.phase === "prep") { c.fillStyle = "rgba(224,173,74,.9)"; c.font = `700 ${Math.round(10 + u * 2)}px Cinzel, serif`; c.textAlign = "center"; c.fillText("+", p.x, p.y + 4 * u); }
+  }
+}
+
+/* ================= Défi de la semaine & classement partagé ================= */
+const WEEK_KINDS = [
+  { name: "Pillards abattus", v: () => G.foesSlain }, { name: "Touchers", v: () => G.clicks }, { name: "Feux follets attrapés", v: () => G.wispsCaught },
+  { name: "Incidents maîtrisés", v: () => G.stats.events }, { name: "Coups de maître", v: () => G.stats.crits }
+];
+const weekId = () => Math.floor((Date.now() - Date.UTC(2024, 0, 1)) / 604800000);
+const weekKind = () => WEEK_KINDS[weekId() % WEEK_KINDS.length];
+function weekScore() { const id = weekId(); if (!G.week || G.week.id !== id) G.week = { id, base: weekKind().v() }; return Math.max(0, weekKind().v() - G.week.base); }
+const LB = { db: null, user: null, uid: null, rows: [], names: {}, state: "loading", lastSent: -1, wk: -1, unsub: null, err: null };
+function lbSubscribe() {
+  if (!LB.db) return; if (LB.unsub) LB.unsub(); LB.wk = weekId();
+  LB.unsub = LB.db.collection("lb").where("week", "==", LB.wk).orderBy("score", "desc").limit(10).onSnapshot(snap => {
+    LB.rows = snap.docs.map(d => ({ id: d.id, ...(d.data() || {}) })); LB.state = "ok";
+    const ids = LB.rows.map(r => r.id); if (ids.length && LB.user) LB.user.profiles(ids).then(ps => { for (const id of ids) LB.names[id] = (ps[id] && ps[id].name) || "Quelqu'un"; if (tab === "c") render(); }).catch(() => {});
+    if (tab === "c") render();
+  }, () => { LB.state = "off"; if (tab === "c") render(); });
+}
+async function lbInit() {
+  const timer = setTimeout(() => { if (LB.state === "loading") { LB.state = "off"; if (tab === "c") render(); } }, 10000);
+  try {
+    for (let i = 0; i < 10 && !(window.claude && window.claude.use); i++) await new Promise(r => setTimeout(r, 300));
+    if (!(window.claude && window.claude.use)) { LB.state = "off"; clearTimeout(timer); return; }
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db || !user) { LB.state = "off"; clearTimeout(timer); if (tab === "c") render(); return; }
+    LB.db = db; LB.user = user; LB.uid = await user.id(); clearTimeout(timer); lbSubscribe();
+  } catch (e) { LB.state = "off"; clearTimeout(timer); }
+}
+function lbTick() {
+  if (!LB.db || !LB.uid || !isU("week")) return;
+  if (LB.wk !== weekId()) lbSubscribe();
+  const s = weekScore(); if (s === LB.lastSent) return; LB.lastSent = s;
+  LB.db.collection("lb").doc(LB.uid).set({ week: weekId(), kind: weekKind().name, score: s, at: Date.now() }).then(() => { LB.err = null; }).catch(e => { LB.err = e && e.code; });
+}
+
+/* ================= Visite de Laon ================= */
+const FICHES = {
+  masure: XFRAGS.calcaire, creute: XFRAGS.creute, tailleurs: XFRAGS.cathedrale, boeufs: XFRAGS.boeufs, commanderie: XFRAGS.templiers,
+  porte: { title: "Les portes de la ville haute", text: ERAS[2].chron.text }, remparts: { title: "La Montagne couronnée", text: ERAS[2].chron.text },
+  hotel: XFRAGS.marquette, gare: XFRAGS.poma, poma: XFRAGS.poma,
+  musee: { title: "Le musée de Laon", text: "Le musée d'Art et d'Archéologie du Pays de Laon est installé depuis 1891 dans l'ancien hôtel des Templiers. Il bénéficie de l'appellation Musée de France." },
+  m0: XFRAGS.carolingiens, m1: { title: ERAS[1].chron.title, text: ERAS[1].chron.text }, m2: { title: "La citadelle", text: "Après avoir assiégé Laon en 1594, Henri IV y fit bâtir une citadelle, ordonnée en 1595 selon l'inscription de sa porte." }
+};
+let visitMode = false;
+function readFiche(id) {
+  const f = FICHES[id]; if (!f) return;
+  if (!G.read.includes(id)) G.read.push(id);
+  modalShow({ eyebrow: "Visite de Laon", title: f.title, body: `<p>${f.text}</p>${hasC("champfleury") ? `<p class="note">Fiches lues : ${G.read.length} (+${G.read.length} % de production grâce à Champfleury).</p>` : ""}`, choices: [{ label: "Continuer la visite", on: modalHide }] });
+}
+function availFiches() { const ids = []; for (const b of BLD) if (owned(b.id) > 0 && FICHES[b.id] && !ids.some(i => FICHES[i] === FICHES[b.id])) ids.push(b.id); for (let i = 0; i < Math.min(G.era, 3); i++) ids.push("m" + i); return ids; }
+function hotspots(g) {
+  const span = g.pr - g.pl, u = g.u, h = [];
+  if (G.era >= 1) h.push({ id: "m0", x: g.pl + span * 0.16, y: g.py - 18 * u });
+  if (G.era >= 2) h.push({ id: "m1", x: g.pl + span * 0.46, y: g.py - 40 * u });
+  if (G.era >= 3) h.push({ id: "m2", x: g.pl + span * 0.93, y: g.py - 10 * u });
+  if (owned("commanderie")) h.push({ id: "commanderie", x: g.pl + span * 0.28, y: g.py - 8 * u });
+  if (owned("musee")) h.push({ id: "musee", x: g.pl + span * 0.72, y: g.py - 8 * u });
+  if (owned("gare")) h.push({ id: "gare", x: W * 0.9, y: g.y0 - 6 * u });
+  if (owned("creute")) h.push({ id: "creute", x: W / 2 - W * 0.2, y: g.py + (g.y0 - g.py) * 0.5 }, { id: "creute", x: W / 2 + W * 0.2, y: g.py + (g.y0 - g.py) * 0.5 });
+  if (owned("porte")) h.push({ id: "porte", x: g.pl, y: g.py - 6 * u });
+  if (owned("boeufs")) h.push({ id: "boeufs", x: W * 0.12, y: g.y0 - (g.y0 - g.py) * 0.5 });
+  if (owned("masure")) h.push({ id: "masure", x: g.pl + span * 0.6, y: g.py - 6 * u });
+  return h;
+}
+function hitVisit(x, y) {
+  if (!visitMode) return false; const g = geom(); let best = null, bd = 50;
+  for (const p of hotspots(g)) { const d = Math.hypot(x - p.x, y - p.y); if (d < bd) { bd = d; best = p; } }
+  if (best) readFiche(best.id); else toast("Rien à visiter ici : touche un monument ou un bâtiment");
+  return true;
+}
+function drawVisit(g, t) { if (!visitMode) return; for (const p of hotspots(g)) { c.strokeStyle = `rgba(159,214,224,${0.6 + 0.4 * Math.sin(t * 3)})`; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, 9 + 2 * Math.sin(t * 3), 0, Math.PI * 2); c.stroke(); } }
+
+/* ================= Onglet Comptoir ================= */
+function renderTrade() {
+  if (isU("council")) {
+    list.appendChild(el(`<p class="section-title">Conseil du bailli</p>`));
+    for (const m of COUNCIL) {
+      if (m.era > G.era) continue; const own = hasC(m.id);
+      const r = el(`<button type="button" class="row${own ? " owned-node" : ""}" data-cm="${m.id}" ${own ? "disabled" : ""}><div class="lettrine era2">${m.name.replace(/^(Le |Les |La )/, "")[0]}</div><div class="txt"><div class="name">${m.name}</div><div class="desc">${m.fx}</div>${m.fact ? `<div class="meta"><i>${m.fact}</i></div>` : ""}</div><div class="side"><div class="cost">${own ? "Au conseil" : fmt(m.cost)}</div></div></button>`);
+      r.addEventListener("click", () => hireC(m)); list.appendChild(r);
+    }
+    const nx = COUNCIL.find(m => m.era > G.era); if (nx) list.appendChild(el(`<p class="empty">D'autres conseillers rejoindront la cité à l'${ERAS[nx.era].name.replace("Ère ", "ère ")}.</p>`));
+  }
+  if (isU("trade")) {
+    list.appendChild(el(`<p class="section-title">Caravanes · investis une part du trésor</p>`));
+    for (const d of DEST) {
+      const cv = G.caravans.find(x => x.d === d.id), p = price(d);
+      const box = el(`<div class="chron trade"><h3>${d.name} <span class="tr ${trend(d) === "▲" ? "up" : "down"}">${trend(d)} cours ${p.toFixed(2).replace(".", ",")}</span></h3><p>Voyage de ${d.time} s. Rapporte des deniers et de la ${RES[d.res].name.toLowerCase()}. Risque de brigands : 12 %.</p><div class="tbtns"></div></div>`);
+      const bx = box.querySelector(".tbtns");
+      if (cv) bx.innerHTML = `<span class="tcd" data-cv="${d.id}">En route : retour dans ${Math.ceil((cv.end - Date.now()) / 1000)} s</span>`;
+      else [[0.1, "10 %"], [0.25, "25 %"], [0.5, "50 %"]].forEach(([f, l]) => { const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = `${l} (${fmt(G.deniers * f)})`; b.addEventListener("click", () => sendCaravan(d, f)); bx.appendChild(b); });
+      list.appendChild(box);
+    }
+  }
 }
 
 /* ================= Progression : déblocages successifs ================= */
@@ -1706,7 +2065,14 @@ const UNLOCKS = [
   { id: "raids", test: () => G.era >= 1, card: { t: "Les pillards", b: "Ta richesse attire les convoitises. Des pillards vont monter le chemin de la butte : tes tours, portes et remparts tirent seuls, et tu peux les toucher pour les achever. Nouvelles améliorations défensives dans l'onglet Améliorer." } },
   { id: "hazards", test: () => G.era >= 1 && (G.raidsWon + G.foesSlain) >= 5, card: { t: "Les aléas de la cité", b: "Éboulements, incendies, rats : quand un incident survient, touche-le avant la fin du compte à rebours pour limiter les dégâts et gagner une récompense." } },
   { id: "expe", test: () => G.era >= 2, card: { t: "Les creutes s'ouvrent", b: "Sous la cathédrale, les carrières se dévoilent. Lance une <b>expédition souterraine</b> depuis l'onglet Bâtir : chaque fragment d'histoire trouvé ajoute +3 % de production pour toujours." } },
-  { id: "tree", test: () => G.crowns >= 1 }
+  { id: "tree", test: () => G.crowns >= 1 },
+  { id: "res", test: () => owned("masure") >= 3, card: { t: "Bois et pierre", b: "Les monuments se bâtissent désormais en <b>4 étapes</b>, et chacune demande des deniers mais aussi du <b>bois</b> (masures, marchés) et de la <b>pierre</b> (puits, puis creutes). Les quantités s'affichent sous le trésor." } },
+  { id: "seasons", test: () => G.life >= 2500, card: { t: "Les saisons", b: "Les saisons défilent toutes les 3 minutes. <b>Printemps</b> : feux follets plus fréquents. <b>Été</b> : foire, faveurs moins chères et production ×1,1. <b>Automne</b> : toucher ×1,5. <b>Hiver</b> : production ×0,85 mais pillards plus rares." } },
+  { id: "council", test: () => G.era >= 1, card: { t: "Le conseil du bailli", b: "Nouvel onglet <b>Comptoir</b> : recrute des conseillers, dont des figures historiques de Laon, pour obtenir des pouvoirs permanents." } },
+  { id: "decisions", test: () => G.era >= 1 && G.raidsWon >= 1, card: { t: "Les décisions du bailli", b: "De temps en temps, la cité te soumettra un choix. Chaque décision a ses avantages et ses risques." } },
+  { id: "trade", test: () => G.era >= 1 && owned("marche") >= 5, card: { t: "Les caravanes", b: "Dans le Comptoir, envoie des caravanes vers Soissons, la forêt de Saint-Gobain ou Reims. Les cours fluctuent : investis quand ils sont hauts. Attention aux brigands." } },
+  { id: "visit", test: () => G.era >= 1 && owned("creute") >= 1, card: { t: "La visite de Laon", b: "Dans la Chronique, active le <b>mode visite</b> et touche les bâtiments pour découvrir l'histoire réelle de Laon." } },
+  { id: "week", test: () => G.era >= 1, card: { t: "Le défi de la semaine", b: "Chaque semaine, un défi commun (pillards abattus, touchers, feux follets…) et un classement partagé entre les joueurs de cette page. Le score part de zéro chaque lundi." } }
 ];
 if (!G.unl) G.unl = [];
 const isU = id => G.unl.includes(id);
@@ -1729,12 +2095,13 @@ function checkUnlocks() {
 function applyUnlocks() {
   document.getElementById("tab-u").hidden = !isU("upg");
   document.getElementById("tab-c").hidden = !isU("chron");
+  document.getElementById("tab-t").hidden = !(isU("council") || isU("trade"));
   document.getElementById("stance").hidden = !isU("stance");
   document.querySelectorAll("#qty [data-q]").forEach(b => (b.hidden = !isU("qty")));
   document.querySelector("#qty .mode").hidden = !isU("sell");
   document.getElementById("qty").hidden = tab !== "b" || (!isU("qty") && !isU("sell"));
   if (!isU("sell") && mode === "sell") mode = "buy";
-  if ((tab === "u" && !isU("upg")) || (tab === "c" && !isU("chron"))) { tab = "b"; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.tab === "b")); }
+  if ((tab === "u" && !isU("upg")) || (tab === "c" && !isU("chron")) || (tab === "t" && !(isU("council") || isU("trade")))) { tab = "b"; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.tab === "b")); }
 }
 let buildSig = "";
 const revealed = b => owned(b.id) > 0 || G.run >= b.cost * 0.4 || G.deniers >= b.cost * 0.4;
@@ -1748,12 +2115,13 @@ function frame(now) {
   if (active.some(b => b.left <= 0)) active = active.filter(b => b.left > 0);
   stanceCd = Math.max(0, stanceCd - dt);
   if (isU("market")) { market.refresh -= dt; if (market.refresh <= 0) restockMarket(); }
-  if (!EXP.open) { updateRaid(dt, now); updateHazard(dt, now); }
+  if (!EXP.open) { updateRaid(dt, now); updateHazard(dt, now); updateSiege(dt); updateDecision(now); }
+  earnRes(dt); tickSeason(dt);
   Snd.tick();
-  achAcc += dt; if (achAcc > 1) { achAcc = 0; checkAch(); checkUnlocks();
+  achAcc += dt; if (achAcc > 1) { achAcc = 0; checkAch(); checkUnlocks(); checkCaravans(); lbTick();
     const sig = BLD.map(b => (b.era <= G.era && revealed(b) ? 1 : 0)).join(""); if (sig !== buildSig) { buildSig = sig; if (tab === "b") render(); } }
   if (EXP.open) { xUpdate(dt); if (EXP.open) xRender(); }
-  if (!wisp && !EXP.open && isU("wisps") && now > nextWisp) { spawnWisp(now); nextWisp = now + (50000 + Math.random() * 70000) * (hasNode("follets") ? 0.5 : 1); }
+  if (!wisp && !EXP.open && isU("wisps") && now > nextWisp) { spawnWisp(now); nextWisp = now + (50000 + Math.random() * 70000) * (hasNode("follets") ? 0.5 : 1) * seasonMult("wisp"); }
   acc += dt; if (acc > 0.25) { acc = 0; refreshNumbers(); }
   if (W > 1 && !EXP.open) drawScene(now);
   requestAnimationFrame(frame);
@@ -1766,6 +2134,7 @@ if (!G.qs) G.qs = qsnap();
 const intro = () => { if (offlineGain > 1) modalShow({ eyebrow: "Pendant ton absence", title: "La cité a travaillé", body: `<p>Tes gens ont amassé <b>${fmt(offlineGain)}</b> deniers en ton absence (à mi-régime, jusqu'à 8 heures).</p>`, choices: [{ label: "Reprendre", on: modalHide }] });
 else if (G.life === 0) modalShow({ eyebrow: "Laon, Xᵉ siècle", title: "La Cité perchée", body: `<p>Sur une butte de calcaire dominant la plaine, quelques familles s'installent. À toi de faire de ce rocher une cité royale, puis une ville que les siècles n'effaceront pas.</p><p class="note">Touche la cité pour récolter des deniers, bâtis pour qu'elle produise seule, guette les feux follets dorés et les faveurs du marché. Choisis ton orientation : labeur pour toucher, intendance pour laisser produire.</p>`, choices: [{ label: "Fonder la cité", on: modalHide }] }); };
 showTitle(intro);
+lbInit();
 requestAnimationFrame(frame);
 })();
 </script>
