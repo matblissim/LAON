@@ -1,0 +1,833 @@
+<title>Les Creutes de Laon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap">
+<style>
+/* Layout: plein écran — bandeau de jeu en haut, souterrain sur canvas, parchemins en surimpression. Look sombre assumé (un seul thème). */
+:root {
+  --night: #0b0908;
+  --stone: #1b1614;
+  --stone-edge: #3a2f27;
+  --gold: #d9a441;
+  --ember: #ff8a3d;
+  --parch: #eadbb3;
+  --parch-deep: #d6c08d;
+  --ink: #2a1d12;
+  --bone: #e8dcc0;
+  --mist: #9fd6e0;
+  --blood: #8e2b1f;
+  --f-title: "Cinzel Decorative", "Cinzel", Georgia, serif;
+  --f-head: "Cinzel", Georgia, serif;
+  --f-body: "IM Fell English", Garamond, Georgia, serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--night); color: var(--bone); font-family: var(--f-body); overflow: hidden; }
+#app { height: 100%; display: flex; flex-direction: column; }
+
+#hud {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: linear-gradient(var(--stone), #120e0c);
+  border-bottom: 1px solid var(--stone-edge);
+  font-family: var(--f-head); font-size: 13px; letter-spacing: .06em;
+}
+.lvl { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex: 1 1 200px; }
+.lvl b { font-family: var(--f-title); color: var(--gold); font-size: 18px; }
+.lvl span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.torch { display: flex; align-items: center; gap: 8px; }
+.bar { width: 110px; height: 10px; border: 1px solid var(--stone-edge); border-radius: 6px; background: #0e0a08; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--blood), var(--ember), #ffd27a); transition: width .2s linear; }
+.bar.low i { animation: blink .6s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .35; } }
+.frag b { color: var(--gold); font-variant-numeric: tabular-nums; }
+.hud-btns { display: flex; gap: 8px; }
+button {
+  font-family: var(--f-head); font-size: 13px; letter-spacing: .05em;
+  color: var(--bone); background: #241c17; border: 1px solid var(--stone-edge);
+  border-radius: 4px; padding: 6px 10px; cursor: pointer;
+}
+button:hover { border-color: var(--gold); color: #fff3d6; }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+#stage { position: relative; flex: 1; min-height: 0; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+#dpad {
+  position: absolute; display: none;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); gap: 4px;
+  opacity: .85; user-select: none; -webkit-user-select: none;
+}
+#dpad button { font-size: 20px; padding: 0; background: rgba(36,28,23,.75); touch-action: none; }
+#dpad [data-d="up"] { grid-area: 1 / 2; }
+#dpad [data-d="left"] { grid-area: 2 / 1; }
+#dpad [data-d="right"] { grid-area: 2 / 3; }
+#dpad [data-d="down"] { grid-area: 3 / 2; }
+@media (pointer: coarse) { #dpad { display: grid; } }
+
+#modal {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(5,3,2,.72); z-index: 20;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+}
+#modal[hidden] { display: none; }
+.parch {
+  width: min(520px, 100%); max-height: 100%; overflow-y: auto;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.35), transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(120,80,30,.25), transparent 60%),
+    var(--parch);
+  border: 2px solid var(--parch-deep);
+  outline: 1px solid #8a6a3a; outline-offset: -8px;
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7), inset 0 0 40px rgba(110,70,20,.35);
+  padding: 28px 26px 24px;
+  animation: unroll .35s ease-out;
+}
+@keyframes unroll { from { transform: scaleY(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .parch { animation: none; } .bar.low i { animation: none; } }
+.eyebrow { font-family: var(--f-head); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #7a4f1f; margin: 0 0 6px; }
+.parch h2 { font-family: var(--f-title); font-size: clamp(22px, 5vw, 30px); line-height: 1.15; margin: 0 0 14px; text-wrap: balance; color: #3a2210; }
+.parch p { font-size: 18px; line-height: 1.5; margin: 0 0 12px; }
+.parch .note { font-style: italic; color: #5b4128; }
+.choices { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.choices button { font-family: var(--f-body); font-size: 18px; letter-spacing: 0; text-align: left; color: var(--parch); background: #3a2717; border-color: #2a1b0f; padding: 10px 14px; }
+.choices button.primary { font-family: var(--f-head); text-align: center; background: var(--ink); color: var(--gold); letter-spacing: .08em; }
+.choices button:hover { background: #4d331d; color: #fff3d6; }
+.choices button.wrong { background: var(--blood); color: #fff; }
+.journal { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.journal li { border-top: 1px solid rgba(90,60,30,.35); padding-top: 10px; }
+.journal h3 { font-family: var(--f-head); font-size: 15px; margin: 0 0 4px; color: #3a2210; }
+.journal p { font-size: 16px; margin: 0; }
+.journal .locked { color: #8a7458; font-style: italic; }
+.keys { font-family: var(--f-head); font-size: 13px; color: #5b4128; letter-spacing: .04em; }
+</style>
+
+<div id="app">
+  <header id="hud">
+    <div class="lvl"><b id="lvlNum">I</b><span id="lvlName">La Carrière des Bâtisseurs</span></div>
+    <div class="torch"><span>Flamme</span><div class="bar" id="torchBar"><i id="torchFill"></i></div></div>
+    <div class="frag">Fragments <b id="fragCount">0/2</b></div>
+    <div class="hud-btns">
+      <button id="btnJournal" type="button">Grimoire</button>
+      <button id="btnSound" type="button">Son : oui</button>
+    </div>
+  </header>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="dpad" aria-hidden="true">
+      <button type="button" data-d="up" tabindex="-1">▲</button>
+      <button type="button" data-d="left" tabindex="-1">◀</button>
+      <button type="button" data-d="right" tabindex="-1">▶</button>
+      <button type="button" data-d="down" tabindex="-1">▼</button>
+    </div>
+    <div id="modal" hidden><div class="parch" role="dialog" aria-modal="true" id="parch"></div></div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------- Contenu historique (vérifié) ---------- */
+const FRAGS = {
+  calcaire: { title: "La butte de calcaire", text: "Laon est bâtie sur une butte de calcaire assez tendre. Pendant des siècles, on y a taillé la pierre de la ville, laissant sous les rues un vaste réseau de carrières et de caves." },
+  boeufs: { title: "Le bœuf providentiel", text: "La légende raconte qu'un bœuf mystérieux apparut pour aider à hisser les pierres de la cathédrale jusqu'en haut de la butte. En hommage, des bœufs sculptés veillent au sommet de ses tours." },
+  cathedrale: { title: "Notre-Dame de Laon", text: "La cathédrale Notre-Dame, l'une des premières grandes cathédrales gothiques, fut bâtie aux XIIᵉ et XIIIᵉ siècles avec le calcaire tiré de la butte." },
+  templiers: { title: "Les chevaliers du Temple", text: "Les Templiers s'installent à Laon vers 1128. Ils y élèvent une chapelle romane au plan octogonal, classée monument historique dès 1846." },
+  carolingiens: { title: "La cité des rois", text: "Au Xᵉ siècle, la cité perchée fut la place forte des derniers rois carolingiens, qui en firent l'une de leurs principales résidences." },
+  creute: { title: "Le mot « creute »", text: "En picard, une creute est une carrière souterraine. Pendant la Grande Guerre, des soldats vécurent dans celles du Chemin des Dames, tout près de Laon." },
+  marquette: { title: "L'explorateur", text: "Jacques Marquette, jésuite né à Laon en 1637, descendit le Mississippi avec Louis Jolliet et en rapporta les premières descriptions fiables." },
+  poma: { title: "La cabine sur câble", text: "De 1989 à 2016, le POMA 2000, une petite rame automatique tirée par câble, reliait la gare à la ville haute." }
+};
+
+const RIDDLES = {
+  pourquoi: { q: "Pourquoi creusait-on sous la butte de Laon ?", a: ["Pour extraire le calcaire et bâtir la ville", "Pour chercher de l'or", "Pour enfermer un dragon"], why: "Le calcaire tiré de ces galeries a servi aux maisons, aux remparts et à la cathédrale." },
+  animaux: { q: "Quels animaux sculptés veillent au sommet des tours de la cathédrale ?", a: ["Des bœufs", "Des lions", "Des aigles"], why: "Ils rendent hommage aux bœufs qui, selon la légende, montèrent les pierres jusqu'à la butte." },
+  forme: { q: "Quelle forme a le plan de la chapelle des Templiers de Laon ?", a: ["Un octogone", "Une croix latine", "Un carré"], why: "Huit côtés : un plan rare, souvent associé aux chapelles funéraires." },
+  rois: { q: "Au Xᵉ siècle, de quels rois Laon était-elle la place forte ?", a: ["Les derniers Carolingiens", "Les Mérovingiens", "Les Bourbons"], why: "Perchée sur sa butte, la cité était facile à défendre." },
+  explorateur: { q: "Quel explorateur né à Laon en 1637 a descendu le Mississippi ?", a: ["Jacques Marquette", "Jacques Cartier", "Samuel de Champlain"], why: "Une statue lui rend hommage dans sa ville natale." },
+  creute: { q: "En picard, que désigne le mot « creute » ?", a: ["Une carrière souterraine", "Une tour de guet", "Un pain de seigle"], why: "Ces carrières ont servi d'abris, de caves et même de refuges aux soldats de 1914-1918." }
+};
+
+const LEVELS = [
+  { roman: "I", name: "La Carrière des Bâtisseurs", w: 21, h: 15, seed: 1155, candles: 4, wisps: 0, drain: 1.0,
+    floor: [62, 50, 38], wall: [104, 86, 64], rune: [255, 196, 110],
+    intro: "Ici, les bâtisseurs taillaient le calcaire de la cathédrale. Des runes de compagnons luisent encore sur les parois.",
+    doors: ["pourquoi", "animaux"], frags: ["calcaire", "boeufs"] },
+  { roman: "II", name: "La Crypte des Templiers", w: 27, h: 19, seed: 1128, candles: 6, wisps: 2, drain: 1.2,
+    floor: [46, 40, 44], wall: [88, 76, 84], rune: [235, 95, 80],
+    intro: "Une crypte oubliée, gardée par des feux follets. Évite-les : leur froid dévore ta flamme.",
+    doors: ["forme", "rois"], frags: ["cathedrale", "templiers", "carolingiens"] },
+  { roman: "III", name: "Les Galeries Oubliées", w: 31, h: 23, seed: 1637, candles: 8, wisps: 4, drain: 1.35,
+    floor: [38, 42, 46], wall: [72, 80, 90], rune: [140, 170, 255],
+    intro: "Les galeries les plus profondes, où résonnent les échos de toutes les époques. Le Bœuf de lumière est tout proche.",
+    doors: ["explorateur", "creute"], frags: ["creute", "marquette", "poma"] }
+];
+
+/* ---------- Utilitaires ---------- */
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash(x, y, s) { let h = (x * 374761393 + y * 668265263 + s * 982451653) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const DIRMAP = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ---------- Génération du souterrain ---------- */
+function genLevel(L) {
+  const rnd = mulberry32(L.seed);
+  const W = L.w, H = L.h;
+  const g = new Uint8Array(W * H).fill(1);
+  const id = (x, y) => y * W + x;
+  // labyrinthe parfait (backtracker)
+  const stack = [[1, 1]]; g[id(1, 1)] = 0;
+  while (stack.length) {
+    const [cx, cy] = stack[stack.length - 1];
+    const nb = [[2, 0], [-2, 0], [0, 2], [0, -2]].filter(([dx, dy]) => {
+      const nx = cx + dx, ny = cy + dy;
+      return nx > 0 && ny > 0 && nx < W - 1 && ny < H - 1 && g[id(nx, ny)] === 1;
+    });
+    if (!nb.length) { stack.pop(); continue; }
+    const [dx, dy] = nb[Math.floor(rnd() * nb.length)];
+    g[id(cx + dx / 2, cy + dy / 2)] = 0; g[id(cx + dx, cy + dy)] = 0;
+    stack.push([cx + dx, cy + dy]);
+  }
+  function bfs(s, blocked) {
+    const dist = new Int32Array(W * H).fill(-1), par = new Int32Array(W * H).fill(-1);
+    const q = [s]; dist[s] = 0;
+    for (let h = 0; h < q.length; h++) {
+      const c = q[h], x = c % W, y = (c / W) | 0;
+      for (const [dx, dy] of DIRS) {
+        const n = id(x + dx, y + dy);
+        if (g[n] === 0 && dist[n] < 0 && !(blocked && blocked.has(n))) { dist[n] = dist[c] + 1; par[n] = c; q.push(n); }
+      }
+    }
+    return { dist, par, order: q };
+  }
+  const start = id(1, 1);
+  const b0 = bfs(start);
+  const exit = b0.order[b0.order.length - 1];
+  const path = []; for (let c = exit; c >= 0; c = b0.par[c]) path.unshift(c);
+  const floorN = c => DIRS.filter(([dx, dy]) => g[c + dx + dy * W] === 0);
+  // portes runiques sur le chemin, dans un couloir droit
+  const doors = [];
+  L.doors.forEach((rid, i) => {
+    const base = Math.floor(path.length * (i + 1) / (L.doors.length + 1));
+    for (let k = 0; k < 12; k++) {
+      for (const s of [k, -k]) {
+        const j = base + s; if (j < 3 || j > path.length - 3) continue;
+        const c = path[j]; const n = floorN(c);
+        const straight = n.length === 2 && n[0][0] === -n[1][0] && n[0][1] === -n[1][1];
+        if (straight && !doors.some(d => Math.abs(path.indexOf(d.c) - j) < 4)) { doors.push({ c, rid, open: false }); return; }
+      }
+    }
+    doors.push({ c: path[base], rid, open: false });
+  });
+  const doorSet = new Set(doors.map(d => d.c));
+  // régions séparées par les portes
+  const region = new Int32Array(W * H).fill(-1); let nreg = 0;
+  for (let c = 0; c < W * H; c++) {
+    if (g[c] !== 0 || doorSet.has(c) || region[c] >= 0) continue;
+    const r = bfs(c, doorSet); for (const k of r.order) region[k] = nreg; nreg++;
+  }
+  // quelques boucles à l'intérieur d'une même région
+  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+    const c = id(x, y); if (g[c] !== 1) continue;
+    let a = -1, b = -1;
+    if (x % 2 === 0 && y % 2 === 1) { a = c - 1; b = c + 1; }
+    else if (x % 2 === 1 && y % 2 === 0) { a = c - W; b = c + W; }
+    if (a < 0 || g[a] || g[b] || doorSet.has(a) || doorSet.has(b)) continue;
+    if (region[a] === region[b] && rnd() < 0.1) { g[c] = 0; region[c] = region[a]; }
+  }
+  const dist = bfs(start, doorSet).dist;
+  const used = new Set([start, exit, ...doorSet]);
+  const deadEnds = [];
+  for (let c = 0; c < W * H; c++) if (g[c] === 0 && !used.has(c) && floorN(c).length === 1) deadEnds.push(c);
+  const shuffle = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+  shuffle(deadEnds);
+  const floors = shuffle([...Array(W * H).keys()].filter(c => g[c] === 0 && !used.has(c)));
+  const take = (pred) => {
+    let i = deadEnds.findIndex(c => !used.has(c) && pred(c));
+    if (i >= 0) { const c = deadEnds[i]; used.add(c); return c; }
+    i = floors.findIndex(c => !used.has(c) && pred(c));
+    if (i >= 0) { const c = floors[i]; used.add(c); return c; }
+    return -1;
+  };
+  const items = [];
+  // fragments : un par région si possible
+  L.frags.forEach((fid, i) => {
+    const r = i % nreg; let c = take(k => region[k] === r && (r > 0 || dist[k] > 6));
+    if (c < 0) c = take(() => true);
+    if (c >= 0) items.push({ c, type: "frag", fid });
+  });
+  // bougies : au moins une par région
+  for (let i = 0; i < L.candles; i++) {
+    const r = i % nreg; let c = take(k => region[k] === r && (r > 0 || dist[k] > 4));
+    if (c < 0) c = take(() => true);
+    if (c >= 0) items.push({ c, type: "candle" });
+  }
+  // feux follets : patrouille sur un couloir droit
+  const runs = [];
+  for (const [dx, dy] of [[1, 0], [0, 1]]) {
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+      const c = id(x, y);
+      const prev = c - dx - dy * W;
+      if (g[c] !== 0 || doorSet.has(c) || (g[prev] === 0 && !doorSet.has(prev))) continue;
+      let len = 0, k = c;
+      while (g[k] === 0 && !doorSet.has(k)) { len++; k += dx + dy * W; }
+      if (len >= 4) runs.push({ x, y, dx, dy, len });
+    }
+  }
+  shuffle(runs);
+  const wisps = [];
+  for (const r of runs) {
+    if (wisps.length >= L.wisps) break;
+    let near = false;
+    for (let i = 0; i < r.len; i++) { const c = id(r.x + r.dx * i, r.y + r.dy * i); if (dist[c] >= 0 && dist[c] < 6) near = true; }
+    if (near) continue;
+    wisps.push({ ...r, t: rnd() * r.len, dir: 1, speed: 1.6 + rnd() * 0.8 });
+  }
+  // runes sur les murs bordant les galeries
+  const runes = [];
+  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+    const c = id(x, y);
+    if (g[c] === 1 && floorN(c).length > 0 && hash(x, y, L.seed) < 0.07) runes.push(c);
+  }
+  return { W, H, g, start, exit, doors, items, wisps, runes };
+}
+
+/* ---------- Audio (Web Audio, aucun fichier) ---------- */
+const Snd = {
+  ctx: null, master: null, echo: null, on: true, nextDrip: 0,
+  init() {
+    if (this.ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = this.ctx = new AC();
+    this.master = ctx.createGain(); this.master.gain.value = this.on ? 0.7 : 0; this.master.connect(ctx.destination);
+    // écho de caverne
+    const d = ctx.createDelay(1); d.delayTime.value = 0.28;
+    const fb = ctx.createGain(); fb.gain.value = 0.38;
+    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1800;
+    d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(this.master);
+    this.echo = d;
+    // souffle grave
+    const len = ctx.sampleRate * 3, buf = ctx.createBuffer(1, len, ctx.sampleRate), ch = buf.getChannelData(0);
+    let last = 0; for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; last = (last + 0.02 * w) / 1.02; ch[i] = last * 3.2; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 260;
+    const ga = ctx.createGain(); ga.gain.value = 0.22;
+    src.connect(f); f.connect(ga); ga.connect(this.master); src.start();
+    // bourdon
+    [55, 82.4].forEach((fq, i) => {
+      const o = ctx.createOscillator(); o.type = "sine"; o.frequency.value = fq;
+      const og = ctx.createGain(); og.gain.value = 0.025;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.07 + i * 0.05;
+      const lg = ctx.createGain(); lg.gain.value = 0.02; lfo.connect(lg); lg.connect(og.gain);
+      o.connect(og); og.connect(this.master); o.start(); lfo.start();
+    });
+    this.nextDrip = ctx.currentTime + 1.5;
+  },
+  setOn(v) { this.on = v; if (this.master) this.master.gain.setTargetAtTime(v ? 0.7 : 0, this.ctx.currentTime, 0.05); },
+  tone(freq, dur, { type = "sine", vol = 0.1, to = null, delay = 0, echo = true } = {}) {
+    if (!this.ctx) return; const t = this.ctx.currentTime + delay;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(this.master); if (echo) g.connect(this.echo);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+  noise(dur, freq, vol) {
+    if (!this.ctx) return; const ctx = this.ctx, t = ctx.currentTime;
+    const n = Math.floor(ctx.sampleRate * dur), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = ctx.createBufferSource(); s.buffer = b;
+    const f = ctx.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = freq; f.Q.value = 1.2;
+    const g = ctx.createGain(); g.gain.value = vol;
+    s.connect(f); f.connect(g); g.connect(this.master); g.connect(this.echo); s.start();
+  },
+  tick() { if (!this.ctx) return; if (this.ctx.currentTime > this.nextDrip) { this.drip(); this.nextDrip = this.ctx.currentTime + 2 + Math.random() * 5; } },
+  drip() { this.tone(1300 + Math.random() * 700, 0.12, { to: 420, vol: 0.05 }); },
+  step() { this.noise(0.05, 700 + Math.random() * 300, 0.12); },
+  pickup() { [523, 659, 784].forEach((f, i) => this.tone(f, 0.25, { type: "triangle", vol: 0.07, delay: i * 0.07 })); },
+  scroll() { [392, 494, 587, 784].forEach((f, i) => this.tone(f, 0.5, { type: "sine", vol: 0.06, delay: i * 0.1 })); },
+  door() { this.tone(70, 1.1, { type: "sawtooth", to: 45, vol: 0.06 }); this.noise(0.9, 180, 0.25); },
+  wrong() { this.tone(220, 0.25, { type: "square", vol: 0.04 }); this.tone(165, 0.35, { type: "square", vol: 0.04, delay: 0.18 }); },
+  hit() { this.tone(900, 0.4, { to: 120, vol: 0.07 }); },
+  win() { [262, 330, 392, 523, 659].forEach((f, i) => this.tone(f, 0.9, { type: "triangle", vol: 0.06, delay: i * 0.12 })); },
+  out() { this.tone(300, 1.2, { to: 60, vol: 0.08 }); }
+};
+
+/* ---------- État ---------- */
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+const stage = document.getElementById("stage");
+const lightCv = document.createElement("canvas"), lctx = lightCv.getContext("2d");
+let mapCv = document.createElement("canvas");
+let TS = 40, VW = 0, VH = 0, DPR = 1;
+const S = {
+  li: 0, lvl: null, map: null, px: 1, py: 1, tx: 1, ty: 1, fx: 1, fy: 1, moving: 0,
+  face: [1, 0], torch: 100, invuln: 0, paused: true, seen: null, staticLight: null,
+  t: 0, embers: [], flash: 0, held: [], over: false
+};
+const found = new Set(store.get("creutes-frags", []));
+
+/* ---------- Rendu des tuiles ---------- */
+function rgb(c, k = 1, v = 0) { return `rgb(${clamp(c[0] * k + v, 0, 255) | 0},${clamp(c[1] * k + v, 0, 255) | 0},${clamp(c[2] * k + v, 0, 255) | 0})`; }
+function drawFloor(c, x, y, L) {
+  const X = x * TS, Y = y * TS, v = hash(x, y, 1) * 12 - 6;
+  c.fillStyle = rgb(L.floor, 1, v); c.fillRect(X, Y, TS, TS);
+  const half = TS / 2, off = (y % 2) * TS / 4;
+  c.fillStyle = "rgba(0,0,0,.22)";
+  c.fillRect(X, Y + half - 0.75, TS, 1.5);
+  c.fillRect(X + ((half + off) % TS) - 0.75, Y, 1.5, half);
+  c.fillRect(X + ((off + TS / 4) % TS) - 0.75, Y + half, 1.5, half);
+  for (let i = 0; i < 7; i++) {
+    c.fillStyle = hash(x, y, 30 + i) > 0.5 ? "rgba(255,240,210,.07)" : "rgba(0,0,0,.25)";
+    const s = TS / 18 + 1; c.fillRect(X + hash(x, y, 10 + i) * (TS - s), Y + hash(x, y, 20 + i) * (TS - s), s, s);
+  }
+  if (hash(x, y, 77) < 0.12) {
+    c.strokeStyle = "rgba(0,0,0,.35)"; c.lineWidth = 1; c.beginPath();
+    let cx = X + hash(x, y, 78) * TS, cy = Y + hash(x, y, 79) * TS; c.moveTo(cx, cy);
+    for (let i = 0; i < 3; i++) { cx += (hash(x, y, 80 + i) - 0.5) * TS * 0.5; cy += (hash(x, y, 90 + i) - 0.5) * TS * 0.5; c.lineTo(cx, cy); }
+    c.stroke();
+  }
+}
+function drawWall(c, x, y, L, rune) {
+  const X = x * TS, Y = y * TS;
+  c.save(); c.beginPath(); c.rect(X, Y, TS, TS); c.clip();
+  c.fillStyle = rgb(L.wall, 0.42); c.fillRect(X, Y, TS, TS);
+  const rows = 3, bh = TS / rows, bw = TS / 1.6, gap = Math.max(1, TS / 28);
+  for (let r = 0; r < rows; r++) {
+    const off = ((r + y * rows) % 2) * bw / 2 - bw / 2;
+    for (let k = 0; X + off + k * bw < X + TS + bw; k++) {
+      const bx = X + off + k * bw, by = Y + r * bh;
+      const v = hash(x * 7 + k, y * 5 + r, 3) * 26 - 13;
+      c.fillStyle = rgb(L.wall, 1, v); c.fillRect(bx + gap, by + gap, bw - gap * 2, bh - gap * 2);
+      c.fillStyle = "rgba(255,240,220,.10)"; c.fillRect(bx + gap, by + gap, bw - gap * 2, Math.max(1, gap));
+      c.fillStyle = "rgba(0,0,0,.25)"; c.fillRect(bx + gap, by + bh - gap * 2, bw - gap * 2, Math.max(1, gap));
+    }
+  }
+  c.restore();
+  if (rune) {
+    const cx = X + TS / 2, cy = Y + TS / 2, s = TS * 0.32;
+    c.save(); c.strokeStyle = `rgba(${L.rune.join(",")},.9)`; c.lineWidth = Math.max(1.5, TS / 16); c.lineCap = "round";
+    c.shadowColor = `rgba(${L.rune.join(",")},.9)`; c.shadowBlur = TS / 5;
+    c.beginPath(); c.moveTo(cx, cy - s); c.lineTo(cx, cy + s);
+    const n = 1 + Math.floor(hash(x, y, 5) * 3);
+    for (let i = 0; i < n; i++) {
+      const hy = cy - s + (i + 0.5) * (2 * s / n), side = hash(x, y, 6 + i) > 0.5 ? 1 : -1, up = hash(x, y, 9 + i) > 0.5 ? 1 : -1;
+      c.moveTo(cx, hy); c.lineTo(cx + side * s * 0.7, hy + up * s * 0.6);
+    }
+    c.stroke(); c.restore();
+  }
+}
+function renderMap() {
+  const { W, H, g, runes } = S.map, L = S.lvl;
+  mapCv.width = W * TS * DPR; mapCv.height = H * TS * DPR;
+  const c = mapCv.getContext("2d"); c.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const runeSet = new Set(runes);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    if (g[i] === 1) drawWall(c, x, y, L, runeSet.has(i)); else drawFloor(c, x, y, L);
+  }
+}
+
+/* ---------- Lumière ---------- */
+function blocks(x, y) {
+  const { W, H, g } = S.map; if (x < 0 || y < 0 || x >= W || y >= H) return true;
+  const c = y * W + x; if (g[c] === 1) return true;
+  return S.map.doors.some(d => d.c === c && !d.open);
+}
+function los(x0, y0, x1, y1) {
+  let dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1, dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1, err = dx + dy, x = x0, y = y0;
+  for (;;) {
+    if (x === x1 && y === y1) return true;
+    if (!(x === x0 && y === y0) && blocks(x, y)) return false;
+    const e2 = 2 * err; if (e2 >= dy) { err += dy; x += sx; } if (e2 <= dx) { err += dx; y += sy; }
+  }
+}
+function addLight(arr, sx, sy, R, k, cx = sx + 0.5, cy = sy + 0.5) {
+  const { W, H } = S.map, r = Math.ceil(R);
+  for (let y = Math.max(0, sy - r); y <= Math.min(H - 1, sy + r); y++)
+    for (let x = Math.max(0, sx - r); x <= Math.min(W - 1, sx + r); x++) {
+      const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy); if (d > R) continue;
+      if (!los(sx, sy, x, y)) continue;
+      const i = y * W + x; arr[i] = Math.min(1, arr[i] + Math.pow(1 - d / R, 0.8) * k);
+    }
+}
+function computeStatic() {
+  const { W, H } = S.map, a = new Float32Array(W * H);
+  for (const c of S.map.runes) addLight(a, c % W, (c / W) | 0, 1.6, 0.35);
+  for (const it of S.map.items) if (!it.taken) addLight(a, it.c % W, (it.c / W) | 0, 1.8, it.type === "frag" ? 0.45 : 0.35);
+  for (const d of S.map.doors) if (!d.open) addLight(a, d.c % W, (d.c / W) | 0, 1.8, 0.4);
+  const e = S.map.exit; addLight(a, e % W, (e / W) | 0, 2.6, 0.6);
+  S.staticLight = a;
+}
+
+/* ---------- Niveaux ---------- */
+function loadLevel(i) {
+  S.li = i; S.lvl = LEVELS[i]; S.map = genLevel(S.lvl);
+  for (const it of S.map.items) if (it.type === "frag" && found.has(it.fid)) it.taken = true;
+  const W = S.map.W;
+  S.px = S.fx = S.tx = S.map.start % W; S.py = S.fy = S.ty = (S.map.start / W) | 0;
+  S.moving = 0; S.torch = 100; S.invuln = 0; S.face = [1, 0]; S.embers = [];
+  S.seen = new Uint8Array(S.map.W * S.map.H);
+  lightCv.width = S.map.W; lightCv.height = S.map.H;
+  renderMap(); computeStatic(); updateHud();
+  store.set("creutes-level", Math.max(i, store.get("creutes-level", 0)));
+  showModal({
+    eyebrow: `Niveau ${S.lvl.roman}`, title: S.lvl.name,
+    body: `<p>${S.lvl.intro}</p><p class="note">Trouve le Bœuf de lumière pour descendre plus loin. Les bougies ravivent ta flamme.</p>`,
+    choices: [{ label: "Avancer dans le noir", primary: true, on: closeModal }]
+  });
+}
+function levelFrags() { return S.lvl.frags.filter(f => found.has(f)).length; }
+function updateHud() {
+  document.getElementById("lvlNum").textContent = S.lvl.roman;
+  document.getElementById("lvlName").textContent = S.lvl.name;
+  document.getElementById("fragCount").textContent = `${levelFrags()}/${S.lvl.frags.length}`;
+}
+
+/* ---------- Parchemins (fenêtres) ---------- */
+const modal = document.getElementById("modal"), parch = document.getElementById("parch");
+function showModal({ eyebrow = "", title, body = "", choices = [] }) {
+  S.paused = true; S.held = [];
+  parch.innerHTML = `${eyebrow ? `<p class="eyebrow">${eyebrow}</p>` : ""}<h2>${title}</h2>${body}<div class="choices"></div>`;
+  const box = parch.querySelector(".choices");
+  choices.forEach(ch => {
+    const b = document.createElement("button"); b.type = "button"; b.innerHTML = ch.label;
+    if (ch.primary) b.className = "primary";
+    b.addEventListener("click", () => { Snd.init(); ch.on(b); });
+    box.appendChild(b);
+  });
+  modal.hidden = false;
+  const first = box.querySelector("button"); if (first) setTimeout(() => first.focus(), 30);
+}
+function closeModal() { modal.hidden = true; S.paused = false; S.held = []; cv.focus?.(); }
+
+function askRiddle(door) {
+  const R = RIDDLES[door.rid];
+  const opts = R.a.map((t, i) => ({ t, ok: i === 0 })).sort(() => Math.random() - 0.5);
+  showModal({
+    eyebrow: "Porte runique", title: "La rune exige une réponse",
+    body: `<p>${R.q}</p>`,
+    choices: opts.map(o => ({
+      label: o.t, on: (btn) => {
+        if (o.ok) {
+          door.open = true; Snd.door(); computeStatic();
+          showModal({ eyebrow: "La porte s'ouvre", title: "Juste réponse", body: `<p>${R.why}</p>`, choices: [{ label: "Passer la porte", primary: true, on: closeModal }] });
+        } else {
+          Snd.wrong(); btn.classList.add("wrong"); btn.disabled = true;
+          S.torch = Math.max(5, S.torch - 12); S.flash = 0.4;
+        }
+      }
+    }))
+  });
+}
+function showFrag(fid) {
+  const F = FRAGS[fid];
+  showModal({ eyebrow: "Fragment d'histoire", title: F.title, body: `<p>${F.text}</p>`, choices: [{ label: "Ranger dans le grimoire", primary: true, on: closeModal }] });
+}
+function showJournal() {
+  const wasPaused = S.paused;
+  const all = LEVELS.flatMap(L => L.frags);
+  const items = all.map(f => found.has(f)
+    ? `<li><h3>${FRAGS[f].title}</h3><p>${FRAGS[f].text}</p></li>`
+    : `<li><h3 class="locked">Fragment encore enfoui</h3></li>`).join("");
+  showModal({
+    eyebrow: `${found.size} / ${all.length} fragments`, title: "Le Grimoire",
+    body: `<ul class="journal">${items}</ul><p class="keys" style="margin-top:14px">Déplacement : flèches, ZQSD ou WASD. Sur mobile : la croix en bas à droite.</p>`,
+    choices: [{ label: "Refermer le grimoire", primary: true, on: () => { closeModal(); if (wasPaused && S.over) S.paused = true; } }]
+  });
+}
+function levelDone() {
+  Snd.win();
+  const last = S.li === LEVELS.length - 1;
+  const all = LEVELS.flatMap(L => L.frags);
+  if (last) {
+    S.over = true;
+    showModal({
+      eyebrow: "Sortie", title: "La lumière du jour",
+      body: `<p>Le Bœuf de lumière te guide jusqu'à une porte de la ville haute. Au-dessus de toi, ses frères de pierre veillent sur les tours de la cathédrale.</p><p class="note">Fragments réunis : ${found.size} sur ${all.length}.</p>`,
+      choices: [{ label: "Redescendre depuis le début", primary: true, on: () => { S.over = false; loadLevel(0); } }, { label: "Ouvrir le grimoire", on: showJournal }]
+    });
+    return;
+  }
+  showModal({
+    eyebrow: `Niveau ${S.lvl.roman} terminé`, title: "Le Bœuf de lumière s'évanouit…",
+    body: `<p>…puis réapparaît plus bas, dans les profondeurs. Tu le suis.</p><p class="note">Fragments de ce niveau : ${levelFrags()} sur ${S.lvl.frags.length}.</p>`,
+    choices: [{ label: "Descendre", primary: true, on: () => loadLevel(S.li + 1) }]
+  });
+}
+function torchOut() {
+  Snd.out();
+  showModal({
+    eyebrow: "Ténèbres", title: "Ta flamme s'éteint",
+    body: `<p>Le noir t'enveloppe. Une main invisible te ramène à l'entrée de la galerie.</p><p class="note">Ramasse les bougies et évite les feux follets.</p>`,
+    choices: [{ label: "Rallumer la torche", primary: true, on: () => loadLevel(S.li) }]
+  });
+}
+
+/* ---------- Entrées ---------- */
+const KEYS = { ArrowUp: "up", z: "up", w: "up", ArrowDown: "down", s: "down", ArrowLeft: "left", q: "left", a: "left", ArrowRight: "right", d: "right" };
+addEventListener("keydown", e => {
+  const k = KEYS[e.key] || KEYS[e.key.toLowerCase()];
+  if (!k || !modal.hidden) return;
+  e.preventDefault(); Snd.init();
+  S.held = S.held.filter(h => h !== k); S.held.push(k);
+});
+addEventListener("keyup", e => { const k = KEYS[e.key] || KEYS[e.key.toLowerCase()]; if (k) S.held = S.held.filter(h => h !== k); });
+addEventListener("blur", () => { S.held = []; });
+document.querySelectorAll("#dpad button").forEach(b => {
+  const d = b.dataset.d;
+  b.addEventListener("pointerdown", e => { e.preventDefault(); Snd.init(); b.setPointerCapture?.(e.pointerId); S.held = S.held.filter(h => h !== d); S.held.push(d); });
+  const up = () => { S.held = S.held.filter(h => h !== d); };
+  b.addEventListener("pointerup", up); b.addEventListener("pointercancel", up); b.addEventListener("lostpointercapture", up);
+});
+document.getElementById("btnJournal").addEventListener("click", () => { Snd.init(); showJournal(); });
+const btnSound = document.getElementById("btnSound");
+btnSound.addEventListener("click", () => { Snd.init(); Snd.setOn(!Snd.on); btnSound.textContent = `Son : ${Snd.on ? "oui" : "non"}`; store.set("creutes-son", Snd.on); });
+Snd.on = store.get("creutes-son", true); btnSound.textContent = `Son : ${Snd.on ? "oui" : "non"}`;
+
+/* ---------- Boucle de jeu ---------- */
+const SPEED = 6.5;
+function tryMove() {
+  if (S.moving || !S.held.length) return;
+  const [dx, dy] = DIRMAP[S.held[S.held.length - 1]];
+  S.face = [dx, dy];
+  const nx = S.tx + dx, ny = S.ty + dy, { W, g } = S.map, c = ny * W + nx;
+  if (g[c] === 1) return;
+  const door = S.map.doors.find(d => d.c === c && !d.open);
+  if (door) { askRiddle(door); return; }
+  S.fx = S.tx; S.fy = S.ty; S.tx = nx; S.ty = ny; S.moving = 1e-6; Snd.step();
+}
+function arrive() {
+  const { W } = S.map, c = S.ty * W + S.tx;
+  const it = S.map.items.find(i => i.c === c && !i.taken);
+  if (it) {
+    it.taken = true; computeStatic();
+    if (it.type === "candle") { S.torch = Math.min(100, S.torch + 40); Snd.pickup(); }
+    else { found.add(it.fid); store.set("creutes-frags", [...found]); Snd.scroll(); updateHud(); showFrag(it.fid); }
+  }
+  if (c === S.map.exit) levelDone();
+}
+function update(dt) {
+  S.t += dt; Snd.tick();
+  S.flash = Math.max(0, S.flash - dt);
+  if (S.paused) return;
+  S.torch -= S.lvl.drain * dt;
+  if (S.torch <= 0) { S.torch = 0; torchOut(); return; }
+  tryMove();
+  if (S.moving) {
+    S.moving += dt * SPEED;
+    if (S.moving >= 1) { S.moving = 0; S.px = S.tx; S.py = S.ty; arrive(); tryMove(); }
+    else { S.px = S.fx + (S.tx - S.fx) * S.moving; S.py = S.fy + (S.ty - S.fy) * S.moving; }
+  }
+  S.invuln = Math.max(0, S.invuln - dt);
+  for (const w of S.map.wisps) {
+    w.t += w.dir * w.speed * dt;
+    if (w.t > w.len - 1) { w.t = w.len - 1; w.dir = -1; } if (w.t < 0) { w.t = 0; w.dir = 1; }
+    const wx = w.x + w.dx * w.t, wy = w.y + w.dy * w.t;
+    if (S.invuln <= 0 && Math.hypot(wx - S.px, wy - S.py) < 0.6) {
+      S.torch = Math.max(0, S.torch - 22); S.invuln = 1.4; S.flash = 0.5; Snd.hit();
+    }
+  }
+  // braises de la torche
+  if (Math.random() < 0.5) {
+    const [tx, ty] = torchTip();
+    S.embers.push({ x: tx, y: ty, vx: (Math.random() - 0.5) * 0.3, vy: -0.4 - Math.random() * 0.5, life: 0.6 + Math.random() * 0.5 });
+  }
+  for (const e of S.embers) { e.x += e.vx * dt; e.y += e.vy * dt; e.life -= dt; }
+  S.embers = S.embers.filter(e => e.life > 0);
+  const bar = document.getElementById("torchBar");
+  document.getElementById("torchFill").style.width = `${S.torch}%`;
+  bar.classList.toggle("low", S.torch < 25);
+}
+function torchTip() {
+  const side = S.face[0] !== 0 ? S.face[0] : 1;
+  return [S.px + 0.5 + side * 0.22 + S.face[0] * 0.08, S.py + 0.5 - 0.22 + S.face[1] * 0.1];
+}
+
+function glow(x, y, r, color, a) {
+  const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+  gr.addColorStop(0, `rgba(${color},${a})`); gr.addColorStop(1, `rgba(${color},0)`);
+  ctx.fillStyle = gr; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+}
+function render() {
+  const { W, H } = S.map, L = S.lvl;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = "#050302"; ctx.fillRect(0, 0, VW, VH);
+  let camX = (S.px + 0.5) * TS - VW / 2, camY = (S.py + 0.5) * TS - VH / 2;
+  camX = W * TS <= VW ? (W * TS - VW) / 2 : clamp(camX, 0, W * TS - VW);
+  camY = H * TS <= VH ? (H * TS - VH) / 2 : clamp(camY, 0, H * TS - VH);
+  ctx.save(); ctx.translate(-Math.round(camX), -Math.round(camY));
+  ctx.drawImage(mapCv, 0, 0, W * TS, H * TS);
+  const t = S.t;
+
+  // portes
+  for (const d of S.map.doors) {
+    if (d.open) continue;
+    const X = (d.c % W) * TS, Y = ((d.c / W) | 0) * TS, p = TS * 0.06;
+    ctx.fillStyle = "#4a2f1b"; ctx.fillRect(X + p, Y + p, TS - 2 * p, TS - 2 * p);
+    ctx.fillStyle = "rgba(0,0,0,.35)";
+    for (let k = 1; k < 4; k++) ctx.fillRect(X + p + k * (TS - 2 * p) / 4 - 1, Y + p, 2, TS - 2 * p);
+    ctx.fillStyle = "#2a2a2e"; ctx.fillRect(X + p, Y + TS * 0.22, TS - 2 * p, TS * 0.08); ctx.fillRect(X + p, Y + TS * 0.7, TS - 2 * p, TS * 0.08);
+    const pulse = 0.55 + 0.45 * Math.sin(t * 3);
+    ctx.save(); ctx.strokeStyle = `rgba(255,190,90,${0.5 + 0.5 * pulse})`; ctx.lineWidth = TS / 18;
+    ctx.shadowColor = "rgba(255,170,60,.9)"; ctx.shadowBlur = TS / 4 * pulse;
+    ctx.beginPath(); ctx.arc(X + TS / 2, Y + TS / 2, TS * 0.17, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X + TS / 2, Y + TS * 0.36); ctx.lineTo(X + TS / 2, Y + TS * 0.64);
+    ctx.moveTo(X + TS * 0.4, Y + TS * 0.45); ctx.lineTo(X + TS * 0.6, Y + TS * 0.55); ctx.stroke(); ctx.restore();
+  }
+  // objets
+  for (const it of S.map.items) {
+    if (it.taken) continue;
+    const cx = (it.c % W + 0.5) * TS, cy = (((it.c / W) | 0) + 0.5) * TS;
+    if (it.type === "candle") {
+      ctx.fillStyle = "#3b3330"; ctx.beginPath(); ctx.ellipse(cx, cy + TS * 0.17, TS * 0.16, TS * 0.06, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#efe4c8"; ctx.fillRect(cx - TS * 0.06, cy - TS * 0.1, TS * 0.12, TS * 0.27);
+      const fl = 1 + Math.sin(t * 13 + it.c) * 0.12;
+      ctx.fillStyle = "#ffcf6b"; ctx.beginPath(); ctx.ellipse(cx, cy - TS * 0.17, TS * 0.045, TS * 0.09 * fl, 0, 0, Math.PI * 2); ctx.fill();
+    } else {
+      const bob = Math.sin(t * 2 + it.c) * TS * 0.04;
+      ctx.save(); ctx.translate(cx, cy + bob); ctx.rotate(-0.35);
+      ctx.fillStyle = "#e9d8a6"; ctx.fillRect(-TS * 0.22, -TS * 0.1, TS * 0.44, TS * 0.2);
+      ctx.fillStyle = "#cdb47c"; ctx.beginPath(); ctx.arc(-TS * 0.22, 0, TS * 0.1, 0, Math.PI * 2); ctx.arc(TS * 0.22, 0, TS * 0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#8e2b1f"; ctx.beginPath(); ctx.arc(0, TS * 0.03, TS * 0.06, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  }
+  // Bœuf de lumière (sortie)
+  {
+    const cx = (S.map.exit % W + 0.5) * TS, cy = (((S.map.exit / W) | 0) + 0.5) * TS + Math.sin(t * 1.8) * TS * 0.04;
+    ctx.save(); ctx.translate(cx, cy);
+    ctx.shadowColor = "rgba(170,220,255,.95)"; ctx.shadowBlur = TS * 0.5;
+    ctx.fillStyle = `rgba(222,240,255,${0.75 + 0.15 * Math.sin(t * 2.3)})`;
+    ctx.beginPath(); ctx.ellipse(-TS * 0.04, 0, TS * 0.27, TS * 0.16, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(TS * 0.25, -TS * 0.08, TS * 0.11, TS * 0.09, 0.3, 0, Math.PI * 2); ctx.fill();
+    for (const lx of [-0.22, -0.1, 0.06, 0.16]) ctx.fillRect(lx * TS, TS * 0.08, TS * 0.05, TS * 0.17);
+    ctx.strokeStyle = "rgba(240,250,255,.95)"; ctx.lineWidth = TS / 22; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(TS * 0.22, -TS * 0.15); ctx.quadraticCurveTo(TS * 0.14, -TS * 0.3, TS * 0.2, -TS * 0.34);
+    ctx.moveTo(TS * 0.3, -TS * 0.15); ctx.quadraticCurveTo(TS * 0.38, -TS * 0.3, TS * 0.32, -TS * 0.35); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-TS * 0.3, -TS * 0.02); ctx.quadraticCurveTo(-TS * 0.42, TS * 0.04, -TS * 0.38, TS * 0.16); ctx.stroke();
+    ctx.restore();
+  }
+  // feux follets
+  for (const w of S.map.wisps) {
+    const wx = (w.x + w.dx * w.t + 0.5) * TS, wy = (w.y + w.dy * w.t + 0.5) * TS + Math.sin(t * 4 + w.x) * TS * 0.08;
+    ctx.fillStyle = "rgba(190,240,255,.95)"; ctx.beginPath(); ctx.arc(wx, wy, TS * 0.1, 0, Math.PI * 2); ctx.fill();
+  }
+  // joueur
+  {
+    const cx = (S.px + 0.5) * TS, cy = (S.py + 0.5) * TS;
+    const blink = S.invuln > 0 && Math.floor(S.t * 12) % 2 === 0;
+    if (!blink) {
+      ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.beginPath(); ctx.ellipse(cx, cy + TS * 0.24, TS * 0.24, TS * 0.08, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#3d2a4d"; ctx.beginPath(); ctx.moveTo(cx - TS * 0.24, cy + TS * 0.26); ctx.quadraticCurveTo(cx, cy - TS * 0.36, cx + TS * 0.24, cy + TS * 0.26); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#2a1c36"; ctx.beginPath(); ctx.arc(cx, cy - TS * 0.1, TS * 0.14, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#e2c39a"; ctx.beginPath(); ctx.arc(cx + S.face[0] * TS * 0.04, cy - TS * 0.08 + S.face[1] * TS * 0.03, TS * 0.075, 0, Math.PI * 2); ctx.fill();
+      const [tx, ty] = torchTip();
+      ctx.strokeStyle = "#6b4a2b"; ctx.lineWidth = TS / 14; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(cx + (tx * TS - cx) * 0.35, cy + TS * 0.12); ctx.lineTo(tx * TS, ty * TS + TS * 0.05); ctx.stroke();
+    }
+  }
+
+  // carte de lumière
+  const lm = new Float32Array(S.staticLight);
+  const R = 1.6 + 4.6 * (S.torch / 100);
+  const flick = 0.9 + 0.06 * Math.sin(t * 17) + 0.04 * Math.sin(t * 29);
+  const tl = new Float32Array(W * H);
+  addLight(tl, Math.round(S.px), Math.round(S.py), R, flick, S.px + 0.5, S.py + 0.5);
+  for (const w of S.map.wisps) {
+    const wx = w.x + w.dx * w.t, wy = w.y + w.dy * w.t;
+    addLight(lm, Math.round(wx), Math.round(wy), 1.7, 0.5, wx + 0.5, wy + 0.5);
+  }
+  const img = lctx.createImageData(W, H), d = img.data;
+  for (let i = 0; i < W * H; i++) {
+    if (tl[i] > 0.08) S.seen[i] = 1;
+    const v = Math.max(Math.min(1, lm[i] + tl[i]), S.seen[i] ? 0.13 : 0);
+    d[i * 4] = 6; d[i * 4 + 1] = 4; d[i * 4 + 2] = 3; d[i * 4 + 3] = Math.round((1 - v) * 255);
+  }
+  lctx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(lightCv, 0, 0, W, H, 0, 0, W * TS, H * TS);
+
+  // halos colorés
+  ctx.globalCompositeOperation = "lighter";
+  const inView = (x, y) => x > camX - TS * 3 && x < camX + VW + TS * 3 && y > camY - TS * 3 && y < camY + VH + TS * 3;
+  glow((S.px + 0.5) * TS, (S.py + 0.3) * TS, TS * R * 0.9, "255,140,50", 0.16 * flick);
+  for (const c of S.map.runes) {
+    const x = (c % W + 0.5) * TS, y = (((c / W) | 0) + 0.5) * TS; if (!inView(x, y)) continue;
+    glow(x, y, TS * 0.9, L.rune.join(","), 0.18 + 0.08 * Math.sin(t * 1.5 + c));
+  }
+  for (const it of S.map.items) {
+    if (it.taken) continue; const x = (it.c % W + 0.5) * TS, y = (((it.c / W) | 0) + 0.5) * TS; if (!inView(x, y)) continue;
+    if (it.type === "candle") glow(x, y - TS * 0.17, TS * 0.7, "255,170,70", 0.35 + 0.08 * Math.sin(t * 13 + it.c));
+    else glow(x, y, TS * 0.8, "255,215,120", 0.25 + 0.12 * Math.sin(t * 3 + it.c));
+  }
+  for (const d2 of S.map.doors) if (!d2.open) { const x = (d2.c % W + 0.5) * TS, y = (((d2.c / W) | 0) + 0.5) * TS; if (inView(x, y)) glow(x, y, TS * 0.8, "255,170,60", 0.22 + 0.12 * Math.sin(t * 3)); }
+  { const x = (S.map.exit % W + 0.5) * TS, y = (((S.map.exit / W) | 0) + 0.5) * TS; glow(x, y, TS * 1.6, "150,200,255", 0.3 + 0.1 * Math.sin(t * 1.8)); }
+  for (const w of S.map.wisps) {
+    const x = (w.x + w.dx * w.t + 0.5) * TS, y = (w.y + w.dy * w.t + 0.5) * TS + Math.sin(t * 4 + w.x) * TS * 0.08;
+    glow(x, y, TS * 0.9, "120,220,255", 0.55); glow(x - w.dx * w.dir * TS * 0.25, y - w.dy * w.dir * TS * 0.25, TS * 0.4, "120,220,255", 0.25);
+  }
+  // flamme de la torche + braises
+  { const [tx, ty] = torchTip(); const x = tx * TS, y = ty * TS;
+    glow(x, y, TS * 0.35, "255,200,90", 0.9); glow(x, y - TS * 0.06, TS * 0.18, "255,240,180", 0.9); }
+  for (const e of S.embers) glow(e.x * TS, e.y * TS, TS * 0.06, "255,150,60", Math.min(1, e.life));
+  ctx.globalCompositeOperation = "source-over";
+  ctx.restore();
+
+  if (S.flash > 0) { ctx.fillStyle = `rgba(120,200,255,${S.flash * 0.35})`; ctx.fillRect(0, 0, VW, VH); }
+  // vignette
+  const vg = ctx.createRadialGradient(VW / 2, VH / 2, Math.min(VW, VH) * 0.35, VW / 2, VH / 2, Math.max(VW, VH) * 0.75);
+  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.55)");
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, VW, VH);
+}
+
+function resize() {
+  const r = stage.getBoundingClientRect();
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  VW = Math.max(1, r.width); VH = Math.max(1, r.height);
+  cv.width = Math.round(VW * DPR); cv.height = Math.round(VH * DPR);
+  const nts = Math.round(clamp(Math.min(VW / 11, VH / 9), 30, 60));
+  if (nts !== TS || !mapCv.width) { TS = nts; if (S.map) renderMap(); }
+}
+new ResizeObserver(resize).observe(stage);
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (S.map) { update(dt); render(); }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Écran titre ---------- */
+function title() {
+  resize();
+  S.li = 0; S.lvl = LEVELS[0]; S.map = genLevel(S.lvl);
+  S.px = S.tx = S.fx = 1; S.py = S.ty = S.fy = 1; S.seen = new Uint8Array(S.map.W * S.map.H);
+  lightCv.width = S.map.W; lightCv.height = S.map.H; renderMap(); computeStatic(); updateHud();
+  const reached = store.get("creutes-level", 0);
+  const choices = [{ label: "Entrer dans les creutes", primary: true, on: () => loadLevel(0) }];
+  if (reached > 0) choices.push({ label: `Reprendre au niveau ${LEVELS[reached].roman} : ${LEVELS[reached].name}`, on: () => loadLevel(reached) });
+  showModal({
+    eyebrow: "Laon, an de grâce 1160", title: "Les Creutes de Laon",
+    body: `<p>Apprenti tailleur de pierre, tu t'es égaré dans les carrières creusées sous la Montagne couronnée. Ta torche faiblit.</p><p>Au loin danse une lueur pâle : le <b>Bœuf de lumière</b>, gardien de la légende de la cathédrale. Suis-le jusqu'à la sortie.</p><p class="keys">Flèches, ZQSD ou WASD pour avancer. Croix tactile sur mobile.</p>`,
+    choices
+  });
+}
+title();
+requestAnimationFrame(frame);
+})();
+</script>
