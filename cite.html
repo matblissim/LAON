@@ -1,0 +1,721 @@
+<title>La Cité perchée</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap">
+<style>
+/* Layout: la butte de Laon en scène vivante (haut / gauche), registre du bailli en parchemin sombre (bas / droite). Look sombre assumé, un seul thème. */
+:root {
+  --night: #0d0b0a;
+  --panel: #171210;
+  --panel-2: #211a16;
+  --edge: #3a2f27;
+  --gold: #e0ad4a;
+  --gold-dim: #9c7a3c;
+  --ember: #ff8a3d;
+  --parch: #eadbb3;
+  --parch-deep: #d6c08d;
+  --ink: #2a1d12;
+  --bone: #eadfc6;
+  --muted: #a8977c;
+  --blood: #7d2418;
+  --mist: #9fd6e0;
+  --good: #8fcf7a;
+  --f-title: "Cinzel Decorative", "Cinzel", Georgia, serif;
+  --f-head: "Cinzel", Georgia, serif;
+  --f-body: "IM Fell English", Garamond, Georgia, serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--night); color: var(--bone); font-family: var(--f-body); overflow: hidden; }
+button { font: inherit; color: inherit; }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+#app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+
+/* Bandeau du trésor */
+#top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: linear-gradient(#1c1613, #120e0c);
+  border-bottom: 1px solid var(--edge);
+}
+.brand { font-family: var(--f-title); color: var(--gold); font-size: 17px; letter-spacing: .02em; white-space: nowrap; }
+.brand small { display: block; font-family: var(--f-head); font-size: 11px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
+.treasury { text-align: right; min-width: 0; }
+.treasury .amt { font-family: var(--f-head); font-weight: 700; font-size: clamp(20px, 5vw, 28px); color: #fff1cf; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.treasury .amt span { font-size: .6em; color: var(--gold); margin-left: 4px; }
+.treasury .rate { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.treasury .rate b { color: var(--good); font-weight: normal; }
+
+/* Corps : scène + registre */
+#main { display: grid; grid-template-rows: minmax(200px, 42%) minmax(0, 1fr); min-height: 0; }
+@media (min-width: 900px) { #main { grid-template-rows: none; grid-template-columns: minmax(0, 1.35fr) minmax(360px, 1fr); } }
+
+#sceneWrap { position: relative; min-height: 0; border: 0; padding: 0; margin: 0; background: #000; cursor: pointer; display: block; width: 100%; height: 100%; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#hint {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  font-family: var(--f-head); font-size: 13px; letter-spacing: .12em; text-transform: uppercase;
+  color: #fff3d6; background: rgba(13,11,10,.6); border: 1px solid var(--gold-dim); border-radius: 20px; padding: 6px 14px;
+  pointer-events: none; white-space: nowrap; animation: breathe 2.4s ease-in-out infinite;
+}
+@keyframes breathe { 50% { opacity: .55; } }
+#toasts { position: absolute; top: 10px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.toast { font-family: var(--f-head); font-size: 13px; letter-spacing: .06em; background: rgba(23,18,16,.92); border: 1px solid var(--gold); color: #fff1cf; padding: 6px 12px; border-radius: 4px; max-width: 100%; text-align: center; animation: drop .3s ease-out; }
+@keyframes drop { from { transform: translateY(-8px); opacity: 0; } }
+#buffs { position: absolute; right: max(10px, env(safe-area-inset-right, 0px)); bottom: 10px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; pointer-events: none; }
+.buff { font-family: var(--f-head); font-size: 12px; background: rgba(23,18,16,.85); border: 1px solid var(--mist); color: var(--mist); border-radius: 3px; padding: 3px 8px; font-variant-numeric: tabular-nums; }
+
+/* Registre */
+#panel { display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-left: 1px solid var(--edge); border-top: 1px solid var(--edge); }
+#tabs { display: flex; border-bottom: 1px solid var(--edge); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+#tabs button { flex: 1; background: none; border: 0; border-bottom: 2px solid transparent; padding: 11px 6px 9px; font-family: var(--f-head); font-size: 13px; letter-spacing: .08em; color: var(--muted); cursor: pointer; position: relative; }
+#tabs button[aria-selected="true"] { color: var(--gold); border-bottom-color: var(--gold); }
+#tabs .dot { position: absolute; top: 7px; margin-left: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--ember); }
+.qty { display: flex; gap: 6px; align-items: center; justify-content: flex-end; padding: 8px 16px 0; font-family: var(--f-head); font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+.qty button { background: var(--panel-2); border: 1px solid var(--edge); border-radius: 3px; padding: 3px 9px; cursor: pointer; font-family: var(--f-head); font-size: 12px; }
+.qty button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+#list {
+  flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+  padding-block: 10px 18px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.row {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+  text-align: left; width: 100%; background: var(--panel-2); border: 1px solid var(--edge); border-radius: 4px;
+  padding: 9px 12px 9px 9px; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.row:hover:not(:disabled) { border-color: var(--gold-dim); background: #2a211b; }
+.row:disabled { cursor: default; }
+.row.poor .cost { color: #b0574a; }
+.row.poor .lettrine { filter: grayscale(.7) brightness(.75); }
+.lettrine {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 3px;
+  font-family: var(--f-title); font-size: 24px; color: var(--gold);
+  background: radial-gradient(circle at 30% 25%, #9b3a26, var(--blood) 60%, #4a140c);
+  border: 1px solid var(--gold-dim); box-shadow: inset 0 0 0 2px rgba(0,0,0,.35);
+}
+.lettrine.era1 { background: radial-gradient(circle at 30% 25%, #3d5f8a, #233c5e 60%, #10203a); }
+.lettrine.era2 { background: radial-gradient(circle at 30% 25%, #4e7a46, #2c4d28 60%, #142a12); }
+.lettrine.era3 { background: radial-gradient(circle at 30% 25%, #6a4a8a, #42295e 60%, #22123a); }
+.row .txt { min-width: 0; }
+.row .name { font-family: var(--f-head); font-size: 15px; color: #fff1cf; letter-spacing: .03em; }
+.row .desc { font-size: 14px; color: var(--muted); line-height: 1.3; margin-top: 2px; }
+.row .meta { font-size: 13px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.row .meta b { color: var(--good); font-weight: normal; }
+.row .side { text-align: right; font-variant-numeric: tabular-nums; }
+.row .owned { font-family: var(--f-head); font-size: 22px; color: var(--bone); line-height: 1; }
+.row .cost { font-family: var(--f-head); font-size: 13px; color: var(--gold); margin-top: 4px; white-space: nowrap; }
+.row.locked { opacity: .5; cursor: default; }
+.row.locked .lettrine { background: #2a2420; color: var(--muted); }
+
+.monument { border-color: var(--gold-dim); background: linear-gradient(180deg, #2a2016, #1f1813); }
+.monument .name { color: var(--gold); }
+.monument .eyebrow { font-family: var(--f-head); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dim); }
+.prog { height: 6px; border-radius: 3px; background: #0e0a08; border: 1px solid var(--edge); margin-top: 6px; overflow: hidden; }
+.prog i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+
+.section-title { font-family: var(--f-head); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dim); margin: 8px 0 0; }
+.chron { background: var(--panel-2); border: 1px solid var(--edge); border-radius: 4px; padding: 12px 14px; }
+.chron h3 { font-family: var(--f-head); font-size: 15px; color: var(--gold); margin: 0 0 4px; }
+.chron p { margin: 0; font-size: 15px; line-height: 1.45; }
+.chron.locked h3 { color: var(--muted); }
+.chron.locked p { color: var(--muted); font-style: italic; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.stat { background: var(--panel-2); border: 1px solid var(--edge); border-radius: 4px; padding: 8px 10px; }
+.stat span { display: block; font-family: var(--f-head); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.stat b { font-family: var(--f-head); font-size: 17px; color: #fff1cf; font-weight: 500; font-variant-numeric: tabular-nums; }
+.btn { background: var(--panel-2); border: 1px solid var(--gold-dim); color: var(--gold); border-radius: 4px; padding: 9px 12px; font-family: var(--f-head); font-size: 13px; letter-spacing: .06em; cursor: pointer; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.danger { border-color: #6b2a20; color: #d98c7e; }
+.empty { color: var(--muted); font-style: italic; font-size: 15px; padding: 8px 2px; }
+
+/* Parchemin */
+#modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(5,3,2,.72); z-index: 30; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#modal[hidden] { display: none; }
+.parch {
+  width: min(520px, 100%); max-height: 100%; overflow-y: auto; color: var(--ink);
+  background: radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.35), transparent 55%), radial-gradient(ellipse at 80% 90%, rgba(120,80,30,.25), transparent 60%), var(--parch);
+  border: 2px solid var(--parch-deep); outline: 1px solid #8a6a3a; outline-offset: -8px; border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7), inset 0 0 40px rgba(110,70,20,.35);
+  padding: 28px 26px 24px; animation: unroll .35s ease-out;
+}
+@keyframes unroll { from { transform: scaleY(.6); opacity: 0; } }
+.parch .eyebrow { font-family: var(--f-head); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #7a4f1f; margin: 0 0 6px; }
+.parch h2 { font-family: var(--f-title); font-size: clamp(22px, 5vw, 30px); line-height: 1.15; margin: 0 0 14px; text-wrap: balance; color: #3a2210; }
+.parch p { font-size: 18px; line-height: 1.5; margin: 0 0 12px; }
+.parch .note { font-style: italic; color: #5b4128; }
+.parch .choices { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.parch .choices button { font-family: var(--f-head); font-size: 15px; letter-spacing: .08em; background: var(--ink); color: var(--gold); border: 1px solid #2a1b0f; border-radius: 4px; padding: 11px 14px; cursor: pointer; }
+.parch .choices button.sec { background: #3a2717; color: var(--parch); font-family: var(--f-body); letter-spacing: 0; font-size: 17px; }
+@media (prefers-reduced-motion: reduce) { #hint, .parch, .toast { animation: none; } }
+</style>
+
+<div id="app">
+  <header id="top">
+    <div class="brand">La Cité perchée<small id="eraLabel">Ère des Carolingiens</small></div>
+    <div class="treasury">
+      <div class="amt" id="amt">0<span>deniers</span></div>
+      <div class="rate"><b id="pps">0</b> par seconde · <span id="perClick">1</span> par toucher</div>
+    </div>
+  </header>
+  <div id="main">
+    <button id="sceneWrap" type="button" aria-label="Toucher la cité pour récolter des deniers">
+      <canvas id="scene"></canvas>
+      <div id="hint">Touche la cité</div>
+      <div id="toasts" aria-live="polite"></div>
+      <div id="buffs"></div>
+    </button>
+    <section id="panel">
+      <div id="tabs" role="tablist">
+        <button role="tab" id="tab-b" aria-selected="true" data-tab="b" type="button">Bâtir</button>
+        <button role="tab" id="tab-u" aria-selected="false" data-tab="u" type="button">Améliorer</button>
+        <button role="tab" id="tab-c" aria-selected="false" data-tab="c" type="button">Chronique</button>
+      </div>
+      <div class="qty" id="qty">Acheter
+        <button type="button" data-q="1" aria-pressed="true">×1</button>
+        <button type="button" data-q="10" aria-pressed="false">×10</button>
+        <button type="button" data-q="max" aria-pressed="false">Max</button>
+      </div>
+      <div id="list" role="tabpanel"></div>
+    </section>
+  </div>
+</div>
+<div id="modal" hidden><div class="parch" role="dialog" aria-modal="true" id="parch"></div></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================= Données (faits vérifiés) ================= */
+const ERAS = [
+  { name: "Ère des Carolingiens", short: "Xᵉ siècle",
+    monument: { name: "Résidence royale", cost: 4e4, desc: "La demeure des rois sur la butte. Bonus permanent : production ×1,5." },
+    chron: { title: "La cité des rois", text: "Au Xᵉ siècle, la cité perchée fut la place forte des derniers rois carolingiens, qui en firent l'une de leurs principales résidences." },
+    sky: { dayTop: [74, 112, 170], dayBot: [226, 186, 140] } },
+  { name: "Ère des Bâtisseurs", short: "XIIᵉ – XIIIᵉ siècles",
+    monument: { name: "Cathédrale Notre-Dame", cost: 8e7, desc: "L'une des premières grandes cathédrales gothiques. Bonus permanent : production ×1,5." },
+    chron: { title: "Les bœufs de la cathédrale", text: "La cathédrale Notre-Dame fut bâtie aux XIIᵉ et XIIIᵉ siècles avec le calcaire tiré de la butte. Selon la légende, un bœuf providentiel aida à hisser les pierres : des bœufs sculptés veillent depuis au sommet des tours." },
+    sky: { dayTop: [88, 128, 186], dayBot: [236, 200, 150] } },
+  { name: "Ère des Remparts", short: "XIIIᵉ – XVIIᵉ siècles",
+    monument: { name: "Citadelle", cost: 1.2e11, desc: "La forteresse voulue par Henri IV. Bonus permanent : production ×1,5." },
+    chron: { title: "La Montagne couronnée", text: "Des remparts ponctués de portes, comme celles d'Ardon, des Chenizelles et de Soissons, ceinturent encore la ville haute. Après avoir assiégé Laon en 1594, Henri IV y fit bâtir une citadelle." },
+    sky: { dayTop: [96, 120, 160], dayBot: [230, 180, 130] } },
+  { name: "Ère moderne", short: "XIXᵉ – XXIᵉ siècles",
+    monument: { name: "Fête de la Montagne couronnée", cost: 3e14, desc: "Mille ans d'histoire célébrés sur la butte. Ouvre le couronnement (prestige)." },
+    chron: { title: "Du train au POMA", text: "Le train dépose désormais les voyageurs au pied de la butte. De 1989 à 2016, le POMA 2000, une petite rame automatique tirée par câble, reliait la gare à la ville haute." },
+    sky: { dayTop: [80, 120, 180], dayBot: [240, 196, 160] } }
+];
+const FINAL = { title: "La cité couronnée", text: "En picard, une creute est une carrière souterraine. Sous tes pieds, des siècles de galeries ont fourni la pierre de toute la ville. Pendant la Grande Guerre, des soldats vécurent dans celles du Chemin des Dames, tout près de Laon." };
+
+const BLD = [
+  { id: "masure", era: 0, L: "M", name: "Masure", cost: 15, prod: 0.2, desc: "Une famille s'installe sur la butte." },
+  { id: "puits", era: 0, L: "P", name: "Puits", cost: 120, prod: 1.5, desc: "Creusé dans le roc pour abreuver le quartier." },
+  { id: "marche", era: 0, L: "M", name: "Marché", cost: 900, prod: 9, desc: "Marchands et pèlerins gravissent la butte." },
+  { id: "guet", era: 0, L: "T", name: "Tour de guet", cost: 6000, prod: 45, desc: "Perchée, la cité voit venir l'ennemi de loin." },
+  { id: "creute", era: 1, L: "C", name: "Creute", cost: 3.5e4, prod: 180, desc: "Carrière souterraine : le calcaire de la butte devient pierre de taille." },
+  { id: "tailleurs", era: 1, L: "A", name: "Atelier de tailleurs", cost: 2.5e5, prod: 1000, desc: "Les compagnons gravent leur marque sur chaque bloc." },
+  { id: "boeufs", era: 1, L: "B", name: "Attelage de bœufs", cost: 1.8e6, prod: 6000, desc: "Selon la légende, un bœuf providentiel aida à hisser les pierres." },
+  { id: "commanderie", era: 1, L: "T", name: "Commanderie du Temple", cost: 1.4e7, prod: 38000, desc: "Installés vers 1128, les Templiers bâtissent une chapelle octogonale." },
+  { id: "porte", era: 2, L: "P", name: "Porte fortifiée", cost: 3e8, prod: 2e5, desc: "Ardon, Chenizelles, Soissons : les portes gardent la ville haute." },
+  { id: "hotel", era: 2, L: "H", name: "Hôtel particulier", cost: 2.2e9, prod: 1.2e6, desc: "Jacques Marquette, l'explorateur du Mississippi, naquit à Laon en 1637 dans une famille de notables." },
+  { id: "remparts", era: 2, L: "R", name: "Rempart", cost: 1.6e10, prod: 7.5e6, desc: "Une ceinture de murailles couronne la butte." },
+  { id: "gare", era: 3, L: "G", name: "Gare", cost: 6e11, prod: 4e7, desc: "Le train dépose les voyageurs au pied de la butte." },
+  { id: "poma", era: 3, L: "P", name: "Cabine POMA", cost: 4.5e12, prod: 2.5e8, desc: "De 1989 à 2016, une rame sur câble montait à la ville haute." },
+  { id: "musee", era: 3, L: "M", name: "Musée", cost: 3.5e13, prod: 1.6e9, desc: "Les visiteurs viennent admirer mille ans d'histoire." }
+];
+const TIERS = [
+  { need: 1, mult: 10, name: "Outils de fer" },
+  { need: 5, mult: 50, name: "Savoir des compagnons" },
+  { need: 25, mult: 500, name: "Runes de prospérité" },
+  { need: 50, mult: 5000, name: "Bénédiction du Bœuf" }
+];
+const CLICK_UPG = [
+  { id: "c1", cost: 100, name: "Marteau de tailleur", desc: "Chaque toucher rapporte le double.", base: 2 },
+  { id: "c2", cost: 1e4, name: "Ciseau de compagnon", desc: "Chaque toucher rapporte en plus 1 % de la production par seconde.", pct: 0.01 },
+  { id: "c3", cost: 1e6, name: "Gants runiques", desc: "Encore +2 % de la production par seconde par toucher.", pct: 0.02 },
+  { id: "c4", cost: 1e9, name: "Main du maître d'œuvre", desc: "Encore +3 % de la production par seconde par toucher.", pct: 0.03 },
+  { id: "c5", cost: 1e12, name: "Sceau royal", desc: "La valeur de base du toucher est multipliée par 5.", base: 5 }
+];
+const UPGRADES = [];
+for (const b of BLD) TIERS.forEach((t, i) => UPGRADES.push({ id: `${b.id}-${i}`, b: b.id, need: t.need, cost: b.cost * t.mult, name: t.name, desc: `${b.name} : production ×2.`, L: b.L, era: b.era }));
+for (const c of CLICK_UPG) UPGRADES.push({ ...c, click: true, L: "✦" });
+
+/* ================= État & sauvegarde ================= */
+const KEY = "cite-perchee-v1";
+const fresh = () => ({ v: 1, deniers: 0, run: 0, life: 0, clicks: 0, era: 0, owned: {}, upg: [], reliques: 0, crowns: 0, last: Date.now(), wispsCaught: 0 });
+let G = fresh();
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) G = Object.assign(fresh(), s); } catch (e) {}
+const save = () => { G.last = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(G)); } catch (e) {} };
+setInterval(save, 5000);
+addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+addEventListener("pagehide", save);
+
+const has = id => G.upg.includes(id);
+const owned = id => G.owned[id] || 0;
+const buffs = { frenzy: 0, blessed: 0 };
+
+function bMult(b) { let m = 1; TIERS.forEach((t, i) => { if (has(`${b.id}-${i}`)) m *= 2; }); return m; }
+function globalMult() {
+  let m = Math.pow(1.5, Math.min(G.era, 3)) * (1 + 0.1 * G.reliques);
+  if (G.era >= 4) m *= 1.5;
+  return m;
+}
+function basePps() { let s = 0; for (const b of BLD) s += owned(b.id) * b.prod * bMult(b); return s * globalMult(); }
+function pps() { return basePps() * (buffs.frenzy > 0 ? 7 : 1); }
+function clickValue() {
+  let base = 1; let pct = 0;
+  for (const c of CLICK_UPG) if (has(c.id)) { if (c.base) base *= c.base; if (c.pct) pct += c.pct; }
+  return (base * globalMult() + basePps() * pct) * (buffs.blessed > 0 ? 20 : 1);
+}
+function earn(n) { G.deniers += n; G.run += n; G.life += n; }
+
+/* ================= Format ================= */
+const UNITS = ["", " k", " M", " Md", " T", " Qa", " Qi", " Sx", " Sp"];
+function fmt(n) {
+  if (!isFinite(n)) return "∞";
+  if (n < 1000) return n < 10 && n % 1 ? n.toFixed(1).replace(".", ",") : Math.floor(n).toString();
+  let u = 0; while (n >= 1000 && u < UNITS.length - 1) { n /= 1000; u++; }
+  return n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0).replace(".", ",") + UNITS[u];
+}
+const R = 1.15;
+const costOf = (b, n) => b.cost * Math.pow(R, owned(b.id)) * (Math.pow(R, n) - 1) / (R - 1);
+function maxBuy(b) { const c0 = b.cost * Math.pow(R, owned(b.id)); return Math.max(0, Math.floor(Math.log(G.deniers * (R - 1) / c0 + 1) / Math.log(R))); }
+
+/* ================= Hors ligne ================= */
+let offlineGain = 0;
+{
+  const dt = Math.min((Date.now() - (G.last || Date.now())) / 1000, 8 * 3600);
+  if (dt > 30) { offlineGain = basePps() * dt * 0.5; if (offlineGain > 0) earn(offlineGain); }
+}
+
+/* ================= Scène ================= */
+const wrap = document.getElementById("sceneWrap"), cv = document.getElementById("scene"), c = cv.getContext("2d");
+let W = 0, H = 0, DPR = 1;
+function resize() {
+  const r = wrap.getBoundingClientRect(); DPR = Math.min(2, devicePixelRatio || 1);
+  W = Math.max(1, r.width); H = Math.max(1, r.height);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+}
+new ResizeObserver(resize).observe(wrap);
+function hsh(i, s) { let h = (i * 374761393 + s * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const col = (a, al = 1) => `rgba(${a[0]},${a[1]},${a[2]},${al})`;
+
+const floats = [], sparks = [];
+let wisp = null, nextWisp = performance.now() + 25000;
+
+function geom() {
+  const y0 = H * 0.86, py = y0 - Math.min(H * 0.36, W * 0.24), u = Math.min(W / 380, H / 230);
+  return { y0, py, u, pl: W * 0.2, pr: W * 0.8, sl: W * 0.08, sr: W * 0.92 };
+}
+function buttePath(g) {
+  c.beginPath(); c.moveTo(-5, H + 5); c.lineTo(-5, g.y0); c.lineTo(g.sl, g.y0);
+  c.bezierCurveTo(g.sl + (g.pl - g.sl) * 0.55, g.y0, g.pl - (g.pl - g.sl) * 0.35, g.py, g.pl, g.py);
+  c.lineTo(g.pr, g.py);
+  c.bezierCurveTo(g.pr + (g.sr - g.pr) * 0.35, g.py, g.sr - (g.sr - g.pr) * 0.55, g.y0, g.sr, g.y0);
+  c.lineTo(W + 5, g.y0); c.lineTo(W + 5, H + 5); c.closePath();
+}
+function house(x, y, w, h, wall, roof, n, i, slate) {
+  c.fillStyle = wall; c.fillRect(x - w / 2, y - h, w, h);
+  c.fillStyle = roof; c.beginPath(); c.moveTo(x - w / 2 - 1, y - h); c.lineTo(x, y - h - h * (slate ? 0.9 : 0.65)); c.lineTo(x + w / 2 + 1, y - h); c.closePath(); c.fill();
+  if (n > 0.15 && hsh(i, 9) > 0.35) { c.fillStyle = `rgba(255,196,96,${n * 0.95})`; c.fillRect(x - w * 0.15, y - h * 0.6, w * 0.3, h * 0.28); }
+}
+function crenel(x, y, w, h, u, fill) {
+  c.fillStyle = fill; c.fillRect(x, y - h, w, h);
+  const m = Math.max(2, u * 2.4); for (let k = x; k < x + w - m * 0.5; k += m * 2) c.fillRect(k, y - h - m * 0.9, m, m * 0.9);
+}
+function oxShape(x, y, s, color) {
+  c.fillStyle = color; c.beginPath(); c.ellipse(x, y, 3.2 * s, 1.9 * s, 0, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.ellipse(x + 3.2 * s, y - 1 * s, 1.3 * s, 1.1 * s, 0, 0, Math.PI * 2); c.fill();
+  c.fillRect(x - 2.4 * s, y + 0.8 * s, 0.7 * s, 2.2 * s); c.fillRect(x + 1.6 * s, y + 0.8 * s, 0.7 * s, 2.2 * s);
+  c.strokeStyle = color; c.lineWidth = Math.max(1, 0.45 * s); c.beginPath();
+  c.moveTo(x + 2.8 * s, y - 1.8 * s); c.lineTo(x + 2.4 * s, y - 3 * s); c.moveTo(x + 3.8 * s, y - 1.8 * s); c.lineTo(x + 4.3 * s, y - 3 * s); c.stroke();
+}
+function drawResidence(x, y, u, stone, dark) {
+  crenel(x - 22 * u, y, 44 * u, 14 * u, u, stone);
+  crenel(x - 6 * u, y - 14 * u, 13 * u, 16 * u, u, stone);
+  c.fillStyle = dark; c.fillRect(x - 2.5 * u, y - 7 * u, 5 * u, 7 * u);
+  for (let k = -18; k <= 14; k += 8) c.fillRect(x + k * u, y - 10 * u, 2 * u, 3 * u);
+  c.strokeStyle = "#c9a24a"; c.lineWidth = Math.max(1, u * 0.6); c.beginPath(); c.moveTo(x, y - 32 * u); c.lineTo(x, y - 40 * u); c.stroke();
+  c.fillStyle = "#3b5e9a"; c.fillRect(x, y - 40 * u, 6 * u, 3.5 * u);
+}
+function drawCathedral(x, y, u, stone, dark, n, t) {
+  // nef
+  c.fillStyle = stone; c.fillRect(x - 14 * u, y - 30 * u, 52 * u, 30 * u);
+  c.fillStyle = dark; c.beginPath(); c.moveTo(x - 15 * u, y - 30 * u); c.lineTo(x + 12 * u, y - 42 * u); c.lineTo(x + 39 * u, y - 30 * u); c.fill();
+  for (let k = 0; k < 5; k++) { c.fillStyle = n > 0.15 ? `rgba(255,190,110,${0.3 + n * 0.6})` : dark; c.fillRect(x + (16 + k * 4.5) * u, y - 22 * u, 2 * u, 9 * u); }
+  // tour lanterne
+  c.fillStyle = stone; c.fillRect(x + 20 * u, y - 52 * u, 10 * u, 14 * u);
+  // façade + deux tours
+  c.fillStyle = stone; c.fillRect(x - 24 * u, y - 36 * u, 20 * u, 36 * u);
+  for (const tx of [-30, -8]) {
+    c.fillStyle = stone; c.fillRect(x + tx * u, y - 62 * u, 10 * u, 62 * u);
+    c.fillStyle = dark; c.fillRect(x + (tx + 3) * u, y - 56 * u, 4 * u, 10 * u);
+    c.fillStyle = stone; c.fillRect(x + (tx + 1) * u, y - 68 * u, 8 * u, 6 * u);
+    oxShape(x + (tx + 5) * u, y - 70.5 * u, u * 0.75, "#d9c9a6");
+  }
+  c.fillStyle = n > 0.15 ? `rgba(255,170,90,${0.4 + n * 0.6})` : "#5b3a5e";
+  c.beginPath(); c.arc(x - 14 * u, y - 24 * u, 4 * u, 0, Math.PI * 2); c.fill();
+  c.fillStyle = dark; c.beginPath(); c.moveTo(x - 18 * u, y); c.lineTo(x - 18 * u, y - 10 * u); c.quadraticCurveTo(x - 14 * u, y - 15 * u, x - 10 * u, y - 10 * u); c.lineTo(x - 10 * u, y); c.fill();
+}
+function drawCitadel(x, y, u, stone, dark) {
+  c.fillStyle = stone; c.beginPath();
+  c.moveTo(x - 22 * u, y); c.lineTo(x - 18 * u, y - 13 * u); c.lineTo(x - 8 * u, y - 10 * u); c.lineTo(x, y - 15 * u); c.lineTo(x + 8 * u, y - 10 * u); c.lineTo(x + 18 * u, y - 13 * u); c.lineTo(x + 22 * u, y); c.closePath(); c.fill();
+  c.fillStyle = dark; c.fillRect(x - 2.5 * u, y - 7 * u, 5 * u, 7 * u);
+  c.strokeStyle = "#c9a24a"; c.lineWidth = Math.max(1, u * 0.6); c.beginPath(); c.moveTo(x, y - 15 * u); c.lineTo(x, y - 26 * u); c.stroke();
+  c.fillStyle = "#e9e2cc"; c.fillRect(x, y - 26 * u, 7 * u, 4 * u);
+}
+function drawFete(x, y, u, t) {
+  for (let k = 0; k < 7; k++) {
+    const fx = x + (k - 3) * 10 * u, fy = y - 46 * u - Math.abs(Math.sin(t + k)) * 4 * u;
+    c.fillStyle = ["#e0ad4a", "#9b3a26", "#3d5f8a", "#eadfc6"][k % 4];
+    c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx + 3 * u, fy + 5 * u); c.lineTo(fx - 3 * u, fy + 5 * u); c.fill();
+  }
+}
+const MONUMENT_DRAW = [
+  (g, s, d, n, t) => drawResidence(g.pl + (g.pr - g.pl) * 0.16, g.py, g.u, s, d),
+  (g, s, d, n, t) => drawCathedral(g.pl + (g.pr - g.pl) * 0.46, g.py, g.u, s, d, n, t),
+  (g, s, d, n, t) => drawCitadel(g.pl + (g.pr - g.pl) * 0.93, g.py, g.u, s, d),
+  (g, s, d, n, t) => drawFete(g.pl + (g.pr - g.pl) * 0.5, g.py, g.u, t)
+];
+
+function drawScene(now) {
+  c.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const t = now / 1000, g = geom(), u = g.u;
+  const era = Math.min(G.era, 3), sky = ERAS[era].sky;
+  let n = Math.sin(t * 2 * Math.PI / 240); n = n > 0 ? Math.pow(n, 0.8) : 0; // nuit
+  const top = mix(sky.dayTop, [10, 14, 36], n), bot = mix(sky.dayBot, [52, 40, 70], n);
+  let gr = c.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, col(top)); gr.addColorStop(0.75, col(bot)); gr.addColorStop(1, col(bot));
+  c.fillStyle = gr; c.fillRect(0, 0, W, H);
+  if (n > 0.02) for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(255,248,230,${n * (0.4 + hsh(i, 3) * 0.6) * (0.75 + 0.25 * Math.sin(t * 2 + i))})`; c.fillRect(hsh(i, 1) * W, hsh(i, 2) * H * 0.55, 1.4, 1.4); }
+  // astre
+  const sunA = (t * 2 * Math.PI / 240) % (2 * Math.PI);
+  if (n < 0.95) { const sx = W * (0.85 - 0.7 * ((sunA / Math.PI) % 1)), sy = H * 0.12 + H * 0.05 * Math.cos(sunA); const sg = c.createRadialGradient(sx, sy, 0, sx, sy, 40 * u); sg.addColorStop(0, `rgba(255,230,170,${0.9 * (1 - n)})`); sg.addColorStop(1, "rgba(255,230,170,0)"); c.fillStyle = sg; c.fillRect(sx - 40 * u, sy - 40 * u, 80 * u, 80 * u); }
+  if (n > 0.05) { c.fillStyle = `rgba(240,236,220,${n})`; c.beginPath(); c.arc(W * 0.82, H * 0.14, 9 * u, 0, Math.PI * 2); c.fill(); c.fillStyle = col(top); c.beginPath(); c.arc(W * 0.82 + 4 * u, H * 0.14 - 2 * u, 8 * u, 0, Math.PI * 2); c.fill(); }
+  // nuages
+  for (let i = 0; i < 4; i++) {
+    const cx = ((hsh(i, 4) * W + t * (6 + i * 3)) % (W + 160)) - 80, cy = H * (0.08 + hsh(i, 5) * 0.25);
+    c.fillStyle = `rgba(255,255,255,${0.16 * (1 - n * 0.7)})`;
+    c.beginPath(); c.ellipse(cx, cy, 34 * u, 8 * u, 0, 0, Math.PI * 2); c.ellipse(cx + 18 * u, cy - 5 * u, 20 * u, 7 * u, 0, 0, Math.PI * 2); c.fill();
+  }
+  // collines lointaines
+  c.fillStyle = col(mix([92, 104, 120], [26, 28, 48], n));
+  c.beginPath(); c.moveTo(0, g.y0); for (let x = 0; x <= W; x += 20) c.lineTo(x, g.y0 - 22 * u - Math.sin(x * 0.012) * 9 * u - Math.sin(x * 0.031) * 4 * u); c.lineTo(W, g.y0); c.fill();
+  // plaine
+  c.fillStyle = col(mix([92, 106, 60], [22, 26, 22], n)); c.fillRect(0, g.y0, W, H - g.y0);
+  // butte
+  buttePath(g);
+  gr = c.createLinearGradient(0, g.py, 0, g.y0); gr.addColorStop(0, col(mix([176, 160, 128], [52, 48, 52], n))); gr.addColorStop(1, col(mix([128, 112, 84], [34, 32, 36], n)));
+  c.fillStyle = gr; c.fill();
+  // verdure sur les pentes
+  c.save(); buttePath(g); c.clip();
+  c.fillStyle = col(mix([82, 104, 58], [20, 30, 22], n), 0.85);
+  for (let i = 0; i < 26; i++) { const x = g.sl + hsh(i, 6) * (g.sr - g.sl), y = g.py + 6 * u + hsh(i, 7) * (g.y0 - g.py); c.beginPath(); c.arc(x, y, (3 + hsh(i, 8) * 4) * u, 0, Math.PI * 2); c.fill(); }
+  c.strokeStyle = `rgba(0,0,0,${0.12})`; c.lineWidth = 1;
+  for (let k = 1; k < 4; k++) { c.beginPath(); const y = g.py + (g.y0 - g.py) * k / 4; c.moveTo(0, y); c.bezierCurveTo(W * 0.3, y - 4 * u, W * 0.7, y + 4 * u, W, y); c.stroke(); }
+  // creutes
+  const nc = Math.min(6, owned("creute"));
+  for (let i = 0; i < nc; i++) {
+    const side = i % 2 ? 1 : -1, k = Math.floor(i / 2);
+    const x = W / 2 + side * (W * 0.22 + k * 18 * u), y = g.py + (g.y0 - g.py) * (0.45 + k * 0.15);
+    c.fillStyle = "#1b1410"; c.beginPath(); c.moveTo(x - 5 * u, y + 6 * u); c.lineTo(x - 5 * u, y); c.arc(x, y, 5 * u, Math.PI, 0); c.lineTo(x + 5 * u, y + 6 * u); c.fill();
+    if (n > 0.1) { c.fillStyle = `rgba(255,170,80,${n * 0.7})`; c.beginPath(); c.arc(x, y + 2 * u, 1.6 * u, 0, Math.PI * 2); c.fill(); }
+  }
+  c.restore();
+  // chemin & bœufs
+  const road = [[W * 0.02, g.y0], [W * 0.16, g.y0 - (g.y0 - g.py) * 0.35], [W * 0.08, g.y0 - (g.y0 - g.py) * 0.68], [g.pl + 2 * u, g.py]];
+  c.strokeStyle = col(mix([196, 176, 136], [60, 54, 50], n), 0.8); c.lineWidth = 2.2 * u; c.lineJoin = "round";
+  c.beginPath(); road.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke();
+  const nb = Math.min(4, owned("boeufs"));
+  const segL = road.slice(1).map((p, i) => Math.hypot(p[0] - road[i][0], p[1] - road[i][1])), tot = segL.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < nb; i++) {
+    let s = ((t * 9 * u + i * tot / nb) % tot), k = 0; while (s > segL[k]) { s -= segL[k]; k++; }
+    const a = road[k], b = road[k + 1], f = s / segL[k], x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
+    c.save(); c.translate(x, y - 2 * u); if (b[0] < a[0]) c.scale(-1, 1);
+    oxShape(0, 0, u * 0.8, col(mix([92, 66, 44], [30, 24, 20], n)));
+    c.fillStyle = col(mix([210, 196, 170], [70, 66, 60], n)); c.fillRect(-9 * u, -3 * u, 4 * u, 3 * u);
+    c.restore();
+  }
+  // tas de pierres (tailleurs)
+  const ns = Math.min(5, owned("tailleurs"));
+  for (let i = 0; i < ns; i++) { const x = W * 0.3 + i * 9 * u, y = g.y0 + 3 * u; c.fillStyle = col(mix([214, 200, 170], [70, 66, 60], n)); c.fillRect(x, y - 4 * u, 6 * u, 4 * u); c.fillRect(x + 1.5 * u, y - 7 * u, 4 * u, 3 * u); }
+  // gare & POMA
+  if (owned("gare") > 0) {
+    const gx = W * 0.9; c.fillStyle = col(mix([150, 90, 70], [50, 34, 30], n)); c.fillRect(gx - 16 * u, g.y0 + 2 * u - 12 * u, 32 * u, 12 * u);
+    c.fillStyle = col(mix([70, 70, 80], [24, 24, 30], n)); c.beginPath(); c.moveTo(gx - 18 * u, g.y0 - 10 * u); c.lineTo(gx, g.y0 - 17 * u); c.lineTo(gx + 18 * u, g.y0 - 10 * u); c.fill();
+    c.fillStyle = "#eadfc6"; c.beginPath(); c.arc(gx, g.y0 - 6 * u, 2.2 * u, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = "rgba(40,30,25,.8)"; c.lineWidth = 1; c.beginPath(); c.moveTo(W * 0.55, g.y0 + 6 * u); c.lineTo(W, g.y0 + 6 * u); c.stroke();
+  }
+  if (owned("poma") > 0) {
+    const ax = W * 0.88, ay = g.y0 - 4 * u, bx = g.pl + (g.pr - g.pl) * 0.86, by = g.py - 1 * u;
+    c.strokeStyle = "rgba(30,26,24,.9)"; c.lineWidth = Math.max(1, u * 0.6); c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
+    const p = (Math.sin(t * 0.5) + 1) / 2, x = ax + (bx - ax) * p, y = ay + (by - ay) * p;
+    c.fillStyle = "#e9e4d8"; c.fillRect(x - 4 * u, y - 4.5 * u, 8 * u, 4 * u); c.fillStyle = "#b5352a"; c.fillRect(x - 4 * u, y - 1.5 * u, 8 * u, 1.2 * u);
+    if (n > 0.2) { c.fillStyle = `rgba(255,220,140,${n})`; c.fillRect(x - 3 * u, y - 4 * u, 6 * u, 1.6 * u); }
+  }
+  // plateau : maisons
+  const stone = col(mix([214, 200, 172], [74, 70, 72], n)), dark = col(mix([70, 56, 52], [18, 16, 20], n));
+  const span = g.pr - g.pl;
+  const nm = Math.min(24, owned("masure") + owned("puits")), nh = Math.min(10, owned("hotel"));
+  for (let i = 0; i < nm + nh; i++) {
+    const slot = (i * 0.618034 + 0.05) % 1, x = g.pl + 6 * u + slot * (span - 12 * u);
+    const w = (7 + hsh(i, 11) * 5) * u, h = (6 + hsh(i, 12) * 5) * u, y = g.py - (hsh(i, 13) * 3) * u;
+    const hotel = i >= nm;
+    const wall = hotel ? col(mix([226, 214, 190], [80, 76, 74], n)) : col(mix([200, 176, 140], [64, 56, 52], n));
+    const roof = hotel ? col(mix([70, 80, 100], [24, 26, 34], n)) : col(mix([150, 70, 50], [48, 26, 22], n));
+    house(x, y, hotel ? w * 1.2 : w, hotel ? h * 1.5 : h, wall, roof, n, i, hotel);
+  }
+  // marché, puits, tours, commanderie, musée
+  if (owned("marche") > 0) {
+    const k = Math.min(4, owned("marche"));
+    for (let i = 0; i < k; i++) { const x = g.pl + span * (0.3 + i * 0.035); c.fillStyle = dark; c.fillRect(x - 0.4 * u, g.py - 6 * u, 0.8 * u, 6 * u); c.fillRect(x + 5.6 * u, g.py - 6 * u, 0.8 * u, 6 * u); c.fillStyle = ["#b5352a", "#e0ad4a", "#3d5f8a", "#4e7a46"][i]; c.fillRect(x - 1 * u, g.py - 8 * u, 8 * u, 2.5 * u); }
+  }
+  const ng = Math.min(3, owned("guet"));
+  [0.04, 0.66, 0.99].slice(0, ng).forEach(f => { const x = g.pl + span * f; crenel(x - 3.5 * u, g.py, 7 * u, 28 * u, u * 0.7, stone); c.fillStyle = dark; c.fillRect(x - 1 * u, g.py - 22 * u, 2 * u, 4 * u); });
+  if (owned("commanderie") > 0) {
+    const x = g.pl + span * 0.28, y = g.py;
+    c.fillStyle = stone; c.beginPath(); c.moveTo(x - 7 * u, y); c.lineTo(x - 7 * u, y - 9 * u); c.lineTo(x - 4 * u, y - 12 * u); c.lineTo(x + 4 * u, y - 12 * u); c.lineTo(x + 7 * u, y - 9 * u); c.lineTo(x + 7 * u, y); c.fill();
+    c.fillStyle = dark; c.beginPath(); c.moveTo(x - 5 * u, y - 12 * u); c.lineTo(x, y - 19 * u); c.lineTo(x + 5 * u, y - 12 * u); c.fill();
+    c.fillStyle = "#b5352a"; c.fillRect(x - 0.6 * u, y - 9 * u, 1.2 * u, 5 * u); c.fillRect(x - 2 * u, y - 7.6 * u, 4 * u, 1.2 * u);
+  }
+  if (owned("musee") > 0) {
+    const x = g.pl + span * 0.72, y = g.py;
+    c.fillStyle = stone; c.fillRect(x - 13 * u, y - 12 * u, 26 * u, 12 * u);
+    c.beginPath(); c.moveTo(x - 15 * u, y - 12 * u); c.lineTo(x, y - 19 * u); c.lineTo(x + 15 * u, y - 12 * u); c.fill();
+    c.fillStyle = dark; for (let k = -10; k <= 10; k += 5) c.fillRect(x + k * u - 0.7 * u, y - 11 * u, 1.4 * u, 10 * u);
+  }
+  // monuments bâtis + vision du prochain
+  for (let i = 0; i < Math.min(G.era, 4); i++) MONUMENT_DRAW[i](g, stone, dark, n, t);
+  if (G.era < 4) {
+    c.save(); c.globalAlpha = 0.18 + 0.1 * Math.sin(t * 2);
+    MONUMENT_DRAW[G.era](g, "rgba(200,230,255,1)", "rgba(120,160,210,1)", 0, t); c.restore();
+  }
+  // remparts & portes
+  if (owned("remparts") > 0) crenel(g.pl - 4 * u, g.py + 3 * u, span + 8 * u, 6 * u, u * 0.8, col(mix([190, 176, 150], [62, 58, 60], n)));
+  const np = Math.min(2, owned("porte"));
+  [g.pl - 2 * u, g.pr + 2 * u].slice(0, np).forEach(x => {
+    c.fillStyle = stone; c.fillRect(x - 5 * u, g.py - 14 * u + 3 * u, 4 * u, 14 * u); c.fillRect(x + 1 * u, g.py - 14 * u + 3 * u, 4 * u, 14 * u);
+    c.fillStyle = dark; for (const dx of [-3, 3]) { c.beginPath(); c.moveTo(x + (dx - 2.6) * u, g.py - 11 * u); c.lineTo(x + dx * u, g.py - 17 * u); c.lineTo(x + (dx + 2.6) * u, g.py - 11 * u); c.fill(); }
+    c.fillRect(x - 1 * u, g.py - 3 * u, 2 * u, 6 * u);
+  });
+
+  // feu follet / bœuf de lumière
+  if (wisp) {
+    const age = (now - wisp.born) / 1000;
+    wisp.x = -30 + (W + 60) * (age / wisp.life); wisp.y = H * wisp.h + Math.sin(age * 2.2) * 14 * u;
+    const a = Math.min(1, age * 2, (wisp.life - age) * 2);
+    const R = wisp.ox ? 26 * u : 16 * u;
+    const wg = c.createRadialGradient(wisp.x, wisp.y, 0, wisp.x, wisp.y, R * 1.8);
+    wg.addColorStop(0, wisp.ox ? `rgba(220,240,255,${a})` : `rgba(255,230,140,${a})`); wg.addColorStop(1, "rgba(255,220,120,0)");
+    c.fillStyle = wg; c.fillRect(wisp.x - R * 2, wisp.y - R * 2, R * 4, R * 4);
+    if (wisp.ox) { c.globalAlpha = a; oxShape(wisp.x - 2 * u, wisp.y + 1 * u, 2.2 * u, "rgba(240,250,255,.95)"); c.globalAlpha = 1; }
+    else { c.fillStyle = `rgba(255,250,220,${a})`; c.beginPath(); c.arc(wisp.x, wisp.y, 4 * u, 0, Math.PI * 2); c.fill(); }
+    if (age > wisp.life) wisp = null;
+  }
+  // étincelles & montants
+  for (const s of sparks) { s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.life -= 1; c.fillStyle = `rgba(255,214,120,${Math.max(0, s.life / 30)})`; c.fillRect(s.x, s.y, 2.2, 2.2); }
+  for (let i = sparks.length - 1; i >= 0; i--) if (sparks[i].life <= 0) sparks.splice(i, 1);
+  c.textAlign = "center"; c.font = `700 ${Math.round(15 + u * 2)}px Cinzel, Georgia, serif`;
+  for (const f of floats) { f.y -= 0.7; f.life -= 1; c.fillStyle = `rgba(255,241,207,${Math.max(0, f.life / 50)})`; c.strokeStyle = `rgba(20,14,10,${Math.max(0, f.life / 70)})`; c.lineWidth = 3; c.strokeText(f.text, f.x, f.y); c.fillText(f.text, f.x, f.y); }
+  for (let i = floats.length - 1; i >= 0; i--) if (floats[i].life <= 0) floats.splice(i, 1);
+  // vignette
+  const vg = c.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.4, W / 2, H * 0.55, Math.max(W, H) * 0.8);
+  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.45)"); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+}
+
+/* ================= Interaction ================= */
+const hint = document.getElementById("hint");
+function tap(x, y) {
+  if (wisp && Math.hypot(x - wisp.x, y - wisp.y) < Math.max(34, (wisp.ox ? 30 : 22) * geom().u)) { catchWisp(); return; }
+  const v = clickValue(); earn(v); G.clicks++;
+  floats.push({ x: x + (Math.random() - 0.5) * 16, y: y - 8, text: "+" + fmt(v), life: 50 });
+  for (let i = 0; i < 6; i++) sparks.push({ x, y, vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3.5, life: 30 });
+  if (G.clicks >= 8) hint.hidden = true;
+  refreshNumbers();
+}
+wrap.addEventListener("pointerdown", e => { const r = wrap.getBoundingClientRect(); tap(e.clientX - r.left, e.clientY - r.top); });
+wrap.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tap(W / 2, H * 0.45); } });
+wrap.addEventListener("click", e => e.preventDefault());
+if (G.clicks >= 8) hint.hidden = true;
+
+function spawnWisp(now) { wisp = { born: now, life: 13, h: 0.12 + Math.random() * 0.22, ox: Math.random() < 0.12, x: -50, y: 0 }; }
+function catchWisp() {
+  const w = wisp; wisp = null; G.wispsCaught++;
+  if (w.ox) { buffs.blessed = 15; toast("Le Bœuf de lumière bénit tes mains : toucher ×20 pendant 15 s"); }
+  else if (Math.random() < 0.5) { buffs.frenzy = 30; toast("Feu follet doré : production ×7 pendant 30 s"); }
+  else { const g = Math.min(G.deniers * 0.15, basePps() * 900) + 13; earn(g); toast(`Feu follet doré : trésor de ${fmt(g)} deniers`); }
+  for (let i = 0; i < 24; i++) sparks.push({ x: w.x, y: w.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.7) * 5, life: 40 });
+  refreshAll();
+}
+function toast(msg) {
+  const box = document.getElementById("toasts"); const d = document.createElement("div"); d.className = "toast"; d.textContent = msg; box.appendChild(d);
+  setTimeout(() => d.remove(), 4200); while (box.children.length > 3) box.firstChild.remove();
+}
+
+/* ================= Registre ================= */
+let tab = "b", qty = 1;
+const list = document.getElementById("list");
+document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => {
+  tab = b.dataset.tab; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.getElementById("qty").hidden = tab !== "b"; render(); list.scrollTop = 0;
+}));
+document.querySelectorAll("#qty button").forEach(b => b.addEventListener("click", () => {
+  qty = b.dataset.q === "max" ? "max" : +b.dataset.q; document.querySelectorAll("#qty button").forEach(x => x.setAttribute("aria-pressed", x === b)); render();
+}));
+
+function availableUpgrades() {
+  return UPGRADES.filter(up => !has(up.id) && (up.click ? G.run >= up.cost * 0.4 || G.deniers >= up.cost * 0.4 : owned(up.b) >= up.need)).sort((a, b) => a.cost - b.cost);
+}
+function render() {
+  list.innerHTML = "";
+  if (tab === "b") renderBuild(); else if (tab === "u") renderUpg(); else renderChron();
+  refreshNumbers();
+}
+function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
+function renderBuild() {
+  if (G.era < 4) {
+    const m = ERAS[G.era].monument;
+    const r = el(`<button type="button" class="row monument" data-mon="1"><div class="lettrine">${["I", "II", "III", "IV"][G.era]}</div><div class="txt"><div class="eyebrow">Monument de l'${ERAS[G.era].name.replace("Ère ", "ère ")}</div><div class="name">${m.name}</div><div class="desc">${m.desc}</div><div class="prog"><i></i></div></div><div class="side"><div class="cost">${fmt(m.cost)}</div></div></button>`);
+    r.addEventListener("click", buyMonument); list.appendChild(r);
+  }
+  for (const b of BLD) {
+    if (b.era > G.era) continue;
+    const r = el(`<button type="button" class="row" data-b="${b.id}"><div class="lettrine era${b.era}">${b.L}</div><div class="txt"><div class="name">${b.name}</div><div class="desc">${b.desc}</div><div class="meta">Chacun : <b>${fmt(b.prod * bMult(b) * globalMult())}</b>/s</div></div><div class="side"><div class="owned">${owned(b.id)}</div><div class="cost"></div></div></button>`);
+    r.addEventListener("click", () => buy(b)); list.appendChild(r);
+  }
+  const next = BLD.find(b => b.era === G.era + 1);
+  if (next) list.appendChild(el(`<div class="row locked"><div class="lettrine">?</div><div class="txt"><div class="name">Bâtiments de l'${ERAS[next.era].name.replace("Ère ", "ère ")}</div><div class="desc">Ils se révèlent quand le monument est achevé.</div></div><div class="side"></div></div>`));
+}
+function renderUpg() {
+  const ups = availableUpgrades();
+  if (!ups.length) { list.appendChild(el(`<p class="empty">Aucune amélioration pour l'instant. Construis davantage : de nouveaux savoir-faire apparaîtront.</p>`)); return; }
+  for (const up of ups) {
+    const r = el(`<button type="button" class="row" data-u="${up.id}"><div class="lettrine ${up.click ? "" : "era" + up.era}">${up.L}</div><div class="txt"><div class="name">${up.name}</div><div class="desc">${up.desc}</div></div><div class="side"><div class="cost">${fmt(up.cost)}</div></div></button>`);
+    r.addEventListener("click", () => buyUpg(up)); list.appendChild(r);
+  }
+}
+function renderChron() {
+  const avail = reliquesAvailable();
+  list.appendChild(el(`<p class="section-title">Registre</p>`));
+  list.appendChild(el(`<div class="stats">
+    <div class="stat"><span>Gagnés (cette cité)</span><b>${fmt(G.run)}</b></div>
+    <div class="stat"><span>Gagnés (au total)</span><b>${fmt(G.life)}</b></div>
+    <div class="stat"><span>Touchers</span><b>${fmt(G.clicks)}</b></div>
+    <div class="stat"><span>Feux follets</span><b>${G.wispsCaught}</b></div>
+    <div class="stat"><span>Reliques</span><b>${G.reliques} (+${G.reliques * 10} %)</b></div>
+  </div>`));
+  list.appendChild(el(`<p class="section-title">Chronique de Laon</p>`));
+  ERAS.forEach((e, i) => {
+    const open = G.era > i || G.crowns > 0;
+    list.appendChild(el(open ? `<div class="chron"><h3>${e.chron.title}</h3><p>${e.chron.text}</p></div>` : `<div class="chron locked"><h3>${e.name} · ${e.short}</h3><p>Page encore scellée. Achève le monument de cette ère pour la lire.</p></div>`));
+  });
+  list.appendChild(el(G.crowns > 0 ? `<div class="chron"><h3>${FINAL.title}</h3><p>${FINAL.text}</p></div>` : `<div class="chron locked"><h3>Dernière page</h3><p>Se révèle au premier couronnement.</p></div>`));
+  list.appendChild(el(`<p class="section-title">Couronnement</p>`));
+  const pr = el(`<div class="chron"><p>${G.era >= 4 ? `Couronner la cité recommence tout depuis la première masure, mais t'offre <b>${avail}</b> relique${avail > 1 ? "s" : ""}. Chaque relique ajoute 10 % de production pour toujours.` : "Achève la Fête de la Montagne couronnée pour pouvoir couronner la cité et gagner des reliques."}</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn" id="crown" ${G.era >= 4 ? "" : "disabled"}>Couronner la cité</button><button type="button" class="btn danger" id="wipe">Effacer la partie</button></div></div>`);
+  list.appendChild(pr);
+  pr.querySelector("#crown").addEventListener("click", crown);
+  const wipe = pr.querySelector("#wipe");
+  wipe.addEventListener("click", () => {
+    if (wipe.dataset.armed) { try { localStorage.removeItem(KEY); } catch (e) {} G = fresh(); hint.hidden = false; render(); renderEra(); toast("Partie effacée"); }
+    else { wipe.dataset.armed = "1"; wipe.textContent = "Confirmer l'effacement"; setTimeout(() => { if (wipe.isConnected) { delete wipe.dataset.armed; wipe.textContent = "Effacer la partie"; } }, 4000); }
+  });
+}
+function reliquesAvailable() { return Math.max(1, Math.floor(Math.sqrt(G.run / 1e12))); }
+
+function buy(b) {
+  const n = qty === "max" ? maxBuy(b) : qty; if (n < 1) return;
+  const cost = costOf(b, n); if (cost > G.deniers) return;
+  G.deniers -= cost; G.owned[b.id] = owned(b.id) + n;
+  const before = availableUpgrades().length;
+  render(); if (availableUpgrades().length > before) toast("Nouvelle amélioration disponible");
+}
+function buyUpg(up) {
+  if (up.cost > G.deniers) return; G.deniers -= up.cost; G.upg.push(up.id); render();
+}
+function buyMonument() {
+  const m = ERAS[G.era].monument; if (m.cost > G.deniers) return;
+  G.deniers -= m.cost; const e = ERAS[G.era]; G.era++;
+  for (let i = 0; i < 40; i++) sparks.push({ x: W / 2 + (Math.random() - 0.5) * W * 0.4, y: H * 0.4, vx: (Math.random() - 0.5) * 6, vy: -Math.random() * 5, life: 50 });
+  save(); render(); renderEra();
+  const nextEra = ERAS[G.era];
+  modalShow({
+    eyebrow: `${m.name} achevé`, title: e.chron.title,
+    body: `<p>${e.chron.text}</p>${nextEra ? `<p class="note">Une nouvelle époque commence : ${nextEra.name} (${nextEra.short}). De nouveaux bâtiments sont disponibles.</p>` : `<p class="note">La cité est à son apogée. Dans la Chronique, tu peux désormais la couronner pour gagner des reliques.</p>`}`,
+    choices: [{ label: "Poursuivre", on: modalHide }]
+  });
+}
+function crown() {
+  if (G.era < 4) return;
+  const gain = reliquesAvailable();
+  modalShow({
+    eyebrow: "Couronnement", title: "Couronner la cité ?",
+    body: `<p>La cité retournera à sa première masure. Tu gardes tes reliques et en gagnes <b>${gain}</b>, soit +${gain * 10} % de production en plus, pour toujours.</p>`,
+    choices: [
+      { label: "Couronner", on: () => {
+        const keep = { reliques: G.reliques + gain, crowns: G.crowns + 1, life: G.life, clicks: G.clicks, wispsCaught: G.wispsCaught };
+        G = Object.assign(fresh(), keep); save(); render(); renderEra();
+        modalShow({ eyebrow: "Dernière page de la chronique", title: FINAL.title, body: `<p>${FINAL.text}</p>`, choices: [{ label: "Rebâtir la cité", on: modalHide }] });
+      } },
+      { label: "Pas encore", sec: true, on: modalHide }
+    ]
+  });
+}
+
+/* ================= Rafraîchissement ================= */
+const $amt = document.getElementById("amt"), $pps = document.getElementById("pps"), $pc = document.getElementById("perClick"), $buffs = document.getElementById("buffs");
+function refreshNumbers() {
+  $amt.firstChild.nodeValue = fmt(G.deniers); $pps.textContent = fmt(pps()); $pc.textContent = fmt(clickValue());
+  if (tab === "b") {
+    list.querySelectorAll("[data-b]").forEach(r => {
+      const b = BLD.find(x => x.id === r.dataset.b), n = qty === "max" ? Math.max(1, maxBuy(b)) : qty, cost = costOf(b, n);
+      r.querySelector(".cost").textContent = `${qty === "max" ? `×${n} · ` : qty > 1 ? `×${n} · ` : ""}${fmt(cost)}`;
+      r.classList.toggle("poor", cost > G.deniers);
+    });
+    const m = list.querySelector("[data-mon]");
+    if (m && G.era < 4) { const cost = ERAS[G.era].monument.cost; m.classList.toggle("poor", cost > G.deniers); m.querySelector(".prog i").style.width = `${Math.min(100, G.deniers / cost * 100)}%`; }
+  } else if (tab === "u") {
+    list.querySelectorAll("[data-u]").forEach(r => { const up = UPGRADES.find(x => x.id === r.dataset.u); r.classList.toggle("poor", up.cost > G.deniers); });
+  }
+  const ups = availableUpgrades(), canU = ups.some(u => u.cost <= G.deniers);
+  const tu = document.getElementById("tab-u"); let dot = tu.querySelector(".dot");
+  if (canU && !dot) tu.insertAdjacentHTML("beforeend", '<span class="dot" aria-hidden="true"></span>'); else if (!canU && dot) dot.remove();
+  $buffs.innerHTML = (buffs.frenzy > 0 ? `<div class="buff">Production ×7 · ${Math.ceil(buffs.frenzy)} s</div>` : "") + (buffs.blessed > 0 ? `<div class="buff">Toucher ×20 · ${Math.ceil(buffs.blessed)} s</div>` : "");
+}
+function refreshAll() { render(); }
+function renderEra() { document.getElementById("eraLabel").textContent = G.era < 4 ? `${ERAS[G.era].name} · ${ERAS[G.era].short}` : "Cité couronnée"; }
+
+/* ================= Parchemin ================= */
+const modal = document.getElementById("modal"), parch = document.getElementById("parch");
+function modalShow({ eyebrow = "", title, body = "", choices = [] }) {
+  parch.innerHTML = `${eyebrow ? `<p class="eyebrow">${eyebrow}</p>` : ""}<h2>${title}</h2>${body}<div class="choices"></div>`;
+  const box = parch.querySelector(".choices");
+  choices.forEach(ch => { const b = document.createElement("button"); b.type = "button"; b.textContent = ch.label; if (ch.sec) b.className = "sec"; b.addEventListener("click", ch.on); box.appendChild(b); });
+  modal.hidden = false; setTimeout(() => box.querySelector("button")?.focus(), 30);
+}
+function modalHide() { modal.hidden = true; }
+
+/* ================= Boucle ================= */
+let last = performance.now(), acc = 0;
+function frame(now) {
+  const dt = Math.min(1, (now - last) / 1000); last = now;
+  earn(pps() * dt);
+  buffs.frenzy = Math.max(0, buffs.frenzy - dt); buffs.blessed = Math.max(0, buffs.blessed - dt);
+  if (!wisp && now > nextWisp) { spawnWisp(now); nextWisp = now + 50000 + Math.random() * 70000; }
+  acc += dt; if (acc > 0.25) { acc = 0; refreshNumbers(); }
+  if (W > 1) drawScene(now);
+  requestAnimationFrame(frame);
+}
+// rattrapage quand l'onglet revient au premier plan
+addEventListener("visibilitychange", () => { if (!document.hidden) { const away = (performance.now() - last) / 1000; if (away > 1) earn(basePps() * Math.min(away, 8 * 3600)); last = performance.now(); } });
+
+resize(); render(); renderEra();
+if (offlineGain > 1) modalShow({ eyebrow: "Pendant ton absence", title: "La cité a travaillé", body: `<p>Tes gens ont amassé <b>${fmt(offlineGain)}</b> deniers en ton absence (à mi-régime, jusqu'à 8 heures).</p>`, choices: [{ label: "Reprendre", on: modalHide }] });
+else if (G.life === 0) modalShow({ eyebrow: "Laon, Xᵉ siècle", title: "La Cité perchée", body: `<p>Sur une butte de calcaire dominant la plaine, quelques familles s'installent. À toi de faire de ce rocher une cité royale, puis une ville que les siècles n'effaceront pas.</p><p class="note">Touche la cité pour récolter des deniers, bâtis pour qu'elle produise seule, et guette les feux follets dorés.</p>`, choices: [{ label: "Fonder la cité", on: modalHide }] });
+requestAnimationFrame(frame);
+})();
+</script>
