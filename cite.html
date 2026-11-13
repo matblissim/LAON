@@ -172,6 +172,8 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #title { position: fixed; inset: 0; z-index: 28; display: grid; place-items: end center; background: #120c10; }
 #title[hidden] { display: none; }
 #tcv { position: absolute; inset: 0; width: 100%; height: 100%; }
+#timg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 35%; opacity: 0; transition: opacity 1.2s ease; }
+#timg.ready { opacity: 1; }
 .tbox { position: relative; text-align: center; padding-block: 0 max(48px, calc(env(safe-area-inset-bottom, 0px) + 32px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); width: 100%; background: linear-gradient(transparent, rgba(10,6,8,.85) 45%); }
 .tkick { font-family: var(--f-head); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: #f2c27a; margin: 0 0 6px; }
 #title h1 { font-family: var(--f-title); font-size: clamp(38px, 9vw, 76px); line-height: 1; margin: 0 0 12px; color: #fff1cf; text-shadow: 0 2px 24px rgba(255,170,90,.45); text-wrap: balance; }
@@ -262,6 +264,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 </div>
 <div id="title" hidden>
   <canvas id="tcv"></canvas>
+  <img id="timg" src="title-bg.jpg" alt="" decoding="async" onerror="this.remove()">
   <div class="tbox">
     <p class="tkick">Laon · mille ans sur la Montagne couronnée</p>
     <h1>La Cité perchée</h1>
@@ -1366,6 +1369,7 @@ function paintTitle() {
 }
 function showTitle(then) {
   $title.hidden = false; paintTitle();
+  const im = document.getElementById("timg"); if (im) { if (im.complete && im.naturalWidth) im.classList.add("ready"); else im.addEventListener("load", () => im.classList.add("ready"), { once: true }); }
   document.getElementById("tGo").textContent = G.life > 0 ? "Reprendre" : "Fonder la cité";
   document.getElementById("tGo").onclick = () => { $title.hidden = true; then(); };
 }
