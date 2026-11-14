@@ -640,10 +640,130 @@ function drawPaintedButte(g, n) {
   const u = g.u; c.drawImage(tintedButte(seasonIdx()), g.bx, g.by, g.bw, g.bh);
   for (let i = 0; i < Math.min(6, owned("creute")); i++) {
     const [x, y] = bp(g, CREUTES[i][0], CREUTES[i][1]);
-    archDoor(x, y + 6 * u, 10 * u, 11 * u, "#1b1410");
-    c.strokeStyle = "#6b4a2b"; c.lineWidth = Math.max(1, u * 0.9); c.beginPath(); c.moveTo(x - 5.5 * u, y + 6 * u); c.lineTo(x - 5.5 * u, y - 3 * u); c.lineTo(x + 5.5 * u, y - 3 * u); c.lineTo(x + 5.5 * u, y + 6 * u); c.stroke();
-    c.fillStyle = "rgba(255,170,80,.9)"; c.beginPath(); c.arc(x, y + 3 * u, 1.6 * u, 0, Math.PI * 2); c.fill();
-    if (n > 0.5) glowPts.push({ x, y: y + 3 * u, r: 9 * u, wx: 0, wy: 0, ww: 0, wh: 0 });
+    drawCreute(x, y, u, n, i);
+  }
+}
+/* --- Creute : entrée de carrière taillée dans le calcaire, étayage, lanterne, rails et wagonnet --- */
+function drawCreute(x, y, u, n, i) {
+  const w = 9 * u, h = 10 * u, by = y + 6 * u;
+  // bord de roche taillée
+  c.fillStyle = "rgba(240,226,196,.55)"; c.beginPath(); c.moveTo(x - w * 0.62, by + 0.6 * u); c.lineTo(x - w * 0.62, by - h * 0.55); c.quadraticCurveTo(x - w * 0.6, by - h * 1.08, x, by - h * 1.1); c.quadraticCurveTo(x + w * 0.6, by - h * 1.08, x + w * 0.62, by - h * 0.55); c.lineTo(x + w * 0.62, by + 0.6 * u); c.fill();
+  // profondeur de la galerie
+  const gg = c.createRadialGradient(x, by - h * 0.35, 0.5 * u, x, by - h * 0.4, w * 0.75); gg.addColorStop(0, n > 0.5 ? "#4a2c14" : "#120c08"); gg.addColorStop(0.55, "#22170f"); gg.addColorStop(1, "#4a3a2a");
+  c.fillStyle = gg; c.beginPath(); c.moveTo(x - w / 2, by); c.lineTo(x - w / 2, by - h * 0.5); c.quadraticCurveTo(x - w / 2, by - h, x, by - h); c.quadraticCurveTo(x + w / 2, by - h, x + w / 2, by - h * 0.5); c.lineTo(x + w / 2, by); c.fill();
+  c.fillStyle = "rgba(0,0,0,.25)"; c.beginPath(); c.ellipse(x + w * 0.1, by - h * 0.95, w * 0.42, 1 * u, 0, 0, Math.PI * 2); c.fill();
+  // étayage en bois
+  const wood = "#6b4a2b", woodL = "#8c6640";
+  c.fillStyle = wood; c.fillRect(x - w / 2 + 0.4 * u, by - h * 0.62, 1.1 * u, h * 0.62); c.fillRect(x + w / 2 - 1.5 * u, by - h * 0.62, 1.1 * u, h * 0.62);
+  c.fillStyle = woodL; c.fillRect(x - w / 2 - 0.2 * u, by - h * 0.7, w + 0.4 * u, 1.2 * u); c.fillStyle = "rgba(0,0,0,.25)"; c.fillRect(x - w / 2 - 0.2 * u, by - h * 0.7 + 0.8 * u, w + 0.4 * u, 0.4 * u);
+  // lanterne suspendue
+  c.strokeStyle = "#3a2a1c"; c.lineWidth = Math.max(1, 0.3 * u); c.beginPath(); c.moveTo(x + w * 0.28, by - h * 0.62); c.lineTo(x + w * 0.28, by - h * 0.5); c.stroke();
+  c.fillStyle = "rgba(255,196,100,.95)"; c.fillRect(x + w * 0.28 - 0.7 * u, by - h * 0.5, 1.4 * u, 1.6 * u);
+  if (n > 0.5) glowPts.push({ x: x + w * 0.28, y: by - h * 0.45, r: 6 * u, wx: 0, wy: 0, ww: 0, wh: 0 });
+  // rails qui sortent de la galerie
+  c.strokeStyle = "rgba(60,52,46,.9)"; c.lineWidth = Math.max(1, 0.35 * u);
+  c.beginPath(); c.moveTo(x - 1.6 * u, by - 1 * u); c.lineTo(x - 3.4 * u, by + 2.6 * u); c.moveTo(x + 1.6 * u, by - 1 * u); c.lineTo(x + 3.4 * u, by + 2.6 * u); c.stroke();
+  c.strokeStyle = "rgba(110,80,50,.9)"; for (let k = 0; k < 3; k++) { const yy = by - 0.4 * u + k * 1.1 * u, half = 2 * u + k * 0.6 * u; c.beginPath(); c.moveTo(x - half, yy); c.lineTo(x + half, yy); c.stroke(); }
+  // wagonnet chargé de calcaire (une creute sur deux)
+  if (i % 2 === 0) { const wx = x - 0.2 * u, wy = by + 1.6 * u; c.fillStyle = "#4a3c34"; c.beginPath(); c.moveTo(wx - 2.6 * u, wy - 2.4 * u); c.lineTo(wx + 2.6 * u, wy - 2.4 * u); c.lineTo(wx + 2 * u, wy); c.lineTo(wx - 2 * u, wy); c.fill();
+    c.fillStyle = "#e6d8b6"; c.beginPath(); c.ellipse(wx, wy - 2.6 * u, 2.2 * u, 0.9 * u, 0, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#24201c"; c.beginPath(); c.arc(wx - 1.3 * u, wy + 0.2 * u, 0.6 * u, 0, Math.PI * 2); c.arc(wx + 1.3 * u, wy + 0.2 * u, 0.6 * u, 0, Math.PI * 2); c.fill(); }
+}
+/* --- Gare et POMA 2000 : voie sur pylônes de la gare à la station haute --- */
+// profil du flanc est de la butte (bord haut de l'image, en fractions)
+const EAST_PROFILE = [[0.755, 0.05], [0.772, 0.31], [0.805, 0.37], [0.837, 0.38], [0.87, 0.5], [0.903, 0.575], [0.936, 0.58], [0.969, 0.665], [1, 0.7]];
+function eastGround(g, x) { const fx = (x - g.bx) / g.bw; let k = 0; while (k < EAST_PROFILE.length - 2 && fx > EAST_PROFILE[k + 1][0]) k++; const [a0, b0] = EAST_PROFILE[k], [a1, b1] = EAST_PROFILE[k + 1], q = Math.max(0, Math.min(1, (fx - a0) / (a1 - a0))); return g.by + g.bh * (b0 + (b1 - b0) * q); }
+let pomaCache = { k: "", pts: null, L: null, tot: 0 };
+function pomaPath(g) {
+  const k = `${W}|${H}`; if (pomaCache.k === k) return pomaCache;
+  const E = pomaEnds(g), raw = [[E.bx, E.by], bp(g, 0.765, 0.2), bp(g, 0.785, 0.4), bp(g, 0.84, 0.5), bp(g, 0.895, 0.64), bp(g, 0.945, 0.74), [E.ax, E.ay]];
+  const pts = chaikin(raw, 2), L = pts.slice(1).map((q, i) => Math.hypot(q[0] - pts[i][0], q[1] - pts[i][1]));
+  return (pomaCache = { k, pts, L, tot: L.reduce((a, b) => a + b, 0) });
+}
+function alongPoma(g, f) { const P = pomaPath(g); let s = Math.max(0, Math.min(1, f)) * P.tot, i = 0; while (i < P.L.length - 1 && s > P.L[i]) { s -= P.L[i]; i++; } const a = P.pts[i], b = P.pts[i + 1], q = P.L[i] ? s / P.L[i] : 0; return { x: a[0] + (b[0] - a[0]) * q, y: a[1] + (b[1] - a[1]) * q, ang: Math.atan2(b[1] - a[1], b[0] - a[0]) }; }
+function pomaEnds(g) { const u = g.u, gx = Math.min(W - 18 * u, g.bx + g.bw * 0.97); return { gx, ax: gx - 10 * u, ay: g.y0 - 7 * u, bx: g.bx + g.bw * 0.745, by: g.by + g.bh * 0.115 - 3 * u }; }
+function drawGareAndPoma(g, n) {
+  const u = g.u, E = pomaEnds(g);
+  if (owned("gare") > 0) {
+    c.strokeStyle = "rgba(40,30,25,.85)"; c.lineWidth = Math.max(1, 0.5 * u); c.beginPath(); c.moveTo(W * 0.55, g.y0 + 6 * u); c.lineTo(W, g.y0 + 6 * u); c.moveTo(W * 0.55, g.y0 + 8 * u); c.lineTo(W, g.y0 + 8 * u); c.stroke();
+    c.strokeStyle = "rgba(90,70,50,.6)"; for (let x = W * 0.55; x < W; x += 3 * u) { c.beginPath(); c.moveTo(x, g.y0 + 5.5 * u); c.lineTo(x - 1 * u, g.y0 + 8.5 * u); c.stroke(); }
+    const gx = E.gx; c.fillStyle = "#c9b28a"; c.fillRect(gx - 17 * u, g.y0 + 1 * u, 34 * u, 2 * u);
+    wallBox(gx - 15 * u, g.y0 - 9 * u, 30 * u, 10 * u, "#c98c62"); wallBox(gx - 6 * u, g.y0 - 13 * u, 12 * u, 14 * u, "#d39a6e");
+    c.fillStyle = "#4e5260"; c.beginPath(); c.moveTo(gx - 17 * u, g.y0 - 9 * u); c.lineTo(gx - 13 * u, g.y0 - 13 * u); c.lineTo(gx + 13 * u, g.y0 - 13 * u); c.lineTo(gx + 17 * u, g.y0 - 9 * u); c.fill();
+    c.beginPath(); c.moveTo(gx - 7.5 * u, g.y0 - 13 * u); c.lineTo(gx, g.y0 - 18 * u); c.lineTo(gx + 7.5 * u, g.y0 - 13 * u); c.fill();
+    c.fillStyle = "#f2ead8"; c.beginPath(); c.arc(gx, g.y0 - 10 * u, 2 * u, 0, Math.PI * 2); c.fill(); c.strokeStyle = "#3a3030"; c.lineWidth = Math.max(1, 0.3 * u); c.beginPath(); c.moveTo(gx, g.y0 - 10 * u); c.lineTo(gx, g.y0 - 11.4 * u); c.moveTo(gx, g.y0 - 10 * u); c.lineTo(gx + 1 * u, g.y0 - 10 * u); c.stroke();
+    for (const dx of [-12, -8.5, 8.5, 12]) litWindow(gx + dx * u - 0.9 * u, g.y0 - 7 * u, 1.8 * u, 3.6 * u, n, 5 * u);
+    archDoor(gx, g.y0 + 1 * u, 3 * u, 6 * u, "#3a2a20");
+  }
+  if (owned("poma") > 0) {
+    const P = pomaPath(g), line = (w, col2, dy) => { c.beginPath(); P.pts.forEach(([x, y], i) => (i ? c.lineTo(x, y + dy) : c.moveTo(x, y + dy))); c.lineWidth = w; c.strokeStyle = col2; c.stroke(); };
+    // petits appuis réguliers sous la voie posée sur le flanc
+    for (let k = 1; k < 14; k++) { const p = alongPoma(g, k / 14); c.fillStyle = "#a9a39a"; c.fillRect(p.x - 0.5 * u, p.y + 0.6 * u, 1 * u, 2.4 * u); }
+    c.lineJoin = "round"; c.lineCap = "round";
+    line(3.2 * u, "rgba(40,32,26,.35)", 1.2 * u);
+    line(2.4 * u, "#d6d0c4", 0);
+    line(0.6 * u, "rgba(70,70,78,.7)", 0.8 * u);
+    line(Math.max(1, 0.35 * u), "#55555e", -0.9 * u);
+    // stations basse et haute
+    for (const [x, y] of [[E.ax, E.ay], [E.bx, E.by]]) { wallBox(x - 5 * u, y - 5.5 * u, 10 * u, 6.5 * u, "#e8e4da"); c.fillStyle = "#b5352a"; c.fillRect(x - 5 * u, y - 6.4 * u, 10 * u, 1 * u); litWindow(x - 3.6 * u, y - 4 * u, 7.2 * u, 2 * u, n, 7 * u); }
+  }
+}
+function drawPomaCabin(g, t, n) {
+  const u = g.u, E = pomaEnds(g), cyc = (t % 40) / 40;
+  let q; if (cyc < 0.15) q = 0; else if (cyc < 0.5) q = (1 - Math.cos(((cyc - 0.15) / 0.35) * Math.PI)) / 2; else if (cyc < 0.65) q = 1; else q = (1 + Math.cos(((cyc - 0.65) / 0.35) * Math.PI)) / 2;
+  const p = alongPoma(g, 1 - q), dirR = Math.cos(p.ang) >= 0 ? 0 : Math.PI;
+  c.save(); c.translate(p.x, p.y - 1.2 * u); c.rotate(p.ang + dirR);
+  c.fillStyle = "#f4f1ea"; c.beginPath(); c.moveTo(-4.5 * u, 0); c.lineTo(4.5 * u, 0); c.lineTo(4.5 * u, -3.4 * u); c.quadraticCurveTo(4.5 * u, -4.6 * u, 3.2 * u, -4.6 * u); c.lineTo(-3.2 * u, -4.6 * u); c.quadraticCurveTo(-4.5 * u, -4.6 * u, -4.5 * u, -3.4 * u); c.closePath(); c.fill();
+  c.fillStyle = "#b5352a"; c.fillRect(-4.5 * u, -1.3 * u, 9 * u, 0.9 * u);
+  c.fillStyle = n > 0.3 ? "rgba(255,226,150,.95)" : "#3c4a5c"; c.fillRect(-3.6 * u, -3.8 * u, 3.2 * u, 1.8 * u); c.fillRect(0.4 * u, -3.8 * u, 3.2 * u, 1.8 * u);
+  c.restore();
+}
+/* --- Enceinte : mur qui épouse le bord du plateau, tours rondes, portes à tours en poivrière --- */
+const GATE_FX = [(0.33 - BUT.pl) / (BUT.pr - BUT.pl), 0.88];
+const rampX = (g, fx) => g.pl + (g.pr - g.pl) * fx;
+const rampY = (g, fx) => { const k = 2 * fx - 1; return g.py + 2 * g.u - k * k * 4.5 * g.u; };
+function roundTower(x, y, u, r, h, n, pepper) {
+  let gr = c.createLinearGradient(x - r, 0, x + r, 0); gr.addColorStop(0, "#ecdcb8"); gr.addColorStop(0.5, "#cbb38b"); gr.addColorStop(1, "#8f7656");
+  c.fillStyle = gr; c.fillRect(x - r, y - h, r * 2, h); c.beginPath(); c.ellipse(x, y, r, r * 0.3, 0, 0, Math.PI); c.fill();
+  c.strokeStyle = "rgba(90,70,50,.28)"; c.lineWidth = 1; for (let yy = y - h + 2 * u; yy < y; yy += 2 * u) { c.beginPath(); c.ellipse(x, yy, r, r * 0.3, 0, 0.15, Math.PI - 0.15); c.stroke(); }
+  c.fillStyle = "#d9c49c"; c.fillRect(x - r * 1.12, y - h - 1.2 * u, r * 2.24, 1.4 * u);
+  if (pepper) {
+    c.fillStyle = "#3f4554"; c.beginPath(); c.moveTo(x - r * 1.15, y - h - 1.1 * u); c.quadraticCurveTo(x - r * 1.25, y - h - r * 1.3, x, y - h - r * 2.9); c.quadraticCurveTo(x + r * 1.25, y - h - r * 1.3, x + r * 1.15, y - h - 1.1 * u); c.closePath(); c.fill();
+    c.fillStyle = "rgba(255,255,255,.14)"; c.beginPath(); c.moveTo(x - r * 1.1, y - h - 1.1 * u); c.quadraticCurveTo(x - r * 1.15, y - h - r * 1.3, x, y - h - r * 2.9); c.lineTo(x - r * 0.3, y - h - 1.1 * u); c.fill();
+    c.strokeStyle = "#c9a24a"; c.lineWidth = Math.max(1, 0.4 * u); c.beginPath(); c.moveTo(x, y - h - r * 2.9); c.lineTo(x, y - h - r * 3.6); c.stroke();
+  } else { c.fillStyle = "#d9c49c"; for (let k = -1; k <= 1; k++) c.fillRect(x + k * r * 0.7 - r * 0.18, y - h - 2.8 * u, r * 0.36, 1.7 * u); }
+  litWindow(x - 0.4 * u, y - h * 0.62, 0.8 * u, 2.2 * u, n, 4 * u);
+  if (n > 0.5) glowPts.push({ x: x + r, y: y - h + 1 * u, r: 4 * u, wx: 0, wy: 0, ww: 0, wh: 0 });
+}
+function drawRamparts(g, n) {
+  const u = g.u, nr = Math.min(5, owned("remparts")), np = Math.min(2, owned("porte"));
+  if (!nr && !np) return;
+  const gates = GATE_FX.slice(0, np), nearGate = fx => gates.some(gf => Math.abs(fx - gf) < 0.035);
+  if (nr) {
+    const wallH = 6 * u, step = 0.01;
+    for (let fx = -0.02; fx < 1.02; fx += step) {
+      if (nearGate(fx + step / 2)) continue;
+      const x0 = rampX(g, fx), x1 = rampX(g, fx + step) + 0.6, y0 = rampY(g, fx), y1 = rampY(g, fx + step);
+      const gr = c.createLinearGradient(0, y0 - wallH, 0, y0 + 1 * u); gr.addColorStop(0, "#e9d9b5"); gr.addColorStop(0.25, "#d4bd94"); gr.addColorStop(1, "#a88f68");
+      c.fillStyle = gr; c.beginPath(); c.moveTo(x0, y0 - wallH); c.lineTo(x1, y1 - wallH); c.lineTo(x1, y1 + 1 * u); c.lineTo(x0, y0 + 1 * u); c.closePath(); c.fill();
+    }
+    c.strokeStyle = "rgba(96,76,54,.3)"; c.lineWidth = 1;
+    for (let k = 1; k < 3; k++) { c.beginPath(); let started = false; for (let fx = -0.02; fx <= 1.02; fx += 0.01) { if (nearGate(fx)) { started = false; continue; } const x = rampX(g, fx), y = rampY(g, fx) - wallH + k * 2.3 * u; started ? c.lineTo(x, y) : c.moveTo(x, y); started = true; } c.stroke(); }
+    c.fillStyle = "rgba(60,44,30,.25)"; for (let fx = -0.02; fx <= 1.02; fx += 0.01) if (!nearGate(fx)) c.fillRect(rampX(g, fx), rampY(g, fx) - wallH + 0.6 * u, (g.pr - g.pl) * 0.01 + 0.6, 0.7 * u);
+    c.fillStyle = "#e3d1aa"; const mw = 1.5 * u, mh = 1.7 * u, pitch = 3.2 * u, span = g.pr - g.pl;
+    for (let x = rampX(g, -0.02); x < rampX(g, 1.02); x += pitch) { const fx = (x - g.pl) / span; if (nearGate(fx)) continue; const y = rampY(g, fx) - wallH; c.fillRect(x, y - mh, mw, mh); c.fillStyle = "rgba(0,0,0,.18)"; c.fillRect(x + mw * 0.65, y - mh, mw * 0.35, mh); c.fillStyle = "#e3d1aa"; }
+    const nt = nr + 1;
+    for (let i = 0; i < nt; i++) { const fx = -0.02 + (1.04 * i) / (nt - 1); if (nearGate(fx)) continue; roundTower(rampX(g, fx), rampY(g, fx) + 1 * u, u, 2.6 * u, 9 * u, n, false); }
+  }
+  for (const gf of gates) {
+    const x = rampX(g, gf), y = rampY(g, gf) + 1 * u;
+    const gr = c.createLinearGradient(0, y - 9 * u, 0, y); gr.addColorStop(0, "#e2cfa6"); gr.addColorStop(1, "#ad9470");
+    c.fillStyle = gr; c.fillRect(x - 4 * u, y - 9 * u, 8 * u, 9 * u);
+    c.fillStyle = "#e3d1aa"; for (let k = -1; k <= 1; k++) c.fillRect(x + k * 2.6 * u - 0.8 * u, y - 10.6 * u, 1.6 * u, 1.6 * u);
+    archDoor(x, y, 3.6 * u, 6.2 * u, "#2a1e16");
+    c.strokeStyle = "rgba(40,40,46,.85)"; c.lineWidth = Math.max(1, 0.35 * u); for (let k = -1; k <= 1; k++) { c.beginPath(); c.moveTo(x + k * u, y - 6 * u); c.lineTo(x + k * u, y - 2.4 * u); c.stroke(); } c.beginPath(); c.moveTo(x - 1.6 * u, y - 4 * u); c.lineTo(x + 1.6 * u, y - 4 * u); c.stroke();
+    roundTower(x - 5.2 * u, y + 0.5 * u, u, 2.4 * u, 12 * u, n, true);
+    roundTower(x + 5.2 * u, y + 0.5 * u, u, 2.4 * u, 12 * u, n, true);
   }
 }
 /* --- Décor fixe : collines, champs, rivière, butte, ville --- */
@@ -728,15 +848,8 @@ function drawLand(g, n) {
   ROAD_F.slice(1, -1).forEach(([fx, fy], i) => { const [x, y] = bp(g, fx, fy); c.fillStyle = "#3e3024"; c.fillRect(x + 3 * u, y - 4.5 * u, 0.6 * u, 4.5 * u); c.fillStyle = "rgba(255,200,110,.95)"; c.fillRect(x + 2.7 * u, y - 5.3 * u, 1.2 * u, 1.2 * u); if (n > 0.5) glowPts.push({ x: x + 3.3 * u, y: y - 4.7 * u, r: 3 * u, wx: 0, wy: 0, ww: 0, wh: 0 }); });
   // tas de pierres taillées
   for (let i = 0; i < Math.min(5, owned("tailleurs")); i++) { const x = W * 0.3 + i * 9 * u, y = g.y0 + 3 * u; wallBox(x, y - 4 * u, 6 * u, 4 * u, "#d8c8a6"); wallBox(x + 1.5 * u, y - 7 * u, 4 * u, 3 * u, "#e2d4b4"); }
-  // gare, voie ferrée et câble du POMA
-  if (owned("gare") > 0) {
-    c.strokeStyle = "rgba(40,30,25,.85)"; c.lineWidth = 1.2; c.beginPath(); c.moveTo(W * 0.5, g.y0 + 7 * u); c.lineTo(W, g.y0 + 7 * u); c.moveTo(W * 0.5, g.y0 + 9 * u); c.lineTo(W, g.y0 + 9 * u); c.stroke();
-    const gx = W * 0.9; wallBox(gx - 16 * u, g.y0 - 10 * u, 32 * u, 12 * u, "#a8664e");
-    c.fillStyle = "#4a4c58"; c.beginPath(); c.moveTo(gx - 18 * u, g.y0 - 10 * u); c.lineTo(gx, g.y0 - 17 * u); c.lineTo(gx + 18 * u, g.y0 - 10 * u); c.fill();
-    c.fillStyle = "#eadfc6"; c.beginPath(); c.arc(gx, g.y0 - 6 * u, 2.2 * u, 0, Math.PI * 2); c.fill();
-    for (const dx of [-11, -5, 5, 11]) litWindow(gx + dx * u - 1 * u, g.y0 - 7 * u, 2 * u, 3 * u, n);
-  }
-  if (owned("poma") > 0) { const ax = W * 0.88, ay = g.y0 - 4 * u, bx = g.pl + span * 0.86, by = g.py - 1 * u; c.strokeStyle = "rgba(30,26,24,.9)"; c.lineWidth = Math.max(1, u * 0.6); c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke(); }
+  // gare, voie du POMA et stations
+  drawGareAndPoma(g, n);
   // ville haute : dessinée du fond vers l'avant, maisons groupées autour du cœur de la cité
   const stone = SPR.butte ? "#c8ad84" : "#d8cab0", dark = SPR.butte ? "#3e3028" : "#4a3c36";
   const nm = Math.min(28, owned("masure") + owned("puits")), nh = Math.min(10, owned("hotel")), items = [];
@@ -766,12 +879,7 @@ function drawLand(g, n) {
   if (G.era <= 2 && G.monStage) items.push({ y: monBase(g, G.era), f: () => drawPartialMonument(g, stone, dark, n) });
   items.sort((a, b) => a.y - b.y).forEach(it => it.f());
   if (seasonIdx() === 3) { c.fillStyle = "rgba(240,244,250,.55)"; for (let i = 0; i < 90; i++) c.fillRect(g.pl + hsh(i, 95) * span - 4 * u, g.py - hsh(i, 96) * 16 * u, 6 * u, 1.2 * u); }
-  if (owned("remparts") > 0) crenel(g.pl - 4 * u, g.py + 3 * u, span + 8 * u, 6 * u, u * 0.8, SPR.butte ? "#bfa27a" : "#c8b896");
-  [g.pl - 2 * u, g.pr + 2 * u].slice(0, Math.min(2, owned("porte"))).forEach(x => {
-    wallBox(x - 5 * u, g.py - 11 * u, 4 * u, 14 * u, stone); wallBox(x + 1 * u, g.py - 11 * u, 4 * u, 14 * u, stone);
-    c.fillStyle = "#3e4656"; for (const dx of [-3, 3]) { c.beginPath(); c.moveTo(x + (dx - 2.6) * u, g.py - 11 * u); c.lineTo(x + dx * u, g.py - 18 * u); c.lineTo(x + (dx + 2.6) * u, g.py - 11 * u); c.fill(); }
-    archDoor(x, g.py + 3 * u, 2.4 * u, 6 * u, dark);
-  });
+  drawRamparts(g, n);
 }
 const stDay = document.createElement("canvas"), stNight = document.createElement("canvas");
 let stKey = "";
@@ -825,6 +933,39 @@ function drawTeam(x, y, dir, u, t, n, loaded, ang) {
   c.strokeStyle = wood; c.lineWidth = Math.max(1, 0.4 * s); c.beginPath(); c.moveTo(wx + 1 * s, wy - 6 * s); c.lineTo(wx + 3.5 * s, wy - 9.5 * s); c.stroke();
   c.restore();
 }
+/* Feu follet doré : flamme vivante et traînée d'étincelles ; Bœuf de lumière : silhouette qui galope */
+function drawWisp(w, t, u, a) {
+  w.trail = w.trail || [];
+  w.trail.push({ x: w.x + (Math.random() - 0.5) * 3 * u, y: w.y + (Math.random() - 0.5) * 3 * u, life: 1 });
+  for (const p of w.trail) { p.life -= 0.035; p.y += 0.15 * u; }
+  w.trail = w.trail.filter(p => p.life > 0).slice(-40);
+  const warm = !w.ox, glowRGB = warm ? "255,190,80" : "170,215,255", coreRGB = warm ? "255,248,220" : "236,246,255";
+  c.save(); c.globalCompositeOperation = "lighter";
+  for (const p of w.trail) { c.fillStyle = `rgba(${glowRGB},${p.life * 0.55 * a})`; c.beginPath(); c.arc(p.x, p.y, (0.6 + p.life * 1.4) * u, 0, Math.PI * 2); c.fill(); }
+  const R = (warm ? 13 : 30) * u, g0 = c.createRadialGradient(w.x, w.y, 0, w.x, w.y, R * 1.6);
+  g0.addColorStop(0, `rgba(${glowRGB},${0.55 * a})`); g0.addColorStop(0.4, `rgba(${glowRGB},${0.18 * a})`); g0.addColorStop(1, `rgba(${glowRGB},0)`);
+  c.fillStyle = g0; c.fillRect(w.x - R * 1.6, w.y - R * 1.6, R * 3.2, R * 3.2);
+  if (warm) {
+    for (const [sc, col0] of [[1, `rgba(255,150,40,${0.85 * a})`], [0.7, `rgba(255,214,90,${0.95 * a})`], [0.42, `rgba(${coreRGB},${a})`]]) {
+      const hgt = 9 * u * sc, wid = 3.6 * u * sc, fl = Math.sin(t * 13 + sc * 5) * 1.3 * u * sc, fl2 = Math.sin(t * 9 + sc * 3) * 0.8 * u * sc;
+      c.fillStyle = col0; c.beginPath(); c.moveTo(w.x + fl, w.y - hgt);
+      c.bezierCurveTo(w.x + wid * 0.6 + fl2, w.y - hgt * 0.45, w.x + wid, w.y + wid * 0.2, w.x, w.y + wid * 0.9);
+      c.bezierCurveTo(w.x - wid, w.y + wid * 0.2, w.x - wid * 0.6 + fl2, w.y - hgt * 0.45, w.x + fl, w.y - hgt); c.fill();
+    }
+    for (let k = 0; k < 3; k++) { const an = t * 3 + (k * Math.PI * 2) / 3; c.fillStyle = `rgba(255,236,170,${0.9 * a})`; c.beginPath(); c.arc(w.x + Math.cos(an) * 6 * u, w.y + Math.sin(an) * 2.4 * u - 2 * u, 0.8 * u, 0, Math.PI * 2); c.fill(); }
+  } else {
+    const s0 = 2.2 * u, gal = Math.sin(t * 7);
+    c.translate(w.x, w.y); c.scale(1, 1);
+    c.fillStyle = `rgba(${coreRGB},${0.85 * a})`;
+    c.beginPath(); c.moveTo(-3.6 * s0, -2 * s0); c.quadraticCurveTo(-4 * s0, -5 * s0, -1.5 * s0, -5.2 * s0); c.quadraticCurveTo(1 * s0, -6 * s0, 3 * s0, -5 * s0); c.quadraticCurveTo(3.8 * s0, -2.4 * s0, 3 * s0, -1.8 * s0); c.quadraticCurveTo(0, -1.2 * s0, -3.6 * s0, -2 * s0); c.fill();
+    c.beginPath(); c.ellipse(4.4 * s0, -3.8 * s0 + gal * 0.2 * s0, 1.5 * s0, 1.1 * s0, 0.5, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = `rgba(${coreRGB},${0.9 * a})`; c.lineCap = "round"; c.lineWidth = 0.9 * s0;
+    for (const [lx, ph] of [[-2.6, 0], [-1.4, Math.PI], [1.6, Math.PI], [2.8, 0]]) { const sw = Math.sin(t * 7 + ph) * 1.2 * s0; c.beginPath(); c.moveTo(lx * s0, -2.2 * s0); c.lineTo(lx * s0 + sw, 0.4 * s0); c.stroke(); }
+    c.lineWidth = 0.45 * s0; c.beginPath(); c.moveTo(4 * s0, -4.6 * s0); c.quadraticCurveTo(3.4 * s0, -6.2 * s0, 4.6 * s0, -6.4 * s0); c.stroke();
+    c.beginPath(); c.moveTo(-3.6 * s0, -4 * s0); c.quadraticCurveTo(-5.4 * s0, -3.4 * s0 + gal * s0 * 0.4, -5.8 * s0, -1.4 * s0); c.stroke();
+  }
+  c.restore();
+}
 // aperçu du prochain monument : silhouette de lumière pâle, dessinée hors écran puis teintée
 const ghostCv = document.createElement("canvas");
 function drawGhost(g, t) {
@@ -870,11 +1011,7 @@ function drawScene(now) {
     const f = ((t / 70) + i / nb) % 1, p = alongRoad(g, f), up = f < 0.97;
     drawTeam(p.x, p.y, p.dir, u, t + i * 1.7, n, up, p.ang);
   }
-  if (owned("poma") > 0) {
-    const ax = W * 0.88, ay = g.y0 - 4 * u, bx = g.pl + span * 0.86, by = g.py - 1 * u, p = (Math.sin(t * 0.5) + 1) / 2, x = ax + (bx - ax) * p, y = ay + (by - ay) * p;
-    c.fillStyle = "#e9e4d8"; c.fillRect(x - 4 * u, y - 4.5 * u, 8 * u, 4 * u); c.fillStyle = "#b5352a"; c.fillRect(x - 4 * u, y - 1.5 * u, 8 * u, 1.2 * u);
-    if (n > 0.2) { c.fillStyle = `rgba(255,220,140,${n})`; c.fillRect(x - 3 * u, y - 4 * u, 6 * u, 1.6 * u); }
-  }
+  if (owned("poma") > 0) drawPomaCabin(g, t, n);
   if (G.era >= 4) MONUMENT_DRAW[3](g, "", "", n, t);
   if (G.era < 4) drawGhost(g, t);
 
@@ -888,12 +1025,7 @@ function drawScene(now) {
     const age = (now - wisp.born) / 1000;
     wisp.x = -30 + (W + 60) * (age / wisp.life); wisp.y = H * wisp.h + Math.sin(age * 2.2) * 14 * u;
     const a = Math.min(1, age * 2, (wisp.life - age) * 2);
-    const R = wisp.ox ? 26 * u : 16 * u;
-    const wg = c.createRadialGradient(wisp.x, wisp.y, 0, wisp.x, wisp.y, R * 1.8);
-    wg.addColorStop(0, wisp.ox ? `rgba(220,240,255,${a})` : `rgba(255,230,140,${a})`); wg.addColorStop(1, "rgba(255,220,120,0)");
-    c.fillStyle = wg; c.fillRect(wisp.x - R * 2, wisp.y - R * 2, R * 4, R * 4);
-    if (wisp.ox) { c.globalAlpha = a; oxShape(wisp.x - 2 * u, wisp.y + 1 * u, 2.2 * u, "rgba(240,250,255,.95)"); c.globalAlpha = 1; }
-    else { c.fillStyle = `rgba(255,250,220,${a})`; c.beginPath(); c.arc(wisp.x, wisp.y, 4 * u, 0, Math.PI * 2); c.fill(); }
+    drawWisp(wisp, t, u, a);
     if (age > wisp.life) wisp = null;
   }
   // étincelles & montants
@@ -911,7 +1043,7 @@ function drawScene(now) {
 /* ================= Interaction ================= */
 const hint = document.getElementById("hint");
 function tap(x, y) {
-  if (wisp && Math.hypot(x - wisp.x, y - wisp.y) < Math.max(34, (wisp.ox ? 30 : 22) * geom().u)) { catchWisp(); return; }
+  if (wisp && Math.hypot(x - wisp.x, y - (wisp.y - (wisp.ox ? 6 : 2) * geom().u)) < Math.max(34, (wisp.ox ? 16 : 10) * geom().u)) { catchWisp(); return; }
   if (hitVisit(x, y)) return;
   if (hitSlot(x, y)) return;
   if (hitHazard(x, y)) return;
@@ -1040,7 +1172,7 @@ function updateRaid(dt, now) {
 function towerSpots(g) {
   const span = g.pr - g.pl, pts = [];
   TOWERS.slice(0, Math.min(3, owned("guet"))).forEach(([fx, d]) => { const [x, y] = plat(g, fx, d); pts.push([x, y - 20 * g.u]); });
-  if (owned("porte") > 0) pts.push([g.pl - 2 * g.u, g.py - 14 * g.u]);
+  if (owned("porte") > 0) pts.push([rampX(g, GATE_FX[0]), rampY(g, GATE_FX[0]) - 14 * g.u]);
   if (G.era >= 3) pts.push([g.pl + span * 0.93, g.py - 14 * g.u]);
   if (!pts.length) pts.push([g.pl + 4 * g.u, g.py - 8 * g.u]);
   return pts;
@@ -2157,7 +2289,7 @@ function hotspots(g) {
   for (let i = 0; i < Math.min(G.era, 3); i++) { const [x, y] = plat(g, MON_POS[i].fx, MON_POS[i].d); h.push({ id: "m" + i, x, y: y - [14, 20, 8][i] * u }); }
   if (owned("commanderie")) { const [x, y] = plat(g, 0.3, 0.42); h.push({ id: "commanderie", x, y: y - 8 * u }); }
   if (owned("musee")) { const [x, y] = plat(g, 0.74, 0.5); h.push({ id: "musee", x, y: y - 8 * u }); }
-  if (owned("gare")) h.push({ id: "gare", x: W * 0.9, y: g.y0 - 6 * u });
+  if (owned("gare")) h.push({ id: "gare", x: pomaEnds(g).gx, y: g.y0 - 6 * u });
   if (owned("creute")) for (let i = 0; i < Math.min(2, owned("creute")); i++) { const [x, y] = bp(g, CREUTES[i][0], CREUTES[i][1]); h.push({ id: "creute", x, y }); }
   if (owned("porte")) h.push({ id: "porte", x: g.pl, y: g.py - 6 * u });
   if (owned("boeufs")) { const [x, y] = bp(g, 0.13, 0.7); h.push({ id: "boeufs", x, y }); }
