@@ -215,6 +215,11 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .lb li { display: flex; gap: 8px; align-items: baseline; font-size: 15px; } .lb li span { color: var(--muted); width: 1.6em; } .lb li b { margin-left: auto; color: var(--gold); font-weight: normal; }
 .lb li.me { color: #fff1cf; }
 
+.row { box-sizing: border-box; }
+.row.item { cursor: default; }
+.row.item .lettrine { background: radial-gradient(circle at 30% 25%, #3a2c22, #1e1612 70%); }
+.row.item .rar { font-family: var(--f-head); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+
 /* Parchemin */
 #modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(5,3,2,.72); z-index: 30; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 #modal[hidden] { display: none; }
@@ -372,10 +377,10 @@ for (const d of DEF_UPG) UPGRADES.push({ ...d, def: true, L: "⚔" });
 /* ================= État & sauvegarde ================= */
 const KEY = "cite-perchee-v1";
 const fresh = () => ({ v: 1, deniers: 0, run: 0, life: 0, clicks: 0, era: 0, owned: {}, upg: [], reliques: 0, crowns: 0, last: Date.now(), wispsCaught: 0, stance: "equi", raidsWon: 0, foesSlain: 0,
-  ach: [], unl: [], quest: 0, qs: null, res: { bois: 0, pierre: 0, foi: 0 }, monStage: 0, council: [], depth: 1, seasonT: 0, caravans: [], siegeDone: [], siegeWins: 0, read: [], week: null, permBonus: 0, flags: {}, tree: [], relSpent: 0, frags: [], expAt: 0, sound: true,
+  ach: [], unl: [], quest: 0, qs: null, res: { bois: 0, pierre: 0, foi: 0 }, monStage: 0, council: [], depth: 1, seasonT: 0, caravans: [], siegeDone: [], siegeWins: 0, read: [], week: null, permBonus: 0, flags: {}, items: {}, tree: [], relSpent: 0, frags: [], expAt: 0, sound: true,
   stats: { maxCombo: 1, crits: 0, events: 0, favors: 0, legend: 0, expeditions: 0, sold: 0, oxCaught: 0, bossKills: 0, labeurKills: 0 } });
 let G = fresh();
-try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) { const f = fresh(); G = Object.assign(f, s); G.stats = Object.assign(fresh().stats, s.stats || {}); G.res = Object.assign({ bois: 0, pierre: 0, foi: 0 }, s.res || {}); G.flags = s.flags || {}; } } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) { const f = fresh(); G = Object.assign(f, s); G.stats = Object.assign(fresh().stats, s.stats || {}); G.res = Object.assign({ bois: 0, pierre: 0, foi: 0 }, s.res || {}); G.flags = s.flags || {}; G.items = s.items || {}; } } catch (e) {}
 const save = () => { G.last = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(G)); } catch (e) {} };
 setInterval(save, 5000);
 addEventListener("visibilitychange", () => { if (document.hidden) save(); });
@@ -397,7 +402,7 @@ function synMult(b) { let m = 1; for (const x of SYN) if (x.to === b.id) m *= 1 
 let active = [];
 function addBuff(b) { b.total = b.left; active.push(b); refreshBuffs(); }
 function buffMult(kind, bid) { let m = 1; for (const b of active) if (b.kind === kind && (!b.bld || b.bld === bid)) m *= b.mult; return m; }
-function critChance() { let c = hasNode("main") ? 0.08 : 0.04; for (const b of active) if (b.kind === "crit") c += b.mult; return Math.min(0.9, c); }
+function critChance() { let c = (hasNode("main") ? 0.08 : 0.04) + itemBonus("crit"); for (const b of active) if (b.kind === "crit") c += b.mult; return Math.min(0.9, c); }
 
 /* Orientation : main d'œuvre (toucher), équilibre, intendance (production) */
 const STANCES = {
@@ -416,22 +421,22 @@ function globalMult() {
   return m;
 }
 /* production sans bonus temporaires ni orientation (hors ligne, butins, prix) */
-const unitProd = b => b.prod * bMult(b) * synMult(b) * (G.council.includes("lenain") && (b.id === "hotel" || b.id === "musee") ? 3 : 1);
+const unitProd = b => b.prod * bMult(b) * synMult(b) * (G.council.includes("lenain") && (b.id === "hotel" || b.id === "musee") ? 3 : 1) * (1 + itemBonus("bld:" + b.id));
 function basePps() { let s = 0; for (const b of BLD) s += owned(b.id) * unitProd(b); return s * globalMult(); }
 function bldPps(b) { return owned(b.id) * unitProd(b) * globalMult(); }
 function pps() {
   let s = 0; for (const b of BLD) s += owned(b.id) * unitProd(b) * buffMult("bld", b.id);
-  return s * globalMult() * stance().prod * buffMult("prod") * hazardMult() * seasonMult("prod");
+  return s * globalMult() * stance().prod * buffMult("prod") * hazardMult() * seasonMult("prod") * (1 + itemBonus("prod"));
 }
 function clickValue() {
   let base = 1; let pct = 0;
   for (const c of CLICK_UPG) if (has(c.id)) { if (c.base) base *= c.base; if (c.pct) pct += c.pct; }
-  return (base * globalMult() + basePps() * pct) * stance().click * buffMult("click") * seasonMult("click");
+  return (base * globalMult() + basePps() * pct) * stance().click * buffMult("click") * seasonMult("click") * (1 + itemBonus("click"));
 }
 function defense() {
   let d = 0; for (const b of BLD) if (b.def) d += owned(b.id) * b.def;
   if (G.era >= 1) d += 2; if (G.era >= 3) d += 30;
-  return d * buffMult("def") * (has("d4") ? 2 : 1) * (G.council.includes("garde") ? 1.5 : 1) * (G.council.includes("henri") ? 1.5 : 1);
+  return d * buffMult("def") * (has("d4") ? 2 : 1) * (G.council.includes("garde") ? 1.5 : 1) * (G.council.includes("henri") ? 1.5 : 1) * (1 + itemBonus("def"));
 }
 function earn(n) { G.deniers += n; G.run += n; G.life += n; }
 
@@ -471,10 +476,15 @@ const col = (a, al = 1) => `rgba(${a[0]},${a[1]},${a[2]},${al})`;
 const floats = [], sparks = [];
 let wisp = null, nextWisp = performance.now() + 25000;
 
+/* La butte peinte fait 1,915 fois plus large que haute ; son plateau herbeux va de 23 % à 75 % de la largeur. */
+const BUT = { ar: 1400 / 731, pl: 0.255, pr: 0.735, top: 0.115 };
 function geom() {
-  const y0 = H * 0.86, py = y0 - Math.min(H * 0.36, W * 0.24), u = Math.min(W / 380, H / 230);
-  return { y0, py, u, pl: W * 0.2, pr: W * 0.8, sl: W * 0.08, sr: W * 0.92 };
+  const y0 = H * 0.88; let bw = W * 0.98, bh = bw / BUT.ar; const maxH = y0 - H * 0.16;
+  if (bh > maxH) { bh = maxH; bw = bh * BUT.ar; }
+  const bx = (W - bw) / 2, by = y0 - bh * 0.97, py = by + bh * BUT.top, pl = bx + bw * BUT.pl, pr = bx + bw * BUT.pr;
+  return { y0, py, u: (pr - pl) / 200, pl, pr, sl: bx + bw * 0.04, sr: bx + bw * 0.96, bx, by, bw, bh };
 }
+const bp = (g, fx, fy) => [g.bx + g.bw * fx, g.by + g.bh * fy];
 function buttePath(g) {
   c.beginPath(); c.moveTo(g.sl - 14 * g.u, g.y0 + 5 * g.u); c.quadraticCurveTo(g.sl - 4 * g.u, g.y0, g.sl, g.y0);
   c.bezierCurveTo(g.sl + (g.pl - g.sl) * 0.55, g.y0, g.pl - (g.pl - g.sl) * 0.35, g.py, g.pl, g.py);
@@ -484,7 +494,7 @@ function buttePath(g) {
 }
 /* --- Illustrations peintes (ElevenLabs), avec repli sur le dessin en code --- */
 const SPR = {};
-[["bg", "img/fond.jpg"], ["cath", "img/cathedrale.webp"], ["res", "img/residence.webp"], ["cit", "img/citadelle.webp"], ["tour", "img/tour.webp"], ["maison", "img/maison.webp"], ["hotel", "img/hotel.webp"]].forEach(([k, src]) => {
+[["bg", "img/fond.jpg"], ["butte", "img/butte.webp"], ["cath", "img/cathedrale.webp"], ["res", "img/residence.webp"], ["cit", "img/citadelle.webp"], ["tour", "img/tour.webp"], ["maison", "img/maison.webp"], ["hotel", "img/hotel.webp"]].forEach(([k, src]) => {
   const im = new Image(); im.onload = () => { SPR[k] = im; stKey = ""; }; im.src = src;
 });
 function sprite(k, cx, by, h, flip) {
@@ -593,6 +603,28 @@ const MONUMENT_DRAW = [
   (g, s, d, n, t) => drawFete(g.pl + (g.pr - g.pl) * 0.5, g.py, g.u, t || 0)
 ];
 
+/* --- La butte peinte, teintée selon la saison --- */
+const tintCache = {};
+function tintedButte(season) {
+  if (season === 0 || season === 1) return SPR.butte;
+  if (tintCache[season]) return tintCache[season];
+  const im = SPR.butte, cv2 = document.createElement("canvas"); cv2.width = im.width; cv2.height = im.height; const t2 = cv2.getContext("2d");
+  t2.drawImage(im, 0, 0); t2.globalCompositeOperation = "source-atop";
+  if (season === 3) { const gg = t2.createLinearGradient(0, 0, 0, im.height); gg.addColorStop(0, "rgba(246,248,252,.62)"); gg.addColorStop(0.35, "rgba(236,240,246,.28)"); gg.addColorStop(1, "rgba(230,236,244,.45)"); t2.fillStyle = gg; }
+  else t2.fillStyle = "rgba(190,110,40,.22)";
+  t2.fillRect(0, 0, im.width, im.height); return (tintCache[season] = cv2);
+}
+const CREUTES = [[0.31, 0.47], [0.66, 0.44], [0.41, 0.74], [0.57, 0.72], [0.25, 0.71], [0.79, 0.66]];
+function drawPaintedButte(g, n) {
+  const u = g.u; c.drawImage(tintedButte(seasonIdx()), g.bx, g.by, g.bw, g.bh);
+  for (let i = 0; i < Math.min(6, owned("creute")); i++) {
+    const [x, y] = bp(g, CREUTES[i][0], CREUTES[i][1]);
+    archDoor(x, y + 6 * u, 10 * u, 11 * u, "#1b1410");
+    c.strokeStyle = "#6b4a2b"; c.lineWidth = Math.max(1, u * 0.9); c.beginPath(); c.moveTo(x - 5.5 * u, y + 6 * u); c.lineTo(x - 5.5 * u, y - 3 * u); c.lineTo(x + 5.5 * u, y - 3 * u); c.lineTo(x + 5.5 * u, y + 6 * u); c.stroke();
+    c.fillStyle = "rgba(255,170,80,.9)"; c.beginPath(); c.arc(x, y + 3 * u, 1.6 * u, 0, Math.PI * 2); c.fill();
+    if (n > 0.5) glowPts.push({ x, y: y + 3 * u, r: 9 * u, wx: 0, wy: 0, ww: 0, wh: 0 });
+  }
+}
 /* --- Décor fixe : collines, champs, rivière, butte, ville --- */
 function drawLand(g, n) {
   const u = g.u, span = g.pr - g.pl;
@@ -602,7 +634,10 @@ function drawLand(g, n) {
     c.lineTo(W, g.y0 + 2); c.fill();
   });
   let gr = c.createLinearGradient(0, g.y0 - 34 * u, 0, g.y0 + 6 * u); gr.addColorStop(0, "rgba(238,226,208,0)"); gr.addColorStop(1, "rgba(238,226,208,.4)"); c.fillStyle = gr; c.fillRect(0, g.y0 - 34 * u, W, 40 * u);
-  // champs en damier
+  // champs en damier (remplacés par le bas du paysage peint quand il est chargé)
+  if (SPR.bg) { const im = SPR.bg, sc = Math.max(W / im.width, (g.y0 + 6) / (im.height * 0.8)), dw = im.width * sc, dh = im.height * sc; c.drawImage(im, (W - dw) / 2, g.y0 + 6 - im.height * 0.8 * sc, dw, dh);
+    const fg = c.createLinearGradient(0, g.y0 - 10 * u, 0, H); fg.addColorStop(0, "rgba(30,36,24,0)"); fg.addColorStop(1, "rgba(30,36,24,.55)"); c.fillStyle = fg; c.fillRect(0, g.y0 - 10 * u, W, H - g.y0 + 10 * u); }
+  else {
   c.fillStyle = "#6d7c45"; c.fillRect(0, g.y0, W, H - g.y0);
   const FC = SEASONS[seasonIdx()].fields;
   for (let r = 0; r < 6; r++) {
@@ -616,6 +651,8 @@ function drawLand(g, n) {
   }
   c.lineCap = "round"; c.strokeStyle = "#86a9bb"; c.lineWidth = 4 * u; c.beginPath(); c.moveTo(-10, H * 0.98); c.bezierCurveTo(W * 0.3, H * 0.9, W * 0.55, H * 1.01, W + 10, g.y0 + (H - g.y0) * 0.42); c.stroke();
   c.strokeStyle = "rgba(255,255,255,.35)"; c.lineWidth = 1; c.stroke();
+  }
+  if (SPR.butte) { drawPaintedButte(g, n); } else {
   // butte
   buttePath(g);
   gr = c.createLinearGradient(g.sl, 0, g.sr, 0); gr.addColorStop(0, "#d2bc93"); gr.addColorStop(0.45, "#b7a17a"); gr.addColorStop(1, "#7a684e"); c.fillStyle = gr; c.fill();
@@ -648,11 +685,17 @@ function drawLand(g, n) {
     if (n > 0.5) { c.fillStyle = "rgba(255,170,80,.9)"; c.beginPath(); c.arc(x, y + 3 * u, 1.6 * u, 0, Math.PI * 2); c.fill(); glowPts.push({ x, y: y + 3 * u, r: 9 * u, wx: 0, wy: 0, ww: 0, wh: 0 }); }
   }
   c.restore();
-  // chemin pavé
+  }
+  // la montée : chemin pavé bordé de murets
   const road = roadPts(g).slice(1);
-  c.lineJoin = "round"; c.strokeStyle = "#8a7656"; c.lineWidth = 3.4 * u; c.beginPath(); road.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke();
-  c.strokeStyle = "#d8c49c"; c.lineWidth = 2 * u; c.stroke();
-  c.setLineDash([2 * u, 3 * u]); c.strokeStyle = "rgba(120,100,70,.5)"; c.lineWidth = 1; c.stroke(); c.setLineDash([]);
+  c.lineJoin = "round"; c.lineCap = "round";
+  c.beginPath(); road.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y)));
+  c.strokeStyle = "rgba(40,28,20,.35)"; c.lineWidth = 6 * u; c.stroke();
+  c.strokeStyle = "#7d6a4e"; c.lineWidth = 4.6 * u; c.stroke();
+  c.strokeStyle = "#cdb98f"; c.lineWidth = 3.2 * u; c.stroke();
+  c.setLineDash([1.6 * u, 1.4 * u]); c.strokeStyle = "rgba(110,90,62,.55)"; c.lineWidth = 2.4 * u; c.stroke(); c.setLineDash([]);
+  for (let i = 1; i < road.length - 1; i++) { const [x, y] = road[i]; c.fillStyle = "#e6d6b2"; c.beginPath(); c.arc(x, y, 1.9 * u, 0, Math.PI * 2); c.fill(); }
+  for (let i = 0; i < road.length - 1; i++) { const [x0, y0r] = road[i], [x1, y1r] = road[i + 1]; for (let k = 1; k < 3; k++) { const x = x0 + (x1 - x0) * k / 3, y = y0r + (y1r - y0r) * k / 3; c.fillStyle = "rgba(255,190,100,.9)"; c.fillRect(x + 2.6 * u, y - 3.6 * u, 0.9 * u, 3.4 * u); if (n > 0.5) glowPts.push({ x: x + 3 * u, y: y - 3.6 * u, r: 6 * u, wx: 0, wy: 0, ww: 0, wh: 0 }); } }
   // tas de pierres taillées
   for (let i = 0; i < Math.min(5, owned("tailleurs")); i++) { const x = W * 0.3 + i * 9 * u, y = g.y0 + 3 * u; wallBox(x, y - 4 * u, 6 * u, 4 * u, "#d8c8a6"); wallBox(x + 1.5 * u, y - 7 * u, 4 * u, 3 * u, "#e2d4b4"); }
   // gare, voie ferrée et câble du POMA
@@ -667,9 +710,10 @@ function drawLand(g, n) {
   // ville haute
   const stone = "#d8cab0", dark = "#4a3c36";
   const nm = Math.min(24, owned("masure") + owned("puits")), nh = Math.min(10, owned("hotel"));
-  for (let i = 0; i < nm + nh; i++) {
+  const order = [...Array(nm + nh).keys()].sort((a, b) => hsh(b, 13) - hsh(a, 13));
+  for (const i of order) {
     const slot = (i * 0.618034 + 0.05) % 1, x = g.pl + 6 * u + slot * (span - 12 * u);
-    const w = (7 + hsh(i, 11) * 5) * u, h = (6 + hsh(i, 12) * 5) * u, y = g.py - hsh(i, 13) * 3 * u, hotel = i >= nm;
+    const w = (7 + hsh(i, 11) * 5) * u, h = (6 + hsh(i, 12) * 5) * u, y = g.py - hsh(i, 13) * (SPR.butte ? 7 : 3) * u, hotel = i >= nm;
     const wall = hotel ? "#e4d8bf" : ["#cdb48e", "#d6c29c", "#c4a882", "#dccaa6"][i % 4];
     const roof = hotel ? "#4c5568" : ["#9a4a34", "#a8583c", "#8a4030", "#b06a48"][(i * 3) % 4];
     if (SPR.maison && SPR.hotel) { const hh = (hotel ? 19 : 12) * u * (0.85 + hsh(i, 14) * 0.3); sprite(hotel ? "hotel" : "maison", x, y + 1 * u, hh, hsh(i, 15) > 0.5); if (hsh(i, 9) > 0.3) spriteGlows(x, y, hh * 0.8, hh, 1 + (i % 2), n); }
@@ -825,11 +869,13 @@ function catchWisp() {
   if (w.ox) { addBuff({ name: "Bénédiction du Bœuf", kind: "click", mult: 20, left: 15 }); toast("Le Bœuf de lumière bénit tes mains : toucher ×20 pendant 15 s"); }
   else if (Math.random() < 0.5) { addBuff({ name: "Feu follet doré", kind: "prod", mult: 7, left: 30 }); toast("Feu follet doré : production ×7 pendant 30 s"); }
   else { const g = Math.min(G.deniers * 0.15, basePps() * 900) + 13; earn(g); toast(`Feu follet doré : trésor de ${fmt(g)} deniers`); }
+  if (w.ox) dropItem("Bœuf de lumière", 1); else maybeDrop("Feu follet", 0.25, 0);
   for (let i = 0; i < 24; i++) sparks.push({ x: w.x, y: w.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.7) * 5, life: 40 });
   refreshAll();
 }
 /* ================= Raids de pillards (tower defense) ================= */
-function roadPts(g) { return [[-10, g.y0 + 2], [W * 0.02, g.y0], [W * 0.16, g.y0 - (g.y0 - g.py) * 0.35], [W * 0.08, g.y0 - (g.y0 - g.py) * 0.68], [g.pl + 2 * g.u, g.py]]; }
+// la montée : lacets sur le flanc gauche, puis rampe le long de la falaise jusqu'au plateau
+function roadPts(g) { return [[-10, g.y0 + 4], bp(g, 0.02, 0.97), bp(g, 0.13, 0.86), bp(g, 0.07, 0.74), bp(g, 0.16, 0.62), bp(g, 0.115, 0.53), bp(g, 0.2, 0.4), bp(g, 0.235, 0.2), [g.pl + 2 * g.u, g.py]]; }
 function alongRoad(g, f) {
   const r = roadPts(g), L = r.slice(1).map((p, i) => Math.hypot(p[0] - r[i][0], p[1] - r[i][1])), tot = L.reduce((a, b) => a + b, 0);
   let s = clamp01(f) * tot, k = 0; while (k < L.length - 1 && s > L[k]) { s -= L[k]; k++; }
@@ -870,9 +916,9 @@ function damageFoe(f, d) {
   if (f.hp <= 0) return;
   f.hp -= d; f.hitT = 0.15;
   if (f.hp <= 0) {
-    const bounty = (basePps() * 6 + 5) * (f.boss ? 20 : 1) * (hasC("henri") ? 2 : 1); earn(bounty); raid.slain++; G.foesSlain++;
+    const bounty = (basePps() * 6 + 5) * (f.boss ? 20 : 1) * (hasC("henri") ? 2 : 1) * (1 + itemBonus("loot")); earn(bounty); raid.slain++; G.foesSlain++;
     if (G.stance === "main") G.stats.labeurKills++;
-    if (f.boss) { G.stats.bossKills++; Snd.fanfare(); toast(`Le chef de guerre est tombé : butin de ${fmt(bounty)} deniers`); }
+    if (f.boss) { G.stats.bossKills++; Snd.fanfare(); toast(`Le chef de guerre est tombé : butin de ${fmt(bounty)} deniers`); dropItem("Chef de guerre", 1.5, 1); }
     const p = alongRoad(geom(), f.f); floats.push({ x: p.x, y: p.y - 20, text: "+" + fmt(bounty), life: 50, crit: true });
   }
 }
@@ -954,9 +1000,11 @@ function drawRaid(g, n) {
 
 /* ================= Marché aux faveurs (bonus à durée, tirés au hasard) ================= */
 const RARITY = [
-  { name: "Commune", p: 0.65, k: 0, color: "#a8977c" },
-  { name: "Rare", p: 0.28, k: 0.5, color: "#7fb2e8" },
-  { name: "Légendaire", p: 0.07, k: 1, color: "#e0ad4a" }
+  { name: "Commune", p: 0.5, k: 0, color: "#b5a78f" },
+  { name: "Peu commune", p: 0.25, k: 0.25, color: "#8fcf7a" },
+  { name: "Rare", p: 0.15, k: 0.5, color: "#7fb2e8" },
+  { name: "Épique", p: 0.07, k: 0.75, color: "#c08ce8" },
+  { name: "Légendaire", p: 0.03, k: 1, color: "#e0ad4a" }
 ];
 const FAVORS = [
   { name: "Jour de marché", kind: "prod", lo: 2, hi: 5, dur: [45, 90], fx: m => `Production ×${m}` },
@@ -971,12 +1019,12 @@ function rollFavor() {
   const owners = BLD.filter(b => owned(b.id) > 0);
   let pool = FAVORS.filter(f => (f.kind !== "bld" || owners.length) && (f.kind !== "def" || G.era >= 1));
   const F = pool[Math.floor(Math.random() * pool.length)];
-  const t = Math.min(1, rar.k * 0.7 + Math.random() * 0.45);
+  const t = Math.min(1, rar.k * 0.8 + Math.random() * 0.3);
   let m = F.lo + (F.hi - F.lo) * t; m = F.kind === "crit" ? Math.round(m * 100) / 100 : Math.round(m * 2) / 2;
   const dur = Math.round(F.dur[0] + (F.dur[1] - F.dur[0]) * Math.random());
   const bld = F.kind === "bld" ? owners[Math.floor(Math.random() * owners.length)] : null;
   const o = { F, rar, mult: m, dur, bld, sold: false };
-  o.cost = Math.max(25, favorValue(o) * (0.25 + Math.random() * 0.2) * (hasNode("faveurs") ? 0.8 : 1) * seasonMult("favor"));
+  o.cost = Math.max(25, favorValue(o) * (0.25 + Math.random() * 0.2) * (hasNode("faveurs") ? 0.8 : 1) * seasonMult("favor") * (1 - Math.min(0.5, itemBonus("favor"))));
   return o;
 }
 function favorValue(o) {
@@ -998,8 +1046,8 @@ function buyFavor(i) {
   render();
 }
 
-function toast(msg) {
-  const box = document.getElementById("toasts"); const d = document.createElement("div"); d.className = "toast"; d.textContent = msg; box.appendChild(d);
+function toast(msg, color) {
+  const box = document.getElementById("toasts"); const d = document.createElement("div"); d.className = "toast"; d.textContent = msg; if (color) { d.style.borderColor = color; d.style.color = color; } box.appendChild(d);
   setTimeout(() => d.remove(), 4200); while (box.children.length > 3) box.firstChild.remove();
 }
 
@@ -1173,7 +1221,7 @@ function crown() {
     choices: [
       { label: "Couronner", on: () => {
         const keep = { reliques: G.reliques + gain, crowns: G.crowns + 1, life: G.life, clicks: G.clicks, wispsCaught: G.wispsCaught, raidsWon: G.raidsWon, foesSlain: G.foesSlain, stance: G.stance,
-          ach: G.ach, unl: G.unl, quest: G.quest, depth: G.depth, seasonT: G.seasonT, siegeWins: G.siegeWins, read: G.read, week: G.week, permBonus: G.permBonus, tree: G.tree, relSpent: G.relSpent, frags: G.frags, sound: G.sound, stats: G.stats };
+          ach: G.ach, unl: G.unl, quest: G.quest, depth: G.depth, seasonT: G.seasonT, siegeWins: G.siegeWins, read: G.read, week: G.week, permBonus: G.permBonus, items: G.items, tree: G.tree, relSpent: G.relSpent, frags: G.frags, sound: G.sound, stats: G.stats };
         G = Object.assign(fresh(), keep); G.qs = qsnap();
         if (hasNode("fondations")) G.owned = { masure: 15, puits: 5 }; resetRaid(); active = []; save(); render(); renderEra();
         modalShow({ eyebrow: "Dernière page de la chronique", title: FINAL.title, body: `<p>${FINAL.text}</p>`, choices: [{ label: "Rebâtir la cité", on: modalHide }] });
@@ -1326,7 +1374,7 @@ function startHazard() {
 }
 function hazardPos(g, cur, r) {
   const span = g.pr - g.pl;
-  if (cur.k === "eboulement") return { x: W * cur.fx, y: g.py + (g.y0 - g.py) * 0.55 };
+  if (cur.k === "eboulement") { const [x, y] = bp(g, cur.fx < 0.5 ? 0.33 : 0.64, 0.52); return { x, y }; }
   if (cur.k === "incendie") return { x: g.pl + span * cur.fx, y: g.py - 8 * g.u };
   return { x: g.pl + span * r.fx, y: g.py - 2 * g.u };
 }
@@ -1344,7 +1392,7 @@ function hitHazard(x, y) {
 function checkHazard() {
   const cur = hazard.cur; if (!cur || cur.hits < cur.h.need) return;
   const reward = basePps() * 20 + 50; earn(reward); G.stats.events++;
-  toast(`Incident maîtrisé ! Récompense : ${fmt(reward)} deniers`); Snd.fanfare();
+  toast(`Incident maîtrisé ! Récompense : ${fmt(reward)} deniers`); Snd.fanfare(); maybeDrop("Incident maîtrisé", 0.35, 0.2);
   hazard.cur = null; hazard.next = performance.now() + 100000 + Math.random() * 100000;
 }
 function updateHazard(dt, now) {
@@ -1423,7 +1471,9 @@ const ACH = [
   ["q1", "Bon serviteur", "Accomplir 10 quêtes du bailli", () => G.quest >= 10],
   ["x1", "Spéléologue", "Mener une expédition dans les creutes", () => G.stats.expeditions >= 1],
   ["x2", "Mémoire de Laon", "Réunir les 8 fragments d'histoire", () => G.frags.length >= 8],
-  ["s1", "Marchand avisé", "Vendre un bâtiment", () => G.stats.sold >= 1]
+  ["s1", "Marchand avisé", "Vendre un bâtiment", () => G.stats.sold >= 1],
+  ["i1", "Collectionneur", "Réunir 10 trésors différents", () => Object.keys(G.items).length >= 10],
+  ["i2", "Légende vivante", "Obtenir un trésor légendaire", () => Object.values(G.items).some(x => x.r >= 4)]
 ].map(([id, name, desc, test]) => ({ id, name, desc, test }));
 function checkAch() {
   for (const a of ACH) if (!G.ach.includes(a.id) && a.test()) {
@@ -1468,10 +1518,10 @@ function refreshQuest() {
   $q.textContent = `${q.t} · ${fmt(cur)}/${fmt(q.p[1])}`; $qp.style.width = `${(cur / q.p[1]) * 100}%`;
   $qc.hidden = cur < q.p[1];
 }
-function questReward() { return Math.max(100, basePps() * 90 + clickValue() * 40) * (hasC("anselme") ? 2 : 1); }
+function questReward() { return Math.max(100, basePps() * 90 + clickValue() * 40) * (hasC("anselme") ? 2 : 1) * (1 + itemBonus("quest")); }
 $qc.addEventListener("click", () => {
   const q = curQuest(); if (q.p[0] < q.p[1]) return;
-  const r = questReward(); earn(r); G.quest++; G.qs = qsnap();
+  const r = questReward(); earn(r); G.quest++; G.qs = qsnap(); maybeDrop("Quête du bailli", 0.15, 0.1);
   Snd.bell(0.08, 659); toast(`Quête accomplie : +${fmt(r)} deniers`); refreshQuest(); refreshNumbers();
 });
 
@@ -1673,6 +1723,7 @@ function closeExp(reason) {
   let gold = EXP.gold; if (reason === "exit") gold += base * 240 + 500;
   gold *= (1 + 0.5 * ((EXP.depth || 1) - 1)) * (hasC("marquette") ? 2 : 1);
   if (reason === "exit" && (EXP.depth || 1) >= G.depth && G.depth < 6) { G.depth++; toast(`La galerie ${G.depth} s'ouvre`); }
+  if (reason === "exit") lootQueue.push(() => dropItem(`Coffre de la galerie ${EXP.depth || 1}`, 0.3 * (EXP.depth || 1), (EXP.depth || 1) >= 3 ? 1 : 0));
   if (gold > 0) earn(gold);
   const fr = EXP.found.map(f => `<li><b>${XFRAGS[f].title}</b> : ${XFRAGS[f].text}</li>`).join("");
   modalShow({
@@ -1704,7 +1755,7 @@ function xAsk(door) {
 function xUpdate(dt) {
   const E = EXP, m = E.map; E.t += dt; E.flash = Math.max(0, E.flash - dt);
   if (!modal.hidden) return;
-  E.torch -= dt * (1.1 + 0.1 * (E.depth || 1)) * (hasNode("explorateur") ? 0.7 : 1) * (hasC("marquette") ? 0.6 : 1);
+  E.torch -= dt * (1.1 + 0.1 * (E.depth || 1)) * (hasNode("explorateur") ? 0.7 : 1) * (hasC("marquette") ? 0.6 : 1) * (1 - Math.min(0.7, itemBonus("torch")));
   if (E.boss) {
     const B = E.boss; B.step -= dt;
     if (B.step <= 0) { B.step = 0.55; B.x = B.tx; B.y = B.ty;
@@ -1819,7 +1870,7 @@ const RES = {
   pierre: { name: "Pierre", per: { puits: 0.1, creute: 2, tailleurs: 5, boeufs: 10, remparts: 20 } },
   foi: { name: "Foi", per: { commanderie: 1, musee: 5 } }
 };
-function resRate(k) { let r = 0; for (const [b, v] of Object.entries(RES[k].per)) r += owned(b) * v; if (k === "foi" && G.era >= 2) r += 3; return r * (1 + 0.05 * G.reliques); }
+function resRate(k) { let r = 0; for (const [b, v] of Object.entries(RES[k].per)) r += owned(b) * v; if (k === "foi" && G.era >= 2) r += 3; return r * (1 + 0.05 * G.reliques) * (1 + itemBonus("res")); }
 function earnRes(dt) { for (const k in RES) G.res[k] = (G.res[k] || 0) + resRate(k) * dt; }
 const MREQ = [{ bois: 400, pierre: 200 }, { pierre: 40000, bois: 2000, foi: 2000 }, { pierre: 120000, bois: 15000 }, { foi: 20000, bois: 30000 }];
 function stageReq(i) { const o = {}; for (const k in MREQ[i]) o[k] = MREQ[i][k] / 4; return o; }
@@ -1884,7 +1935,7 @@ function checkCaravans() {
     else {
       const ret = cv.inv * (0.7 + 0.6 * cv.p * (0.85 + Math.random() * 0.3)); earn(ret);
       const rq = Math.round(d.k * d.time * Math.pow(cv.era + 1, 3) / 4 * cv.p); G.res[d.res] += rq;
-      toast(`Retour de ${d.name} : ${fmt(ret)} deniers et ${fmt(rq)} de ${RES[d.res].name.toLowerCase()}`); Snd.fanfare();
+      toast(`Retour de ${d.name} : ${fmt(ret)} deniers et ${fmt(rq)} de ${RES[d.res].name.toLowerCase()}`); Snd.fanfare(); maybeDrop(`Caravane de ${d.name}`, 0.2, Math.max(0, cv.p - 0.8));
     }
     if (tab === "t") render();
   }
@@ -1951,7 +2002,7 @@ function siegeFire(dt, g) {
 }
 function endSiege(ok) {
   siege.phase = null; G.siegeDone.push(G.era);
-  if (ok) { G.siegeWins++; Snd.fanfare(); modalShow({ eyebrow: "Grand siège", title: "Laon tient bon", body: `<p>L'armée se replie dans la plaine. La renommée de la cité perchée grandit : <b>+10 % de production pour toujours</b>.</p>`, choices: [{ label: "Célébrer", on: modalHide }] }); }
+  if (ok) { G.siegeWins++; Snd.fanfare(); lootQueue.push(() => dropItem("Grand siège", 2, 3)); modalShow({ eyebrow: "Grand siège", title: "Laon tient bon", body: `<p>L'armée se replie dans la plaine. La renommée de la cité perchée grandit : <b>+10 % de production pour toujours</b>.</p>`, choices: [{ label: "Célébrer", on: modalHide }] }); }
   else { const l = G.deniers * 0.15; G.deniers -= l; Snd.alarm(); modalShow({ eyebrow: "Grand siège", title: "La ville est pillée", body: `<p>Trop d'assaillants ont franchi les portes : ${fmt(l)} deniers ont été emportés.</p><p class="note">Renforce tes défenses pour le prochain siège.</p>`, choices: [{ label: "Reconstruire", on: modalHide }] }); }
 }
 function hitSlot(x, y) {
@@ -2033,9 +2084,9 @@ function hotspots(g) {
   if (owned("commanderie")) h.push({ id: "commanderie", x: g.pl + span * 0.28, y: g.py - 8 * u });
   if (owned("musee")) h.push({ id: "musee", x: g.pl + span * 0.72, y: g.py - 8 * u });
   if (owned("gare")) h.push({ id: "gare", x: W * 0.9, y: g.y0 - 6 * u });
-  if (owned("creute")) h.push({ id: "creute", x: W / 2 - W * 0.2, y: g.py + (g.y0 - g.py) * 0.5 }, { id: "creute", x: W / 2 + W * 0.2, y: g.py + (g.y0 - g.py) * 0.5 });
+  if (owned("creute")) for (let i = 0; i < Math.min(2, owned("creute")); i++) { const [x, y] = bp(g, CREUTES[i][0], CREUTES[i][1]); h.push({ id: "creute", x, y }); }
   if (owned("porte")) h.push({ id: "porte", x: g.pl, y: g.py - 6 * u });
-  if (owned("boeufs")) h.push({ id: "boeufs", x: W * 0.12, y: g.y0 - (g.y0 - g.py) * 0.5 });
+  if (owned("boeufs")) { const [x, y] = bp(g, 0.13, 0.7); h.push({ id: "boeufs", x, y }); }
   if (owned("masure")) h.push({ id: "masure", x: g.pl + span * 0.6, y: g.py - 6 * u });
   return h;
 }
@@ -2049,6 +2100,7 @@ function drawVisit(g, t) { if (!visitMode) return; for (const p of hotspots(g)) 
 
 /* ================= Onglet Comptoir ================= */
 function renderTrade() {
+  renderReliquary();
   if (isU("council")) {
     list.appendChild(el(`<p class="section-title">Conseil du bailli</p>`));
     for (const m of COUNCIL) {
@@ -2069,6 +2121,57 @@ function renderTrade() {
       list.appendChild(box);
     }
   }
+}
+
+/* ================= Trésors à collectionner (5 niveaux de rareté) ================= */
+const RARITIES = [
+  { name: "Commun", color: "#b5a78f", w: 55, m: 1 },
+  { name: "Peu commun", color: "#8fcf7a", w: 26, m: 2 },
+  { name: "Rare", color: "#7fb2e8", w: 12.5, m: 4 },
+  { name: "Épique", color: "#c08ce8", w: 5, m: 8 },
+  { name: "Légendaire", color: "#e0ad4a", w: 1.5, m: 16 }
+];
+const pc = v => `${String(Math.round(v * 1000) / 10).replace(".", ",")} %`;
+const ITEMS = [
+  { id: "ciseau", name: "Ciseau de compagnon", k: "click", v: 0.03, fx: v => `Toucher +${pc(v)}` },
+  { id: "sceau", name: "Sceau du bailli", k: "prod", v: 0.02, fx: v => `Production +${pc(v)}` },
+  { id: "corne", name: "Corne de guet", k: "def", v: 0.05, fx: v => `Défense +${pc(v)}` },
+  { id: "lanterne", name: "Lanterne des creutes", k: "torch", v: 0.04, fx: v => `Torche des expéditions −${pc(Math.min(0.7, v))} d'usure` },
+  { id: "bourse", name: "Bourse de pèlerin", k: "quest", v: 0.06, fx: v => `Récompenses de quêtes +${pc(v)}` },
+  { id: "fer", name: "Fer de bœuf", k: "bld:boeufs", v: 0.06, fx: v => `Attelages de bœufs +${pc(v)}` },
+  { id: "pic", name: "Pic de carrier", k: "bld:creute", v: 0.06, fx: v => `Creutes +${pc(v)}` },
+  { id: "balance", name: "Balance de marchand", k: "bld:marche", v: 0.06, fx: v => `Marchés +${pc(v)}` },
+  { id: "clochette", name: "Clochette d'argent", k: "wisp", v: 0.04, fx: v => `Feux follets ${pc(Math.min(0.6, v))} plus fréquents` },
+  { id: "trefle", name: "Trèfle à quatre feuilles", k: "crit", v: 0.005, fx: v => `Coups de maître +${pc(v)} de chance` },
+  { id: "plume", name: "Plume de copiste", k: "res", v: 0.05, fx: v => `Bois, pierre et foi +${pc(v)}` },
+  { id: "etendard", name: "Étendard de la garnison", k: "loot", v: 0.08, fx: v => `Butin des pillards +${pc(v)}` },
+  { id: "medaille", name: "Médaille de la foire", k: "favor", v: 0.03, fx: v => `Faveurs ${pc(Math.min(0.5, v))} moins chères` }
+];
+function itemValue(it, rec) { return it.v * RARITIES[rec.r].m * (1 + 0.25 * (rec.n - 1)); }
+function itemBonus(k) { let s = 0; for (const it of ITEMS) { const rec = G.items[it.id]; if (rec && it.k === k) s += itemValue(it, rec); } return s; }
+function rollRarity(luck) { const ws = RARITIES.map((r, i) => r.w * Math.pow(1 + (luck || 0), i)); let x = Math.random() * ws.reduce((a, b) => a + b, 0); for (let i = 0; i < ws.length; i++) if ((x -= ws[i]) < 0) return i; return 0; }
+function dropItem(src, luck, minR) {
+  const it = ITEMS[Math.floor(Math.random() * ITEMS.length)], r = Math.max(minR || 0, rollRarity(luck)), R0 = RARITIES[r];
+  const cur = G.items[it.id], fresh0 = !cur, upgraded = cur && r > cur.r;
+  if (cur) { cur.n++; if (r > cur.r) cur.r = r; } else G.items[it.id] = { r, n: 1 };
+  const rec = G.items[it.id], what = fresh0 ? "Nouveau trésor" : upgraded ? "Trésor amélioré" : "Trésor en double (+25 %)";
+  if (r >= 3) {
+    Snd.fanfare(); Snd.bell(0.08, 784);
+    const show = () => modalShow({ eyebrow: `${src} · ${what}`, title: `<span style="color:${R0.color};text-shadow:0 1px 0 #3a2210">${R0.name}</span> : ${it.name}`, body: `<p>${it.fx(itemValue(it, rec))}.</p><p class="note">Retrouve tes trésors dans le Reliquaire de l'onglet Comptoir.</p>`, choices: [{ label: "Ranger au reliquaire", on: modalHide }] });
+    if (modal.hidden) show(); else lootQueue.push(show);
+  } else { Snd.pop(); toast(`${src} : ${it.name} (${R0.name})`, R0.color); }
+  if (tab === "t") render();
+}
+const lootQueue = [];
+const maybeDrop = (src, chance, luck, minR) => { if (Math.random() < chance) dropItem(src, luck, minR); };
+function renderReliquary() {
+  const own = ITEMS.filter(it => G.items[it.id]);
+  list.appendChild(el(`<p class="section-title">Reliquaire · ${own.length}/${ITEMS.length} trésors</p>`));
+  if (!own.length) { list.appendChild(el(`<p class="empty">Aucun trésor encore. Feux follets, chefs pillards, expéditions, caravanes et incidents peuvent en laisser. Cinq raretés : ${RARITIES.map(r => `<span style="color:${r.color}">${r.name}</span>`).join(", ")}.</p>`)); return; }
+  own.sort((a, b) => G.items[b.id].r - G.items[a.id].r).forEach(it => {
+    const rec = G.items[it.id], R0 = RARITIES[rec.r];
+    list.appendChild(el(`<div class="row item" style="border-color:${R0.color}"><div class="lettrine" style="border-color:${R0.color};color:${R0.color}">${it.name[0]}</div><div class="txt"><div class="rar" style="color:${R0.color}">${R0.name}${rec.n > 1 ? ` · ×${rec.n}` : ""}</div><div class="name">${it.name}</div><div class="desc">${it.fx(itemValue(it, rec))}</div></div><div class="side"></div></div>`));
+  });
 }
 
 /* ================= Progression : déblocages successifs ================= */
@@ -2105,7 +2208,8 @@ function checkUnlocks() {
     if (u0.toast) { toast(u0.toast); Snd.pop(); }
     if (u0.card) unlockQueue.push(u0);
   }
-  if (changed) { applyUnlocks(); render(); }
+  if (changed || (Object.keys(G.items).length && document.getElementById("tab-t").hidden)) { applyUnlocks(); render(); }
+  if (!unlockQueue.length && lootQueue.length && modal.hidden && $title.hidden && $cine.hidden && !EXP.open) lootQueue.shift()();
   if (unlockQueue.length && modal.hidden && $title.hidden && $cine.hidden && !EXP.open) {
     const u0 = unlockQueue.shift(); Snd.bell(0.08, 659);
     modalShow({ eyebrow: "Nouveauté", title: u0.card.t, body: `<p>${u0.card.b}</p>`, choices: [{ label: "Compris", on: modalHide }] });
@@ -2114,13 +2218,13 @@ function checkUnlocks() {
 function applyUnlocks() {
   document.getElementById("tab-u").hidden = !isU("upg");
   document.getElementById("tab-c").hidden = !isU("chron");
-  document.getElementById("tab-t").hidden = !(isU("council") || isU("trade"));
+  document.getElementById("tab-t").hidden = !(isU("council") || isU("trade") || Object.keys(G.items).length);
   document.getElementById("stance").hidden = !isU("stance");
   document.querySelectorAll("#qty [data-q]").forEach(b => (b.hidden = !isU("qty")));
   document.querySelector("#qty .mode").hidden = !isU("sell");
   document.getElementById("qty").hidden = tab !== "b" || (!isU("qty") && !isU("sell"));
   if (!isU("sell") && mode === "sell") mode = "buy";
-  if ((tab === "u" && !isU("upg")) || (tab === "c" && !isU("chron")) || (tab === "t" && !(isU("council") || isU("trade")))) { tab = "b"; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.tab === "b")); }
+  if ((tab === "u" && !isU("upg")) || (tab === "c" && !isU("chron")) || (tab === "t" && !(isU("council") || isU("trade") || Object.keys(G.items).length))) { tab = "b"; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.tab === "b")); }
 }
 let buildSig = "";
 const revealed = b => owned(b.id) > 0 || G.run >= b.cost * 0.4 || G.deniers >= b.cost * 0.4;
@@ -2140,7 +2244,7 @@ function frame(now) {
   achAcc += dt; if (achAcc > 1) { achAcc = 0; checkAch(); checkUnlocks(); checkCaravans(); lbTick();
     const sig = BLD.map(b => (b.era <= G.era && revealed(b) ? 1 : 0)).join(""); if (sig !== buildSig) { buildSig = sig; if (tab === "b") render(); } }
   if (EXP.open) { xUpdate(dt); if (EXP.open) xRender(); }
-  if (!wisp && !EXP.open && isU("wisps") && now > nextWisp) { spawnWisp(now); nextWisp = now + (50000 + Math.random() * 70000) * (hasNode("follets") ? 0.5 : 1) * seasonMult("wisp"); }
+  if (!wisp && !EXP.open && isU("wisps") && now > nextWisp) { spawnWisp(now); nextWisp = now + (50000 + Math.random() * 70000) * (hasNode("follets") ? 0.5 : 1) * seasonMult("wisp") * (1 - Math.min(0.6, itemBonus("wisp"))); }
   acc += dt; if (acc > 0.25) { acc = 0; refreshNumbers(); }
   if (W > 1 && !EXP.open) drawScene(now);
   requestAnimationFrame(frame);
