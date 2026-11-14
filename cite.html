@@ -482,7 +482,7 @@ function geom() {
   const y0 = H * 0.88; let bw = W * 0.98, bh = bw / BUT.ar; const maxH = y0 - H * 0.16;
   if (bh > maxH) { bh = maxH; bw = bh * BUT.ar; }
   const bx = (W - bw) / 2, by = y0 - bh * 0.97, py = by + bh * BUT.top, pl = bx + bw * BUT.pl, pr = bx + bw * BUT.pr;
-  return { y0, py, u: (pr - pl) / 200, pl, pr, sl: bx + bw * 0.04, sr: bx + bw * 0.96, bx, by, bw, bh };
+  return { y0, py, u: (pr - pl) / 150, pl, pr, sl: bx + bw * 0.04, sr: bx + bw * 0.96, bx, by, bw, bh };
 }
 const bp = (g, fx, fy) => [g.bx + g.bw * fx, g.by + g.bh * fy];
 function buttePath(g) {
@@ -503,7 +503,7 @@ function sprite(k, cx, by, h, flip) {
   else c.drawImage(im, cx - w / 2, by - h, w, h);
   return true;
 }
-function spriteGlows(cx, by, w, h, k, n) { if (n > 0.5) for (let i = 0; i < k; i++) glowPts.push({ x: cx + (hsh(i, 97 + k) - 0.5) * w * 0.7, y: by - h * (0.2 + hsh(i, 98 + k) * 0.5), r: Math.max(4, Math.min(w * 0.08, 9)), wx: 0, wy: 0, ww: 0, wh: 0 }); }
+function spriteGlows(cx, by, w, h, k, n) { if (n > 0.5) for (let i = 0; i < k; i++) glowPts.push({ x: cx + (hsh(i, 97 + k) - 0.5) * w * 0.7, y: by - h * (0.2 + hsh(i, 98 + k) * 0.5), r: Math.max(3, Math.min(w * 0.06, 6)), wx: 0, wy: 0, ww: 0, wh: 0 }); }
 /* --- Bâtiments (dessinés une fois dans les calques jour / nuit) --- */
 let glowPts = [];
 function wallBox(x, y, w, h, col) {
@@ -542,7 +542,7 @@ function oxShape(x, y, s, color) {
 }
 function archDoor(x, y, w, h, col) { c.fillStyle = col; c.beginPath(); c.moveTo(x - w / 2, y); c.lineTo(x - w / 2, y - h + w / 2); c.quadraticCurveTo(x - w / 2, y - h, x, y - h - w * 0.15); c.quadraticCurveTo(x + w / 2, y - h, x + w / 2, y - h + w / 2); c.lineTo(x + w / 2, y); c.fill(); }
 function drawResidence(x, y, u, stone, dark, n) {
-  if (sprite("res", x, y + 2 * u, 40 * u)) { spriteGlows(x, y, 43 * u, 40 * u, 5, n); return; }
+  if (sprite("res", x, y + 2 * u, 32 * u)) { spriteGlows(x, y, 34 * u, 32 * u, 4, n); return; }
   crenel(x - 22 * u, y, 44 * u, 14 * u, u, stone);
   crenel(x - 6 * u, y - 14 * u, 13 * u, 18 * u, u, stone);
   c.fillStyle = "rgba(0,0,0,.18)"; c.fillRect(x + 3 * u, y - 32 * u, 4 * u, 18 * u);
@@ -553,7 +553,7 @@ function drawResidence(x, y, u, stone, dark, n) {
   c.fillStyle = "#3b5e9a"; c.fillRect(x, y - 42 * u, 6 * u, 3.5 * u); c.fillStyle = "#e0ad4a"; c.fillRect(x + 2 * u, y - 41 * u, 2 * u, 1.5 * u);
 }
 function drawCathedral(x, y, u, stone, dark, n) {
-  if (sprite("cath", x + 5 * u, y + 3 * u, 58 * u)) { spriteGlows(x + 5 * u, y, 104 * u, 58 * u, 9, n); return; }
+  if (sprite("cath", x + 3 * u, y + 3 * u, 44 * u)) { spriteGlows(x + 3 * u, y, 78 * u, 44 * u, 7, n); return; }
   // nef et contreforts
   wallBox(x - 14 * u, y - 30 * u, 54 * u, 30 * u, stone);
   c.fillStyle = dark; c.beginPath(); c.moveTo(x - 15 * u, y - 30 * u); c.lineTo(x + 13 * u, y - 43 * u); c.lineTo(x + 41 * u, y - 30 * u); c.fill();
@@ -580,7 +580,7 @@ function drawCathedral(x, y, u, stone, dark, n) {
   }
 }
 function drawCitadel(x, y, u, stone, dark, n) {
-  if (sprite("cit", x, y + 2 * u, 24 * u)) { spriteGlows(x, y, 30 * u, 24 * u, 3, n); return; }
+  if (sprite("cit", x, y + 2 * u, 18 * u)) { spriteGlows(x, y, 22 * u, 18 * u, 3, n); return; }
   c.fillStyle = stone; c.beginPath();
   c.moveTo(x - 24 * u, y); c.lineTo(x - 20 * u, y - 13 * u); c.lineTo(x - 9 * u, y - 10 * u); c.lineTo(x, y - 16 * u); c.lineTo(x + 9 * u, y - 10 * u); c.lineTo(x + 20 * u, y - 13 * u); c.lineTo(x + 24 * u, y); c.closePath(); c.fill();
   c.fillStyle = "rgba(0,0,0,.2)"; c.beginPath(); c.moveTo(x, y - 16 * u); c.lineTo(x + 9 * u, y - 10 * u); c.lineTo(x + 20 * u, y - 13 * u); c.lineTo(x + 24 * u, y); c.lineTo(x, y); c.fill();
@@ -695,7 +695,7 @@ function drawLand(g, n) {
   c.strokeStyle = "#cdb98f"; c.lineWidth = 3.2 * u; c.stroke();
   c.setLineDash([1.6 * u, 1.4 * u]); c.strokeStyle = "rgba(110,90,62,.55)"; c.lineWidth = 2.4 * u; c.stroke(); c.setLineDash([]);
   for (let i = 1; i < road.length - 1; i++) { const [x, y] = road[i]; c.fillStyle = "#e6d6b2"; c.beginPath(); c.arc(x, y, 1.9 * u, 0, Math.PI * 2); c.fill(); }
-  for (let i = 0; i < road.length - 1; i++) { const [x0, y0r] = road[i], [x1, y1r] = road[i + 1]; for (let k = 1; k < 3; k++) { const x = x0 + (x1 - x0) * k / 3, y = y0r + (y1r - y0r) * k / 3; c.fillStyle = "rgba(255,190,100,.9)"; c.fillRect(x + 2.6 * u, y - 3.6 * u, 0.9 * u, 3.4 * u); if (n > 0.5) glowPts.push({ x: x + 3 * u, y: y - 3.6 * u, r: 6 * u, wx: 0, wy: 0, ww: 0, wh: 0 }); } }
+  for (let i = 0; i < road.length - 1; i++) { const [x0, y0r] = road[i], [x1, y1r] = road[i + 1]; { const x = (x0 + x1) / 2, y = (y0r + y1r) / 2; c.fillStyle = "#4a3828"; c.fillRect(x + 2.4 * u, y - 4 * u, 0.6 * u, 4 * u); c.fillStyle = "rgba(255,200,110,.95)"; c.fillRect(x + 2.1 * u, y - 4.8 * u, 1.2 * u, 1.2 * u); if (n > 0.5) glowPts.push({ x: x + 2.7 * u, y: y - 4.2 * u, r: 3 * u, wx: 0, wy: 0, ww: 0, wh: 0 }); } }
   // tas de pierres taillées
   for (let i = 0; i < Math.min(5, owned("tailleurs")); i++) { const x = W * 0.3 + i * 9 * u, y = g.y0 + 3 * u; wallBox(x, y - 4 * u, 6 * u, 4 * u, "#d8c8a6"); wallBox(x + 1.5 * u, y - 7 * u, 4 * u, 3 * u, "#e2d4b4"); }
   // gare, voie ferrée et câble du POMA
@@ -708,7 +708,7 @@ function drawLand(g, n) {
   }
   if (owned("poma") > 0) { const ax = W * 0.88, ay = g.y0 - 4 * u, bx = g.pl + span * 0.86, by = g.py - 1 * u; c.strokeStyle = "rgba(30,26,24,.9)"; c.lineWidth = Math.max(1, u * 0.6); c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke(); }
   // ville haute
-  const stone = "#d8cab0", dark = "#4a3c36";
+  const stone = SPR.butte ? "#c8ad84" : "#d8cab0", dark = SPR.butte ? "#3e3028" : "#4a3c36";
   const nm = Math.min(24, owned("masure") + owned("puits")), nh = Math.min(10, owned("hotel"));
   const order = [...Array(nm + nh).keys()].sort((a, b) => hsh(b, 13) - hsh(a, 13));
   for (const i of order) {
@@ -716,12 +716,12 @@ function drawLand(g, n) {
     const w = (7 + hsh(i, 11) * 5) * u, h = (6 + hsh(i, 12) * 5) * u, y = g.py - hsh(i, 13) * (SPR.butte ? 7 : 3) * u, hotel = i >= nm;
     const wall = hotel ? "#e4d8bf" : ["#cdb48e", "#d6c29c", "#c4a882", "#dccaa6"][i % 4];
     const roof = hotel ? "#4c5568" : ["#9a4a34", "#a8583c", "#8a4030", "#b06a48"][(i * 3) % 4];
-    if (SPR.maison && SPR.hotel) { const hh = (hotel ? 19 : 12) * u * (0.85 + hsh(i, 14) * 0.3); sprite(hotel ? "hotel" : "maison", x, y + 1 * u, hh, hsh(i, 15) > 0.5); if (hsh(i, 9) > 0.3) spriteGlows(x, y, hh * 0.8, hh, 1 + (i % 2), n); }
+    if (SPR.maison && SPR.hotel) { const d = hsh(i, 13), yy = g.py - d * 9 * u, hh = (hotel ? 13 : 9) * u * (1 - d * 0.3) * (0.9 + hsh(i, 14) * 0.2); sprite(hotel ? "hotel" : "maison", x, yy + 1 * u, hh, hsh(i, 15) > 0.5); if (hsh(i, 9) > 0.4) spriteGlows(x, yy, hh * 0.8, hh, 1, n); }
     else house(x, y, hotel ? w * 1.2 : w, hotel ? h * 1.5 : h, wall, roof, n, i, hotel);
   }
   if (owned("puits") > 0) { const x = g.pl + span * 0.2; c.fillStyle = "#9a8a72"; c.fillRect(x - 3 * u, g.py - 3 * u, 6 * u, 3 * u); c.strokeStyle = "#6b4a2b"; c.lineWidth = Math.max(1, u * 0.6); c.beginPath(); c.moveTo(x - 3 * u, g.py - 3 * u); c.lineTo(x - 3 * u, g.py - 8 * u); c.lineTo(x + 3 * u, g.py - 8 * u); c.lineTo(x + 3 * u, g.py - 3 * u); c.stroke(); }
   for (let i = 0; i < Math.min(4, owned("marche")); i++) { const x = g.pl + span * (0.3 + i * 0.035); c.fillStyle = dark; c.fillRect(x - 0.4 * u, g.py - 6 * u, 0.8 * u, 6 * u); c.fillRect(x + 5.6 * u, g.py - 6 * u, 0.8 * u, 6 * u); const cl = ["#b5352a", "#e0ad4a", "#3d5f8a", "#4e7a46"][i]; c.fillStyle = cl; c.fillRect(x - 1 * u, g.py - 8.5 * u, 8 * u, 2.6 * u); c.fillStyle = "rgba(255,255,255,.35)"; for (let s = 0; s < 4; s += 2) c.fillRect(x - 1 * u + s * 2 * u, g.py - 8.5 * u, 2 * u, 2.6 * u); }
-  [0.04, 0.66, 0.99].slice(0, Math.min(3, owned("guet"))).forEach(f => { const x = g.pl + span * f; if (sprite("tour", x, g.py + 1 * u, 32 * u)) { spriteGlows(x, g.py, 8 * u, 32 * u, 1, n); return; } crenel(x - 3.5 * u, g.py, 7 * u, 28 * u, u * 0.7, stone); c.fillStyle = "rgba(0,0,0,.2)"; c.fillRect(x + 1.5 * u, g.py - 28 * u, 2 * u, 28 * u); litWindow(x - 1 * u, g.py - 22 * u, 2 * u, 4 * u, n); });
+  [0.04, 0.66, 0.99].slice(0, Math.min(3, owned("guet"))).forEach(f => { const x = g.pl + span * f; if (sprite("tour", x, g.py + 1 * u, 24 * u)) { spriteGlows(x, g.py, 6 * u, 24 * u, 1, n); return; } crenel(x - 3.5 * u, g.py, 7 * u, 28 * u, u * 0.7, stone); c.fillStyle = "rgba(0,0,0,.2)"; c.fillRect(x + 1.5 * u, g.py - 28 * u, 2 * u, 28 * u); litWindow(x - 1 * u, g.py - 22 * u, 2 * u, 4 * u, n); });
   if (owned("commanderie") > 0) {
     const x = g.pl + span * 0.28, y = g.py;
     c.fillStyle = stone; c.beginPath(); c.moveTo(x - 7 * u, y); c.lineTo(x - 7 * u, y - 9 * u); c.lineTo(x - 4 * u, y - 12 * u); c.lineTo(x + 4 * u, y - 12 * u); c.lineTo(x + 7 * u, y - 9 * u); c.lineTo(x + 7 * u, y); c.fill();
@@ -738,7 +738,7 @@ function drawLand(g, n) {
   for (let i = 0; i < Math.min(G.era, 3); i++) MONUMENT_DRAW[i](g, stone, dark, n);
   drawPartialMonument(g, stone, dark, n);
   if (seasonIdx() === 3) { c.fillStyle = "rgba(240,244,250,.55)"; for (let i = 0; i < 90; i++) c.fillRect(g.pl + hsh(i, 95) * span - 4 * u, g.py - hsh(i, 96) * 16 * u, 6 * u, 1.2 * u); }
-  if (owned("remparts") > 0) crenel(g.pl - 4 * u, g.py + 3 * u, span + 8 * u, 6 * u, u * 0.8, "#c8b896");
+  if (owned("remparts") > 0) crenel(g.pl - 4 * u, g.py + 3 * u, span + 8 * u, 6 * u, u * 0.8, SPR.butte ? "#bfa27a" : "#c8b896");
   [g.pl - 2 * u, g.pr + 2 * u].slice(0, Math.min(2, owned("porte"))).forEach(x => {
     wallBox(x - 5 * u, g.py - 11 * u, 4 * u, 14 * u, stone); wallBox(x + 1 * u, g.py - 11 * u, 4 * u, 14 * u, stone);
     c.fillStyle = "#3e4656"; for (const dx of [-3, 3]) { c.beginPath(); c.moveTo(x + (dx - 2.6) * u, g.py - 11 * u); c.lineTo(x + dx * u, g.py - 18 * u); c.lineTo(x + (dx + 2.6) * u, g.py - 11 * u); c.fill(); }
@@ -755,7 +755,7 @@ function renderStatic() {
     c = cvs.getContext("2d"); c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, W, H); glowPts = [];
     drawLand(g, night ? 1 : 0);
     if (night) {
-      c.globalCompositeOperation = "source-atop"; c.fillStyle = "rgba(14,18,46,.68)"; c.fillRect(0, 0, W, H);
+      c.globalCompositeOperation = "source-atop"; c.fillStyle = "rgba(16,22,58,.6)"; c.fillRect(0, 0, W, H);
       c.globalCompositeOperation = "lighter";
       for (const p of glowPts) { const gg = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); gg.addColorStop(0, "rgba(255,180,90,.5)"); gg.addColorStop(1, "rgba(255,180,90,0)"); c.fillStyle = gg; c.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2); }
       c.globalCompositeOperation = "source-over";
@@ -765,6 +765,17 @@ function renderStatic() {
   c = main;
 }
 
+// aperçu du prochain monument : silhouette de lumière pâle, dessinée hors écran puis teintée
+const ghostCv = document.createElement("canvas");
+function drawGhost(g, t) {
+  if (G.era >= 3 || !SPR.cath) { c.save(); c.globalAlpha = 0.18 + 0.08 * Math.sin(t * 2); MONUMENT_DRAW[G.era](g, "rgba(200,230,255,1)", "rgba(120,160,210,1)", 0, t); c.restore(); return; }
+  ghostCv.width = cv.width; ghostCv.height = cv.height; const gc = ghostCv.getContext("2d"), main = c;
+  c = gc; c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, W, H);
+  MONUMENT_DRAW[G.era](g, "#fff", "#fff", 0, t);
+  c.globalCompositeOperation = "source-in"; c.fillStyle = "rgb(200,228,255)"; c.fillRect(0, 0, W, H);
+  if (G.monStage > 0) { c.globalCompositeOperation = "destination-out"; const MH = [32, 46, 20][G.era] * g.u, h = MH * (G.monStage / 4) + 2 * g.u; c.fillRect(0, g.py - h, W, h + 10 * g.u); }
+  c = main; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 0.16 + 0.07 * Math.sin(t * 2); c.drawImage(ghostCv, 0, 0); c.restore();
+}
 function drawScene(now) {
   c.setTransform(DPR, 0, 0, DPR, 0, 0);
   const t = now / 1000, g = geom(), u = g.u, span = g.pr - g.pl;
@@ -810,13 +821,13 @@ function drawScene(now) {
     if (n > 0.2) { c.fillStyle = `rgba(255,220,140,${n})`; c.fillRect(x - 3 * u, y - 4 * u, 6 * u, 1.6 * u); }
   }
   if (G.era >= 4) MONUMENT_DRAW[3](g, "", "", n, t);
-  if (G.era < 4) { c.save(); c.globalAlpha = 0.2 + 0.1 * Math.sin(t * 2); MONUMENT_DRAW[G.era](g, "rgba(200,230,255,1)", "rgba(120,160,210,1)", 0, t); c.restore(); }
+  if (G.era < 4) drawGhost(g, t);
 
   drawSiege(g, t);
   drawRaid(g, n);
   drawHazard(g, t);
   drawVisit(g, t);
-  drawWeather(g, t);
+  drawWeather(g, t, n);
   // feu follet / bœuf de lumière
   if (wisp) {
     const age = (now - wisp.born) / 1000;
@@ -1853,9 +1864,10 @@ function tickSeason(dt) {
   lastSeason = s;
 }
 const flakes = [];
-function drawWeather(g, t) {
+function drawWeather(g, t, n) {
   if (!isU("seasons")) return; const s = seasonIdx(); if (s === 1) return;
-  if (flakes.length < 60) flakes.push({ x: Math.random() * W, y: -10, v: 10 + Math.random() * 20, ph: Math.random() * 6 });
+  if (s !== 3 && n > 0.5) return;
+  if (flakes.length < (s === 3 ? 60 : 24)) flakes.push({ x: Math.random() * W, y: -10, v: 10 + Math.random() * 20, ph: Math.random() * 6 });
   for (const f of flakes) {
     f.y += f.v / 60; f.x += Math.sin(t + f.ph) * 0.4; if (f.y > H) { f.y = -10; f.x = Math.random() * W; }
     if (s === 3) { c.fillStyle = "rgba(255,255,255,.85)"; c.beginPath(); c.arc(f.x, f.y, 1.6, 0, Math.PI * 2); c.fill(); }
@@ -1893,8 +1905,8 @@ function buyStage() {
 }
 function drawPartialMonument(g, stone, dark, n) {
   if (G.era > 2 || !G.monStage) return;
-  const u = g.u, MH = [46, 80, 32][G.era] * u, h = MH * (G.monStage / 4) + 2 * u;
-  const xc = g.pl + (g.pr - g.pl) * [0.16, 0.46, 0.93][G.era] + [0, 5, 0][G.era] * u, w = [48, 76, 50][G.era] * u;
+  const sp = !!SPR.cath, u = g.u, MH = (sp ? [32, 46, 20] : [46, 80, 32])[G.era] * u, h = MH * (G.monStage / 4) + 2 * u;
+  const xc = g.pl + (g.pr - g.pl) * [0.16, 0.46, 0.93][G.era] + [0, sp ? 3 : 5, 0][G.era] * u, w = (sp ? [36, 80, 24] : [48, 76, 50])[G.era] * u;
   c.save(); c.beginPath(); c.rect(0, g.py - h, W, h + 8 * u); c.clip(); MONUMENT_DRAW[G.era](g, stone, dark, n); c.restore();
   c.strokeStyle = "#7a5634"; c.lineWidth = Math.max(1, u * 0.6);
   for (let x = xc - w / 2; x <= xc + w / 2 + 0.1; x += 7 * u) { c.beginPath(); c.moveTo(x, g.py); c.lineTo(x, g.py - h - 6 * u); c.stroke(); }
